@@ -1,0 +1,109 @@
+[ {
+  "id" : 1,
+  "name" : "Ponyta",
+  "type" : "FIRE",
+  "maxHp" : 50,
+  "currentHp" : 50,
+  "attacks" : [ {
+    "name" : "Flame Wheel",
+    "type" : "FIRE",
+    "baseDamage" : 60,
+    "accuracy" : 100
+  } ]
+}, {
+  "id" : 2,
+  "name" : "Horsea",
+  "type" : "WATER",
+  "maxHp" : 30,
+  "currentHp" : 30,
+  "attacks" : [ {
+    "name" : "Water Gun",
+    "type" : "WATER",
+    "baseDamage" : 40,
+    "accuracy" : 100
+  } ]
+}, {
+  "id" : 3,
+  "name" : "Turtwig",
+  "type" : "GRASS",
+  "maxHp" : 55,
+  "currentHp" : 55,
+  "attacks" : [ {
+    "name" : "Razor Leaf",
+    "type" : "GRASS",
+    "baseDamage" : 55,
+    "accuracy" : 95
+  } ]
+}, {
+  "id" : 4,
+  "name" : "Electabuzz",
+  "type" : "ELECTRIC",
+  "maxHp" : 65,
+  "currentHp" : 65,
+  "attacks" : [ {
+    "name" : "Thunder Shock",
+    "type" : "ELECTRIC",
+    "baseDamage" : 40,
+    "accuracy" : 100
+  } ]
+}, {
+  "id" : 5,
+  "name" : "Meowth",
+  "type" : "NORMAL",
+  "maxHp" : 40,
+  "currentHp" : 40,
+  "attacks" : [ {
+    "name" : "Scratch",
+    "type" : "NORMAL",
+    "baseDamage" : 40,
+    "accuracy" : 100
+  } ]
+}, {
+  "id" : 6,
+  "name" : "Snorunt",
+  "type" : "ICE",
+  "maxHp" : 50,
+  "currentHp" : 50,
+  "attacks" : [ {
+    "name" : "Ice Shard",
+    "type" : "ICE",
+    "baseDamage" : 40,
+    "accuracy" : 100
+  } ]
+}, {
+  "id" : 7,
+  "name" : "Mewtwo",
+  "type" : "PSYCHIC",
+  "maxHp" : 106,
+  "currentHp" : 106,
+  "attacks" : [ {
+    "name" : "Psychic",
+    "type" : "PSYCHIC",
+    "baseDamage" : 90,
+    "accuracy" : 100
+  } ]
+}, {
+  "id" : 8,
+  "name" : "Shelmet",
+  "type" : "BUG",
+  "maxHp" : 50,
+  "currentHp" : 50,
+  "attacks" : [ {
+    "name" : "Skitter Smack",
+    "type" : "BUG",
+    "baseDamage" : 70,
+    "accuracy" : 90
+  } ]
+}, {
+  "id" : 9,
+  "name" : "Clefairy",
+  "type" : "FAIRY",
+  "maxHp" : 70,
+  "currentHp" : 70,
+  "attacks" : [ {
+    "name" : "Fairy Wind",
+    "type" : "FAIRY",
+    "baseDamage" : 40,
+    "accuracy" : 100
+  } ]
+} ]
