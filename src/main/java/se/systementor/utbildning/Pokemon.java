@@ -4,19 +4,21 @@ import se.systementor.utbildning.exception.InvalidAttackException;
 import se.systementor.utbildning.exception.InvalidPokemonException;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Pokemon {
     // Gör fälten private så att de inte kan ändras direkt utifrån.
-    private int id;
-    private String name;
-    private Type type;
-    private int maxHp;
+    private final int id;
+    private final String name;
+    private final Type type;
+    private final int maxHp;
     private int currentHp;
-    private ArrayList<Attack> attacks = new ArrayList<>();
+
+    private final List<Attack> attacks = new ArrayList<>();
 
     // Behövs för att Jackson ska kunna läsa in från JSON.
-    public Pokemon() {
-    }
+//    public Pokemon() {
+//    }
 
     @Override
     public String toString() {
@@ -51,52 +53,60 @@ public class Pokemon {
         return pokemonDetails.toString();
     }
 
-    // Använder setters så att värdena valideras direkt när en Pokemon skapas.
-    public Pokemon(int id, String name, Type type, int maxHp, int currentHp) {
-        setId(id);
-        setName(name);
-        setType(type);
-        setMaxAndCurrentHp(maxHp);
-        setCurrentHp(currentHp);
+    public Pokemon(int id, String name, Type type, int maxHp) {
+        validateId(id);
+        validateName(name);
+        validateType(type);
+        validateMaxHp(maxHp);
+
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.maxHp = maxHp;
+        this.currentHp = maxHp;
     }
 
     public int getId() {
-        return this.id;
+        return id;
     }
 
     public String getName() {
-        return this.name;
+        return name;
     }
 
     public Type getType() {
-        return this.type;
+        return type;
     }
 
     public int getMaxHp() {
-        return this.maxHp;
+        return maxHp;
     }
 
     public int getCurrentHp() {
-        return this.currentHp;
+        return currentHp;
     }
 
     // Skickar tillbaka en kopia så att original-listan inte kan ändras utifrån.
-    public ArrayList<Attack> getAttacks() {
-        return new ArrayList<>(attacks);
+    public List<Attack> getAttacks() {
+        return List.copyOf(attacks);
     }
 
     // Kollar att listan har rätt antal attacker innan den sparas.
-    public void setAttacks(ArrayList<Attack> attacks) {
-        if (attacks == null || attacks.isEmpty() || attacks.size() > 4) {
-            throw new InvalidAttackException("En Pokemon måste ha mellan 1 och 4 attacker.");
+    public void changeAttacks(List<Attack> newAttacks) {
+        if (newAttacks == null || newAttacks.isEmpty() || newAttacks.size() > 4) {
+            throw new InvalidAttackException(
+                    "En Pokemon måste ha mellan 1 och 4 attacker."
+            );
         }
 
-        if (attacks.contains(null)) {
-            throw new InvalidAttackException("Attacklistan får inte innehålla null.");
+        if (newAttacks.contains(null)) {
+            throw new InvalidAttackException(
+                    "Attacklistan får inte innehålla null."
+            );
         }
 
-        // Sparar en kopia så att ändringar utanför Pokemon inte påverkar listan här.
-        this.attacks = new ArrayList<>(attacks);
+        attacks.clear();
+        attacks.addAll(newAttacks);
     }
 
     public void addAttack(Attack attack) {
@@ -132,65 +142,70 @@ public class Pokemon {
         attacks.remove(attack);
     }
 
-    public void setId(int id) {
-        // ID måste vara positivt för att vara giltigt.
-        if (id <= 0) {
-            throw new InvalidPokemonException("ID måste vara större än 0.");
+    public void takeDamage(int damage) {
+        if (damage < 0) {
+            throw new IllegalArgumentException(
+                    "Skada får inte vara negativ."
+            );
         }
 
-        this.id = id;
+        currentHp = Math.max(0, currentHp - damage);
     }
 
-    public void setName(String name) {
-        // Ser till att namnet inte är tomt.
-        if (name == null || name.isBlank()) {
-            throw new InvalidPokemonException("Namnet får inte vara tomt.");
+    public void heal(int amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException(
+                    "Healing får inte vara negativ."
+            );
         }
 
-        // Kollar att namnet bara innehåller tillåtna tecken.
+        currentHp = Math.min(maxHp, currentHp + amount);
+    }
+
+    public void restoreHealth() {
+        currentHp = maxHp;
+    }
+
+    public boolean isKnockedOut() {
+        return currentHp == 0;
+    }
+
+    private void validateId(int id) {
+        if (id <= 0) {
+            throw new InvalidPokemonException(
+                    "ID måste vara större än 0."
+            );
+        }
+    }
+
+    private void validateName(String name) {
+        if (name == null || name.isBlank()) {
+            throw new InvalidPokemonException(
+                    "Namnet får inte vara tomt."
+            );
+        }
+
         if (!name.matches("[a-zA-ZåäöÅÄÖ ]+")) {
             throw new InvalidPokemonException(
                     "Namnet får bara innehålla bokstäver och mellanslag."
             );
         }
-
-        this.name = name;
     }
 
-    public void setType(Type type) {
-        // En Pokemon måste alltid ha en typ.
+    private void validateType(Type type) {
         if (type == null) {
-            throw new InvalidPokemonException("Typ får inte vara null.");
-        }
-
-        this.type = type;
-    }
-
-    public void setCurrentHp(int currentHp) {
-        // Ser till att currentHp är mellan 0 och maxHp.
-        if (currentHp < 0 || currentHp > maxHp) {
             throw new InvalidPokemonException(
-                    "Nuvarande HP måste vara mellan 0 och Max HP."
+                    "Typ får inte vara null."
             );
         }
-
-        this.currentHp = currentHp;
     }
 
-    // Sätter currentHp till samma värde som maxHp.
-    public void setMaxAndCurrentHp(int maxHp) {
-        // Ser till att maxHp är mellan 1 och 999.
-        if (maxHp <= 0) {
-            throw new InvalidPokemonException("Max HP måste vara större än 0.");
+
+    private void validateMaxHp(int maxHp) {
+        if (maxHp < 1 || maxHp > 999) {
+            throw new InvalidPokemonException(
+                    "Max HP måste vara mellan 1 och 999."
+            );
         }
-
-        if (maxHp > 999) {
-            throw new InvalidPokemonException("Max HP får inte vara mer än 999.");
-        }
-
-        this.maxHp = maxHp;
-
-        // När max HP ändras sätts currentHp till samma värde.
-        setCurrentHp(maxHp);
     }
 }

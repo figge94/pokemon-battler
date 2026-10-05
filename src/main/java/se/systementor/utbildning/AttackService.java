@@ -3,6 +3,7 @@ package se.systementor.utbildning;
 import se.systementor.utbildning.exception.InvalidAttackException;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class AttackService {
@@ -63,7 +64,7 @@ public class AttackService {
     // Tar bort en attack från vald Pokemon.
     public static void removeAttackFromPokemon(Pokemon pokemon, Scanner scanner) {
         // Hämtar en kopia av Pokemons attacker för att kunna visa dem.
-        ArrayList<Attack> attacks = pokemon.getAttacks();
+        List<Attack> attacks = pokemon.getAttacks();
 
         // Stoppar borttagning om Pokemon bara har en attack kvar.
         if (attacks.size() <= 1) {

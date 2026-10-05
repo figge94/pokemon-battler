@@ -28,7 +28,7 @@ public class Main {
                     scanner,
                     "\nVad vill du göra? ",
                     1,
-                    9
+                    10
             );
 
             switch (choice) {

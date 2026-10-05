@@ -14,7 +14,7 @@ import java.util.Scanner;
 public class PokemonFileService {
 
     // Sparar listan med Pokemon till standardfilen pokemon.json.
-    public static void savePokemonsToFile(ArrayList<Pokemon> pokemons) {
+    public static void savePokemonsToFile(List<Pokemon> pokemons) {
         Path path = Path.of("pokemon.json");
 
         try {
@@ -30,7 +30,7 @@ public class PokemonFileService {
 
     // Skriver Pokemon-listan till den angivna JSON-filen.
     private static void writePokemonsToFile(
-            ArrayList<Pokemon> pokemons,
+            List<Pokemon> pokemons,
             Path path
     ) {
         // Använder ObjectMapper för att göra om Java-objekt till JSON.
@@ -51,7 +51,7 @@ public class PokemonFileService {
     }
 
     // Laddar sparad data om pokemon.json finns, annars laddas seed-filen.
-    static ArrayList<Pokemon> loadInitialPokemons(
+    public static List<Pokemon> loadInitialPokemons(
             Path path,
             Path seedPath
     ) {
@@ -61,7 +61,7 @@ public class PokemonFileService {
             }
 
             // Om ingen sparad fil finns laddas startdata från seed-filen istället.
-            ArrayList<Pokemon> pokemons = loadPokemonsFromFile(seedPath);
+            List<Pokemon> pokemons = loadPokemonsFromFile(seedPath);
 
             System.out.println("Inga sparade pokemons finns. Startpokemons har laddats in.");
             return pokemons;
@@ -73,7 +73,7 @@ public class PokemonFileService {
     }
 
     // Läser Pokemon-data från den angivna JSON-filen.
-    public static ArrayList<Pokemon> loadPokemonsFromFile(Path path) {
+    public static List<Pokemon> loadPokemonsFromFile(Path path) {
 
         // Om filen inte finns returneras en tom lista.
         if (!Files.exists(path)) {
@@ -103,9 +103,9 @@ public class PokemonFileService {
     }
 
     // Laddar Pokemon-data från fil om filen finns.
-    public static ArrayList<Pokemon> loadPokemons(
+    public static List<Pokemon> loadPokemons(
             Path path,
-            ArrayList<Pokemon> pokemons
+            List<Pokemon> pokemons
     ) {
         // Behåller den nuvarande listan om ingen sparad fil finns.
         if (!Files.exists(path)) {
@@ -125,9 +125,9 @@ public class PokemonFileService {
     }
 
     // Återställer Pokemon-data från seed-filen efter bekräftelse.
-    public static ArrayList<Pokemon> resetPokemons(
+    public static List<Pokemon> resetPokemons(
             Scanner scanner,
-            ArrayList<Pokemon> pokemons,
+            List<Pokemon> pokemons,
             Path seedPath
     ) {
         // Frågar användaren innan den nuvarande datan ersätts med seed-datan.
