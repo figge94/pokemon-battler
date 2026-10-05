@@ -1,4 +1,4 @@
-# Pokedex
+# Pokemon Battler
 
 Ett konsolbaserat Java-program för att hantera Pokemon och deras attacker.
 
@@ -9,7 +9,7 @@ Projektet är ett Maven-projekt och kan köras i IntelliJ IDEA.
 1. Klona projektet från GitHub:
 
 ```
-git clone https://github.com/figge94/pokedex.git
+git clone https://github.com/figge94/pokemon-battler.git
 ```
 
 2. Öppna projektet i IntelliJ IDEA.
@@ -27,6 +27,7 @@ Om ingen sparad fil finns laddas Pokemon automatiskt in från seed-filen.
 Därefter visas huvudmenyn där användaren kan välja mellan olika funktioner:
 
 - **Visa alla Pokemon** visar alla Pokemon som finns i Pokedexen.
+- **Spela** visar en meny när det kommer till själva spelet.
 - **Sök Pokemon** låter användaren söka efter en Pokemon genom att skriva in dess namn.
 - **Lägg till Pokemon** skapar först ett nytt ID. Därefter får användaren skriva in namn, HP och typ. Om namnet redan finns går Pokemon inte att lägga till. När en typ väljs får Pokemon automatiskt en standardattack som hör till den valda typen.
 - **Redigera Pokemon** börjar med att användaren skriver namnet på den Pokemon som ska redigeras. En förhandsvisning visas och därefter öppnas en meny där användaren kan ändra namn, typ, nuvarande HP, max HP samt lägga till eller ta bort attacker.
@@ -46,6 +47,7 @@ Efter att Pokemon har lagts till, redigerats eller tagits bort kan användaren v
 | `Attack`             | Modellklass för attacker                    |
 | `PokemonService`     | Hanterar logik för Pokemon                  |
 | `AttackService`      | Hanterar logik för attacker                 |
+| `BattlerService`     | Visar programmets menyer                    |
 | `PokemonFileService` | Hanterar läsning och skrivning av JSON-data |
 | `InputHelper`        | Hanterar och validerar användarinput        |
 | `Menu`               | Visar programmets menyer                    |
