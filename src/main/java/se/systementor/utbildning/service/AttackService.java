@@ -1,6 +1,10 @@
-package se.systementor.utbildning;
+package se.systementor.utbildning.service;
 
+import se.systementor.utbildning.ui.InputHelper;
 import se.systementor.utbildning.exception.InvalidAttackException;
+import se.systementor.utbildning.model.Attack;
+import se.systementor.utbildning.model.Pokemon;
+import se.systementor.utbildning.model.Type;
 
 import java.util.List;
 import java.util.Scanner;

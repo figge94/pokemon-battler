@@ -1,4 +1,6 @@
-package se.systementor.utbildning;
+package se.systementor.utbildning.ui;
+
+import se.systementor.utbildning.model.Type;
 
 import java.util.Scanner;
 

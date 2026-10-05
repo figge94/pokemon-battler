@@ -1,4 +1,4 @@
-package se.systementor.utbildning;
+package se.systementor.utbildning.model;
 
 import se.systementor.utbildning.exception.InvalidAttackException;
 import se.systementor.utbildning.exception.InvalidPokemonException;

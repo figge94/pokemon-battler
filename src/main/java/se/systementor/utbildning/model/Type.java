@@ -1,4 +1,4 @@
-package se.systementor.utbildning;
+package se.systementor.utbildning.model;
 
 public enum Type {
     FIRE("Eld"),

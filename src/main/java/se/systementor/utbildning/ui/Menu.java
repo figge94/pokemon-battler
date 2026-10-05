@@ -1,4 +1,4 @@
-package se.systementor.utbildning;
+package se.systementor.utbildning.ui;
 
 public class Menu {
     // Visar programmets huvudmeny.

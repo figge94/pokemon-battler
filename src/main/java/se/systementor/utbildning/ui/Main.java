@@ -1,4 +1,8 @@
-package se.systementor.utbildning;
+package se.systementor.utbildning.ui;
+
+import se.systementor.utbildning.model.Pokemon;
+import se.systementor.utbildning.repository.PokemonFileService;
+import se.systementor.utbildning.service.PokemonService;
 
 import java.nio.file.Path;
 import java.util.List;
