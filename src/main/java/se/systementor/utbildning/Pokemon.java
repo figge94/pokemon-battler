@@ -3,6 +3,9 @@ package se.systementor.utbildning;
 import se.systementor.utbildning.exception.InvalidAttackException;
 import se.systementor.utbildning.exception.InvalidPokemonException;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,18 +19,14 @@ public class Pokemon {
 
     private final List<Attack> attacks = new ArrayList<>();
 
-    // Behövs för att Jackson ska kunna läsa in från JSON.
-//    public Pokemon() {
-//    }
-
     @Override
     public String toString() {
          StringBuilder pokemonDetails = new StringBuilder(
             String.format(
-                    "%d. Namn: %s | TYPE: %s | HP: %d/%d%n",
+                    "%d. Namn: %s | Typ: %s | HP: %d/%d%n",
                     getId(),
                     getName(),
-                    getType(),
+                    getType().getLabel(),
                     getCurrentHp(),
                     getMaxHp()
             )
@@ -46,14 +45,23 @@ public class Pokemon {
                     attack.getName(),
                     attack.getBaseDamage(),
                     attack.getAccuracy(),
-                    attack.getType()
+                    attack.getType().getLabel()
             )
             );
         }
         return pokemonDetails.toString();
     }
 
-    public Pokemon(int id, String name, Type type, int maxHp) {
+    // Jackson använder den här konstruktorn när Pokemon läses in från JSON.
+    // @JsonCreator visar vilken konstruktor som ska användas.
+    // @JsonProperty kopplar värden från JSON till rätt parameter.
+    @JsonCreator
+    public Pokemon(
+            @JsonProperty("id") int id,
+            @JsonProperty("name") String name,
+            @JsonProperty("type") Type type,
+            @JsonProperty("maxHp") int maxHp
+    ) {
         validateId(id);
         validateName(name);
         validateType(type);
