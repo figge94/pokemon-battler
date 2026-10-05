@@ -2,7 +2,6 @@ package se.systementor.utbildning;
 
 import se.systementor.utbildning.exception.InvalidAttackException;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 

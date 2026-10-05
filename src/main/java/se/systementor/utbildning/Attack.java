@@ -2,23 +2,34 @@ package se.systementor.utbildning;
 
 import se.systementor.utbildning.exception.InvalidAttackException;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Attack {
     // Gör fälten private så att de inte kan ändras direkt utifrån.
-    private String name;
-    private Type type;
-    private int baseDamage;
-    private int accuracy;
+    private final String name;
+    private final Type type;
+    private final int baseDamage;
+    private final int accuracy;
 
-    // Behövs för att Jackson ska kunna läsa in från JSON.
-    public Attack() {
-    }
+    // Validerar värdena direkt när en attack skapas.
+    // Jackson använder den här konstruktorn när Attack läses in från JSON.
+    @JsonCreator
+    public Attack(
+            @JsonProperty("name") String name,
+            @JsonProperty("baseDamage") int baseDamage,
+            @JsonProperty("accuracy") int accuracy,
+            @JsonProperty("type") Type type
+    ) {
+        validateName(name);
+        validateType(type);
+        validateBaseDamage(baseDamage);
+        validateAccuracy(accuracy);
 
-    // Använder setters så att värdena valideras direkt när en attack skapas.
-    public Attack(String name, int baseDamage, int accuracy, Type type) {
-        setName(name);
-        setType(type);
-        setBaseDamage(baseDamage);
-        setAccuracy(accuracy);
+        this.name = name;
+        this.type = type;
+        this.baseDamage = baseDamage;
+        this.accuracy = accuracy;
     }
 
     public String getName() {
@@ -37,7 +48,7 @@ public class Attack {
         return type;
     }
 
-    public void setName(String name) {
+    private void validateName(String name) {
         // Ser till att attacknamnet inte är tomt.
         if (name == null || name.isBlank()) {
             throw new InvalidAttackException("Attacknamnet får inte vara tomt.");
@@ -49,36 +60,29 @@ public class Attack {
                     "Namnet får bara innehålla bokstäver och mellanslag."
             );
         }
-
-        this.name = name;
     }
 
-    public void setType(Type type) {
+    private void validateType(Type type) {
         // En attack måste alltid ha en typ.
         if (type == null) {
             throw new InvalidAttackException("Attacktypen får inte vara null.");
         }
-
-        this.type = type;
     }
 
-    public void setBaseDamage(int baseDamage) {
+    private void validateBaseDamage(int baseDamage) {
         // Ser till att skadan är mellan 0 och 999.
         if (baseDamage < 0 || baseDamage > 999) {
             throw new InvalidAttackException(
                     "Skadan måste vara mellan 0 och 999."
             );
         }
-
-        this.baseDamage = baseDamage;
     }
 
-    public void setAccuracy(int accuracy) {
+    private void validateAccuracy(int accuracy) {
         // Ser till att träffsäkerheten är mellan 0 och 100.
         if (accuracy < 0 || accuracy > 100) {
             throw new InvalidAttackException("Träffsäkerheten måste vara mellan 0 och 100.");
         }
 
-        this.accuracy = accuracy;
     }
 }
