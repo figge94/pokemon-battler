@@ -2,6 +2,7 @@ package se.systementor.utbildning.ui;
 
 import se.systementor.utbildning.model.Pokemon;
 import se.systementor.utbildning.repository.PokemonFileService;
+import se.systementor.utbildning.service.BattleService;
 import se.systementor.utbildning.service.PokemonService;
 
 import java.nio.file.Path;
@@ -9,7 +10,27 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-    // Startar programmet och hanterar huvudmenyn
+
+    private static void handlePlayMenu(
+            List<Pokemon> pokemons,
+            Scanner scanner
+    ) {
+        Menu.showPlayMenu();
+
+        int playChoice = InputHelper.readIntInRange(
+                scanner,
+                "Välj: ",
+                1,
+                3
+        );
+
+        switch (playChoice) {
+            case 1 -> BattleService.startBattle(pokemons, scanner);
+            case 2 -> System.out.println("Visar resultat senare.");
+            case 3 -> System.out.println("Går tillbaka till huvudmenyn.");
+        }
+    }
+    // Startar programmet och hanterar huvudmenyn.
     public static void main(String[] args) {
         // Skapar Scanner för att läsa användarens input.
         Scanner scanner = new Scanner(System.in);
@@ -42,8 +63,8 @@ public class Main {
                     break;
 
                 case 2:
-                    // Spela
-                    Menu.showPlayMenu();
+                    // Hanterar menyn som man vill spela
+                    handlePlayMenu(pokemons, scanner);
                     break;
 
                 case 3:
