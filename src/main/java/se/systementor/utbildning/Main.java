@@ -1,7 +1,7 @@
 package se.systementor.utbildning;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -17,7 +17,7 @@ public class Main {
         Path seedPath = Path.of("pokemon-seed.json");
 
         // Läser in Pokemon från fil när programmet startar.
-        ArrayList<Pokemon> pokemons =
+        List<Pokemon> pokemons =
                 PokemonFileService.loadInitialPokemons(path, seedPath);
 
         // Huvudloopen körs tills användaren väljer att avsluta.
@@ -38,41 +38,46 @@ public class Main {
                     break;
 
                 case 2:
+                    // Spela
+                    Menu.showPlayMenu();
+                    break;
+
+                case 3:
                     // Söker efter en Pokemon.
                     PokemonService.searchPokemon(pokemons, scanner);
                     break;
 
-                case 3:
+                case 4:
                     // Lägger till en Pokemon.
                     PokemonService.addPokemon(pokemons, scanner);
                     break;
 
-                case 4:
+                case 5:
                     // Redigerar en Pokemon.
                     PokemonService.editPokemon(pokemons, scanner);
                     break;
 
-                case 5:
+                case 6:
                     // Tar bort en pokemon.
                     PokemonService.removePokemon(pokemons, scanner);
                     break;
 
-                case 6:
+                case 7:
                     // Sparar alla Pokemon till en JSON-filen.
                     PokemonFileService.savePokemonsToFile(pokemons);
                     break;
 
-                case 7:
+                case 8:
                     // Laddar Pokemon från fil.
                     pokemons = PokemonFileService.loadPokemons(path, pokemons);
                     break;
 
-                case 8:
+                case 9:
                     // Återställer till seedad data.
                     pokemons = PokemonFileService.resetPokemons(scanner, pokemons, seedPath);
                     break;
 
-                case 9:
+                case 10:
                     // Sparar automatiskt innan programmet avslutas.
                     PokemonFileService.savePokemonsToFile(pokemons);
                     System.out.println("Avslutar...");
