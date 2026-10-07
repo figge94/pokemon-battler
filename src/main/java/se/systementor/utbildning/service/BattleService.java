@@ -1,5 +1,6 @@
 package se.systementor.utbildning.service;
 
+import se.systementor.utbildning.model.Attack;
 import se.systementor.utbildning.model.Pokemon;
 import se.systementor.utbildning.ui.InputHelper;
 
@@ -58,5 +59,103 @@ public class BattleService {
 
         System.out.println("\nDu valde: " + playerPokemon.getName());
         System.out.println("En vild " + wildPokemon.getName() + " dök upp!");
+
+        while (!playerPokemon.isKnockedOut() && !wildPokemon.isKnockedOut()) {
+
+            Attack playerAttack = chooseAttack(playerPokemon, scanner);
+
+            attack(
+                    playerPokemon,
+                    wildPokemon,
+                    playerAttack
+            );
+
+            if (wildPokemon.isKnockedOut()) {
+                System.out.println(wildPokemon.getName() + " svimmade!");
+                break;
+            }
+
+            List<Attack> wildAttacks = wildPokemon.getAttacks();
+
+            Attack wildAttack = wildAttacks.get(
+                    new Random().nextInt(wildAttacks.size())
+            );
+
+            attack(
+                    wildPokemon,
+                    playerPokemon,
+                    wildAttack
+            );
+
+            if (playerPokemon.isKnockedOut()) {
+                System.out.println(playerPokemon.getName() + " svimmade!");
+            }
+        }
+
+
+    }
+
+    public static void attack(
+            Pokemon attacker,
+            Pokemon defender,
+            Attack attack
+    ) {
+        Random random = new Random();
+
+        int roll = random.nextInt(100) + 1;
+
+        if (roll > attack.getAccuracy()) {
+            System.out.println(
+                    attacker.getName()
+                            + " använder "
+                            + attack.getName()
+                            + " men missar!"
+            );
+            return;
+        }
+
+        int damage = attack.getBaseDamage();
+        defender.takeDamage(damage);
+
+        System.out.println(
+                attacker.getName()
+                        + " använder "
+                        + attack.getName()
+                        + " på "
+                        + defender.getName()
+                        + " och gör "
+                        + damage
+                        + " skada!"
+        );
+    }
+
+    public static Attack chooseAttack(
+            Pokemon pokemon,
+            Scanner scanner
+    ) {
+        List<Attack> attacks = pokemon.getAttacks();
+
+        System.out.println("\n=== VÄLJ ATTACK ===");
+
+        for (int i = 0; i < attacks.size(); i++) {
+            Attack attack = attacks.get(i);
+
+            System.out.println(
+                    (i + 1)
+                            + ". "
+                            + attack.getName()
+                            + " | Skada: "
+                            + attack.getBaseDamage()
+            );
+        }
+
+        int choice = InputHelper.readIntInRange(
+                scanner,
+                "Välj attack: ",
+                1,
+                attacks.size()
+        );
+
+        return attacks.get(choice - 1);
     }
 }

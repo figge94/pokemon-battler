@@ -73,7 +73,7 @@ public class Attack {
         // Ser till att skadan är mellan 0 och 999.
         if (baseDamage < 0 || baseDamage > 999) {
             throw new InvalidAttackException(
-                    "Skadan måste vara mellan 0 och 999."
+                    "Skadan måste vara mellan 1 och 999."
             );
         }
     }
