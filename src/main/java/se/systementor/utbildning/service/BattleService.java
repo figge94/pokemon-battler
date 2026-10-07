@@ -9,14 +9,41 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class BattleService {
+    private static final Random RANDOM = new Random();
 
     // Väljer en slumpmässig Pokemon som motståndare.
     public static Pokemon chooseRandomWildPokemon(List<Pokemon> pokemons) {
-        Random random = new Random();
 
-        int index = random.nextInt(pokemons.size());
+        int index = RANDOM.nextInt(pokemons.size());
 
         return pokemons.get(index);
+    }
+
+    private static void playerTurn(
+            Pokemon playerPokemon,
+            Pokemon wildPokemon,
+            Scanner scanner
+    ) {
+        Attack playerAttack = BattleMenu.chooseAttack(playerPokemon, scanner);
+
+        attack(
+                playerPokemon,
+                wildPokemon,
+                playerAttack
+        );
+    }
+
+    private static void wildTurn(
+            Pokemon wildPokemon,
+            Pokemon playerPokemon
+    ) {
+        Attack wildAttack = chooseRandomAttack(wildPokemon);
+
+        attack(
+                wildPokemon,
+                playerPokemon,
+                wildAttack
+        );
     }
 
     public static void startBattle(
@@ -33,30 +60,14 @@ public class BattleService {
 
         while (!playerPokemon.isKnockedOut() && !wildPokemon.isKnockedOut()) {
 
-            Attack playerAttack = BattleMenu.chooseAttack(playerPokemon, scanner);
-
-            attack(
-                    playerPokemon,
-                    wildPokemon,
-                    playerAttack
-            );
+            playerTurn(playerPokemon, wildPokemon, scanner);
 
             if (wildPokemon.isKnockedOut()) {
                 BattleMenu.showKnockedOut(wildPokemon);
                 break;
             }
 
-            List<Attack> wildAttacks = wildPokemon.getAttacks();
-
-            Attack wildAttack = wildAttacks.get(
-                    new Random().nextInt(wildAttacks.size())
-            );
-
-            attack(
-                    wildPokemon,
-                    playerPokemon,
-                    wildAttack
-            );
+            wildTurn(wildPokemon, playerPokemon);
 
             if (playerPokemon.isKnockedOut()) {
                 BattleMenu.showKnockedOut(playerPokemon);
@@ -64,14 +75,21 @@ public class BattleService {
         }
     }
 
+    public static Attack chooseRandomAttack(Pokemon pokemon) {
+        List<Attack> attacks = pokemon.getAttacks();
+
+        return attacks.get(
+                RANDOM.nextInt(attacks.size())
+        );
+    }
+
     public static void attack(
             Pokemon attacker,
             Pokemon defender,
             Attack attack
     ) {
-        Random random = new Random();
 
-        int roll = random.nextInt(100) + 1;
+        int roll = RANDOM.nextInt(100) + 1;
 
         if (roll > attack.getAccuracy()) {
             BattleMenu.showMiss(attacker, attack);
