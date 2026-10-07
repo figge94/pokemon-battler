@@ -1,9 +1,11 @@
-package se.systementor.utbildning.ui;
+package se.systementor.utbildning;
 
 import se.systementor.utbildning.model.Pokemon;
 import se.systementor.utbildning.repository.PokemonFileService;
 import se.systementor.utbildning.service.BattleService;
-import se.systementor.utbildning.service.PokemonService;
+import se.systementor.utbildning.ui.InputHelper;
+import se.systementor.utbildning.ui.Menu;
+import se.systementor.utbildning.ui.PokemonMenu;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -59,7 +61,7 @@ public class Main {
             switch (choice) {
                 case 1:
                     // Visar alla Pokemon.
-                    PokemonService.showAllPokemons(pokemons);
+                    PokemonMenu.showAllPokemons(pokemons);
                     break;
 
                 case 2:
@@ -69,12 +71,12 @@ public class Main {
 
                 case 3:
                     // Söker efter en Pokemon.
-                    PokemonService.searchPokemon(pokemons, scanner);
+                    PokemonMenu.searchPokemon(pokemons, scanner);
                     break;
 
                 case 4:
                     // Lägger till en Pokemon.
-                    PokemonService.addPokemon(pokemons, scanner);
+                    PokemonMenu.addPokemon(pokemons, scanner);
                     break;
 
                 case 5:
@@ -84,7 +86,7 @@ public class Main {
 
                 case 6:
                     // Tar bort en pokemon.
-                    PokemonService.removePokemon(pokemons, scanner);
+                    PokemonMenu.removePokemon(pokemons, scanner);
                     break;
 
                 case 7:

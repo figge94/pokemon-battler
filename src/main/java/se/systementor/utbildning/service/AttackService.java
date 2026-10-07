@@ -5,6 +5,7 @@ import se.systementor.utbildning.exception.InvalidAttackException;
 import se.systementor.utbildning.model.Attack;
 import se.systementor.utbildning.model.Pokemon;
 import se.systementor.utbildning.model.Type;
+import se.systementor.utbildning.ui.PokemonMenu;
 
 import java.util.List;
 import java.util.Scanner;
@@ -54,7 +55,7 @@ public class AttackService {
         }
 
         System.out.println("\n=== FÖRHANDSVISNING ===");
-        PokemonService.printDetails(pokemon);
+        PokemonMenu.printDetails(pokemon);
     }
 
     // Skapar en standardattack beroende på vald Pokemon-typ.

@@ -5,7 +5,6 @@ import se.systementor.utbildning.model.Attack;
 import se.systementor.utbildning.model.Pokemon;
 import se.systementor.utbildning.model.Type;
 import se.systementor.utbildning.service.AttackService;
-import se.systementor.utbildning.service.PokemonService;
 
 import java.util.Scanner;
 
@@ -65,6 +64,6 @@ public class AttackMenu {
             System.out.println("Fel: " + e.getMessage());
         }
 
-        PokemonService.printDetails(pokemon);
+        PokemonMenu.printDetails(pokemon);
     }
 }
