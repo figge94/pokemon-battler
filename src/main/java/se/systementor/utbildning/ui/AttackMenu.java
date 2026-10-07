@@ -9,9 +9,9 @@ import se.systementor.utbildning.service.PokemonService;
 
 import java.util.Scanner;
 
-public class ConsoleMenu {
+public class AttackMenu {
 
-    private static void handleAddAttack(
+    public static void handleAddAttack(
             Pokemon pokemon,
             Scanner scanner
     ) {

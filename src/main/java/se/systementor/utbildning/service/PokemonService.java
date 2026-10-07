@@ -1,5 +1,6 @@
 package se.systementor.utbildning.service;
 
+import se.systementor.utbildning.ui.AttackMenu;
 import se.systementor.utbildning.ui.InputHelper;
 import se.systementor.utbildning.ui.Menu;
 import se.systementor.utbildning.repository.PokemonFileService;
@@ -293,7 +294,7 @@ public class PokemonService {
             case 2 -> editPokemonType(pokemons, pokemon, scanner);
             case 3 -> editPokemonCurrentHp(pokemon, scanner);
             case 4 -> editPokemonMaxHp(pokemons, pokemon, scanner);
-            case 5 -> AttackService.addAttackToPokemon(pokemon, scanner);
+            case 5 -> AttackMenu.handleAddAttack(pokemon, scanner);
             case 6 -> AttackService.removeAttackFromPokemon(pokemon, scanner);
             case 7 -> System.out.println("Går tillbaka till huvudmenyn.");
         }

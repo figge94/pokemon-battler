@@ -3,6 +3,7 @@ package se.systementor.utbildning.service;
 import se.systementor.utbildning.model.Attack;
 import se.systementor.utbildning.model.Pokemon;
 import se.systementor.utbildning.ui.InputHelper;
+import se.systementor.utbildning.ui.BattleMenu;
 
 import java.util.List;
 import java.util.Random;
@@ -62,7 +63,7 @@ public class BattleService {
 
         while (!playerPokemon.isKnockedOut() && !wildPokemon.isKnockedOut()) {
 
-            Attack playerAttack = chooseAttack(playerPokemon, scanner);
+            Attack playerAttack = BattleMenu.chooseAttack(playerPokemon, scanner);
 
             attack(
                     playerPokemon,
@@ -127,35 +128,5 @@ public class BattleService {
                         + damage
                         + " skada!"
         );
-    }
-
-    public static Attack chooseAttack(
-            Pokemon pokemon,
-            Scanner scanner
-    ) {
-        List<Attack> attacks = pokemon.getAttacks();
-
-        System.out.println("\n=== VÄLJ ATTACK ===");
-
-        for (int i = 0; i < attacks.size(); i++) {
-            Attack attack = attacks.get(i);
-
-            System.out.println(
-                    (i + 1)
-                            + ". "
-                            + attack.getName()
-                            + " | Skada: "
-                            + attack.getBaseDamage()
-            );
-        }
-
-        int choice = InputHelper.readIntInRange(
-                scanner,
-                "Välj attack: ",
-                1,
-                attacks.size()
-        );
-
-        return attacks.get(choice - 1);
     }
 }
