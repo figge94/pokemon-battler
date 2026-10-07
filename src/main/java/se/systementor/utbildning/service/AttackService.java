@@ -10,60 +10,12 @@ import java.util.List;
 import java.util.Scanner;
 
 public class AttackService {
-    // Lägger till en ny attack på vald Pokemon.
-    public static void addAttackToPokemon(Pokemon pokemon, Scanner scanner) {
-        // Kollar direkt om Pokemon redan har max antal attacker,
-        // så användaren inte behöver fylla i en ny attack i onödan.
-        if (pokemon.getAttacks().size() >= 4) {
-            System.out.println("En Pokemon kan ha max 4 attacker.");
-            return;
-        }
-
-        // Läser in och validerar attacknamnet.
-        String attackName = InputHelper.readValidName(scanner, "Attacknamn: ");
-
-        // Läser in skada och ser till att värdet är mellan 0 och 999.
-        int damage = InputHelper.readIntInRange(
-                scanner,
-                "Skada: ",
-                0,
-                999
-        );
-
-        // Läser in träffsäkerhet och ser till att värdet är mellan 0 och 100.
-        int accuracy = InputHelper.readIntInRange(
-                scanner,
-                "Träffsäkerhet (0-100): ",
-                0,
-                100
-        );
-
-        // Låter användaren välja typ från Type-enum.
-        Type attackType = InputHelper.chooseType(scanner);
-
-        // Skapar attacken först när all input är giltig.
-        Attack newAttack = new Attack(
-                attackName,
-                damage,
-                accuracy,
-                attackType
-        );
-
-        // Försöker lägga till attacken och fångar fel från Pokemon-klassen.
-        try {
-            pokemon.addAttack(newAttack);
-
-            System.out.println(
-                    pokemon.getName() + " har fått attacken " + newAttack.getName()
-            );
-        } catch (InvalidAttackException e) {
-            System.out.println("Fel: " + e.getMessage());
-        }
-
-        System.out.println("\n=== FÖRHANDSVISNING ===");
-        PokemonService.printDetails(pokemon);
+    public static void addAttackToPokemon(
+            Pokemon pokemon,
+            Attack attack
+    ) {
+        pokemon.addAttack(attack);
     }
-
     // Tar bort en attack från vald Pokemon.
     public static void removeAttackFromPokemon(Pokemon pokemon, Scanner scanner) {
         // Hämtar en kopia av Pokemons attacker för att kunna visa dem.
