@@ -38,10 +38,22 @@ public class PokemonFileService {
         // Använder ObjectMapper för att göra om Java-objekt till JSON.
         ObjectMapper objectMapper = new ObjectMapper();
 
+        // Skriver först till en tillfällig fil.
+        // På så sätt riskerar inte pokemon.json att bli halvskriven
+        // om något går fel mitt under sparningen.
+        Path tempPath = Path.of("pokemon.tmp");
+
         try {
             // Gör om Pokemon-listan till JSON och skriver den till fil.
             objectMapper.writerWithDefaultPrettyPrinter()
-                    .writeValue(path.toFile(), pokemons);
+                    .writeValue(tempPath.toFile(), pokemons);
+
+            // När tempfilen har skrivits klart ersätter den gamla JSON-filen.
+            Files.move(
+                    tempPath,
+                    path,
+                    java.nio.file.StandardCopyOption.REPLACE_EXISTING
+            );
 
         } catch (IOException e) {
             // Fångar IOException och gör om felet till en egen exception.
@@ -65,7 +77,7 @@ public class PokemonFileService {
             // Om ingen sparad fil finns laddas startdata från seed-filen istället.
             List<Pokemon> pokemons = loadPokemonsFromFile(seedPath);
 
-            System.out.println("Inga sparade pokemons finns. Startpokemons har laddats in.");
+            System.out.println("Inga sparade pokemons finns. Startpokemon har laddats in.");
             return pokemons;
 
         } catch (PokemonLoadException e) {
