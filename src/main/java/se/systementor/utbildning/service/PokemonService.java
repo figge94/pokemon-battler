@@ -1,8 +1,8 @@
 package se.systementor.utbildning.service;
 
-import se.systementor.utbildning.ui.AttackMenu;
+
 import se.systementor.utbildning.ui.InputHelper;
-import se.systementor.utbildning.ui.Menu;
+
 import se.systementor.utbildning.repository.PokemonFileService;
 import se.systementor.utbildning.exception.InvalidAttackException;
 import se.systementor.utbildning.exception.InvalidPokemonException;
@@ -158,17 +158,14 @@ public class PokemonService {
         } catch (InvalidPokemonException e) {
             System.out.println("Det gick inte att lägga till pokemon. " + e.getMessage());
         }
-
     }
 
     // Ändrar namnet på en Pokemon.
     public static void editPokemonName(
             List<Pokemon> pokemons,
             Pokemon pokemon,
-            Scanner scanner
+            String newName
     ) {
-        String newName = InputHelper.readValidName(scanner, "Nytt namn: ");
-
         // Kontrollerar om namnet redan används av en annan Pokemon.
         if (existsByNameExceptId(pokemons, newName, pokemon.getId())) {
             System.out.println(newName + " finns redan.");
@@ -182,7 +179,9 @@ public class PokemonService {
                 pokemon.getMaxHp()
         );
 
-        updatedPokemon.changeAttacks(pokemon.getAttacks());
+        updatedPokemon.changeAttacks(
+                new ArrayList<>(pokemon.getAttacks())
+        );
 
         int index = pokemons.indexOf(pokemon);
         pokemons.set(index, updatedPokemon);
@@ -192,39 +191,34 @@ public class PokemonService {
     }
 
     // Ändrar typ på en Pokemon.
-    public static void editPokemonType(List<Pokemon> pokemons, Pokemon pokemon, Scanner scanner) {
-        Type newType = InputHelper.chooseType(scanner);
+    public static Pokemon editPokemonType(
+            List<Pokemon> pokemons,
+            Pokemon pokemon,
+            Type newType
+    ) {
 
-        try {
-            Pokemon updatedPokemon = new Pokemon(
-                    pokemon.getId(),
-                    pokemon.getName(),
-                    newType,
-                    pokemon.getMaxHp()
-            );
+        Pokemon updatedPokemon = new Pokemon(
+                pokemon.getId(),
+                pokemon.getName(),
+                newType,
+                pokemon.getMaxHp()
+        );
 
-            updatedPokemon.changeAttacks(pokemon.getAttacks());
+        updatedPokemon.changeAttacks(
+                new ArrayList<>(pokemon.getAttacks())
+        );
 
-            int index = pokemons.indexOf(pokemon);
-            pokemons.set(index, updatedPokemon);
+        int index = pokemons.indexOf(pokemon);
+        pokemons.set(index, updatedPokemon);
 
-            System.out.println("Typen är uppdaterad.");
-            printDetails(updatedPokemon);
-
-        } catch (InvalidPokemonException e) {
-            System.out.println("Det gick inte att ändra typ. " + e.getMessage());
-        }
-
+        return updatedPokemon;
     }
 
     // Ändrar currentHp på en Pokemon.
-    public static void editPokemonCurrentHp(Pokemon pokemon, Scanner scanner) {
-        int hp = InputHelper.readIntInRange(
-                scanner,
-                "Nytt nuvarande HP: ",
-                0,
-                pokemon.getMaxHp()
-        );
+    public static void editPokemonCurrentHp(
+            Pokemon pokemon,
+            int hp
+    ) {
 
         int difference = hp - pokemon.getCurrentHp();
 
@@ -234,23 +228,14 @@ public class PokemonService {
             pokemon.takeDamage(-difference);
         }
 
-        System.out.println("Nuvarande HP är uppdaterat.");
-        printDetails(pokemon);
     }
 
     // Ändrar maxHp på en Pokemon.
-    public static void editPokemonMaxHp(
+    public static Pokemon editPokemonMaxHp(
             List<Pokemon> pokemons,
             Pokemon pokemon,
-            Scanner scanner
+            int hp
     ) {
-        int hp = InputHelper.readIntInRange(
-                scanner,
-                "Nytt max HP: ",
-                1,
-                999
-        );
-
         Pokemon updatedPokemon = new Pokemon(
                 pokemon.getId(),
                 pokemon.getName(),
@@ -258,46 +243,14 @@ public class PokemonService {
                 hp
         );
 
-        updatedPokemon.changeAttacks(pokemon.getAttacks());
+        updatedPokemon.changeAttacks(
+                new ArrayList<>(pokemon.getAttacks())
+        );
 
         int index = pokemons.indexOf(pokemon);
         pokemons.set(index, updatedPokemon);
 
-        System.out.println("Max HP uppdaterades.");
-        printDetails(updatedPokemon);
-    }
-
-    // Visar redigeringsmenyn och skickar vidare till rätt metod.
-    public static void editPokemon(List<Pokemon> pokemons, Scanner scanner) {
-        System.out.println("Ange namn på den Pokemon du vill redigera:");
-        String name = scanner.nextLine();
-
-        // Hämtar vald Pokemon innan redigeringsmenyn visas.
-        Pokemon pokemon = findPokemonByName(pokemons, name);
-
-        if (pokemon == null) {
-            System.out.println(name + " hittades inte.");
-            return;
-        }
-
-        System.out.println("\n=== FÖRHANDSVISNING ===");
-        printDetails(pokemon);
-        System.out.println();
-
-        Menu.showEditMenu();
-
-        int choice = InputHelper.readIntInRange(scanner, "Välj: ", 1, 7);
-
-        // Skickar användaren vidare till rätt redigeringsmetod beroende på valet.
-        switch (choice) {
-            case 1 -> editPokemonName(pokemons, pokemon, scanner);
-            case 2 -> editPokemonType(pokemons, pokemon, scanner);
-            case 3 -> editPokemonCurrentHp(pokemon, scanner);
-            case 4 -> editPokemonMaxHp(pokemons, pokemon, scanner);
-            case 5 -> AttackMenu.handleAddAttack(pokemon, scanner);
-            case 6 -> AttackService.removeAttackFromPokemon(pokemon, scanner);
-            case 7 -> System.out.println("Går tillbaka till huvudmenyn.");
-        }
+        return updatedPokemon;
     }
 
     // Tar bort en Pokemon efter bekräftelse.

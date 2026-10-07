@@ -79,7 +79,7 @@ public class Main {
 
                 case 5:
                     // Redigerar en Pokemon.
-                    PokemonService.editPokemon(pokemons, scanner);
+                    PokemonMenu.editPokemon(pokemons, scanner);
                     break;
 
                 case 6:

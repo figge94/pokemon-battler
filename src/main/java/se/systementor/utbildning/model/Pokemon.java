@@ -1,5 +1,6 @@
 package se.systementor.utbildning.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import se.systementor.utbildning.exception.InvalidAttackException;
 import se.systementor.utbildning.exception.InvalidPokemonException;
 
@@ -21,15 +22,15 @@ public class Pokemon {
 
     @Override
     public String toString() {
-         StringBuilder pokemonDetails = new StringBuilder(
-            String.format(
-                    "%d. Namn: %s | Typ: %s | HP: %d/%d%n",
-                    getId(),
-                    getName(),
-                    getType().getLabel(),
-                    getCurrentHp(),
-                    getMaxHp()
-            )
+        StringBuilder pokemonDetails = new StringBuilder(
+                String.format(
+                        "%d. Namn: %s | Typ: %s | HP: %d/%d%n",
+                        getId(),
+                        getName(),
+                        getType().getLabel(),
+                        getCurrentHp(),
+                        getMaxHp()
+                )
         );
 
         // Räknar ut hur många tecken ID:t har för att kunna göra snygg indragning.
@@ -39,14 +40,14 @@ public class Pokemon {
         for (Attack attack : getAttacks()) {
             pokemonDetails.append(
 
-             String.format (
-                    "%s  Attack: %s | Skada: %d | Träffsäkerhet: %d | TYPE: %s%n",
-                    " ".repeat(numberOfCharactersInId),
-                    attack.getName(),
-                    attack.getBaseDamage(),
-                    attack.getAccuracy(),
-                    attack.getType().getLabel()
-            )
+                    String.format(
+                            "%s  Attack: %s | Skada: %d | Träffsäkerhet: %d | TYPE: %s%n",
+                            " ".repeat(numberOfCharactersInId),
+                            attack.getName(),
+                            attack.getBaseDamage(),
+                            attack.getAccuracy(),
+                            attack.getType().getLabel()
+                    )
             );
         }
         return pokemonDetails.toString();
@@ -107,10 +108,12 @@ public class Pokemon {
             );
         }
 
-        if (newAttacks.contains(null)) {
-            throw new InvalidAttackException(
-                    "Attacklistan får inte innehålla null."
-            );
+        for (Attack attack : newAttacks) {
+            if (attack == null) {
+                throw new InvalidAttackException(
+                        "Attacklistan får inte innehålla null."
+                );
+            }
         }
 
         attacks.clear();
@@ -174,6 +177,8 @@ public class Pokemon {
         currentHp = maxHp;
     }
 
+    // Ignorerar att isKnockedOut sparas till JSON-filen
+    @JsonIgnore
     public boolean isKnockedOut() {
         return currentHp == 0;
     }
