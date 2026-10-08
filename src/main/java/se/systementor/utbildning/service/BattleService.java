@@ -4,7 +4,6 @@ import se.systementor.utbildning.model.Attack;
 import se.systementor.utbildning.model.Pokemon;
 import se.systementor.utbildning.model.Type;
 import se.systementor.utbildning.ui.BattleMenu;
-import se.systementor.utbildning.model.Battle;
 
 import java.util.List;
 import java.util.Random;
