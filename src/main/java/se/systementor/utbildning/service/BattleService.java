@@ -2,6 +2,7 @@ package se.systementor.utbildning.service;
 
 import se.systementor.utbildning.model.Attack;
 import se.systementor.utbildning.model.Pokemon;
+import se.systementor.utbildning.model.Type;
 import se.systementor.utbildning.ui.BattleMenu;
 
 import java.util.List;
@@ -96,14 +97,58 @@ public class BattleService {
             return;
         }
 
-        int damage = attack.getBaseDamage();
+        double effectiveness = getTypeEffectiveness(
+                attack.getType(),
+                defender.getType()
+        );
+
+        int damage = (int) (
+                attack.getBaseDamage() * effectiveness
+        );
+
         defender.takeDamage(damage);
 
         BattleMenu.showAttackResult(
                 attacker,
                 defender,
                 attack,
-                damage
+                damage,
+                effectiveness
         );
+    }
+
+    public static double getTypeEffectiveness(
+            Type attackType,
+            Type defenderType
+    ) {
+        if (attackType == Type.FIRE && defenderType == Type.GRASS) {
+            return 2.0;
+        }
+
+        if (attackType == Type.WATER && defenderType == Type.FIRE) {
+            return 2.0;
+        }
+
+        if (attackType == Type.GRASS && defenderType == Type.WATER) {
+            return 2.0;
+        }
+
+        if (attackType == Type.ELECTRIC && defenderType == Type.WATER) {
+            return 2.0;
+        }
+
+        if (attackType == Type.FIRE && defenderType == Type.WATER) {
+            return 0.5;
+        }
+
+        if (attackType == Type.WATER && defenderType == Type.GRASS) {
+            return 0.5;
+        }
+
+        if (attackType == Type.GRASS && defenderType == Type.FIRE) {
+            return 0.5;
+        }
+
+        return 1.0;
     }
 }

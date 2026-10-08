@@ -43,30 +43,43 @@ public class BattleMenu {
             List<Pokemon> pokemons,
             Scanner scanner
     ) {
-        System.out.println("\n=== VÄLJ POKEMON ===");
+        while (true) {
+            System.out.println("\n=== VÄLJ POKEMON ===");
 
-        for (int i = 0; i < pokemons.size(); i++) {
-            Pokemon pokemon = pokemons.get(i);
+            for (int i = 0; i < pokemons.size(); i++) {
+                Pokemon pokemon = pokemons.get(i);
 
-            System.out.println(
-                    (i + 1) + ". " +
-                            pokemon.getName() +
-                            " | HP: " +
-                            pokemon.getCurrentHp() +
-                            "/" +
-                            pokemon.getMaxHp()
+                System.out.println(
+                        (i + 1) + ". "
+                                + pokemon.getName()
+                                + " | HP: "
+                                + pokemon.getCurrentHp()
+                                + "/"
+                                + pokemon.getMaxHp()
+                );
+            }
+
+            int choice = InputHelper.readIntInRange(
+                    scanner,
+                    "Välj Pokemon: ",
+                    1,
+                    pokemons.size()
             );
+
+            Pokemon chosenPokemon = pokemons.get(choice - 1);
+
+            if (chosenPokemon.isKnockedOut()) {
+                System.out.println(
+                        chosenPokemon.getName()
+                                + " är besegrad och kan inte strida."
+                );
+                continue;
+            }
+
+            return chosenPokemon;
         }
-
-        int choice = InputHelper.readIntInRange(
-                scanner,
-                "Välj Pokemon: ",
-                1,
-                pokemons.size()
-        );
-
-        return pokemons.get(choice - 1);
     }
+
 
     public static void showBattleStart(
             Pokemon playerPokemon,
@@ -97,7 +110,8 @@ public class BattleMenu {
             Pokemon attacker,
             Pokemon defender,
             Attack attack,
-            int damage
+            int damage,
+            double effectiveness
     ) {
         System.out.println(
                 attacker.getName()
@@ -109,6 +123,13 @@ public class BattleMenu {
                         + damage
                         + " skada!"
         );
+
+        if (effectiveness > 1.0) {
+            System.out.println("Det är supereffektivt!");
+        } else if (effectiveness < 1.0) {
+            System.out.println("Det är inte effektivt...");
+        }
+
     }
 
     public static void showKnockedOut(Pokemon pokemon) {
