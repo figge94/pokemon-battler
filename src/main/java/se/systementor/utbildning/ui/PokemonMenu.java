@@ -4,7 +4,6 @@ import se.systementor.utbildning.exception.InvalidPokemonException;
 import se.systementor.utbildning.model.Pokemon;
 import se.systementor.utbildning.model.Type;
 import se.systementor.utbildning.repository.PokemonFileService;
-import se.systementor.utbildning.service.AttackService;
 import se.systementor.utbildning.service.PokemonService;
 
 import java.util.List;
@@ -84,7 +83,7 @@ public class PokemonMenu {
             case 3 -> editPokemonCurrentHp(pokemon, scanner);
             case 4 -> editPokemonMaxHp(pokemons, pokemon, scanner);
             case 5 -> AttackMenu.handleAddAttack(pokemon, scanner);
-            case 6 -> AttackService.removeAttackFromPokemon(pokemon, scanner);
+            case 6 -> AttackMenu.removeAttackFromPokemon(pokemon, scanner);
             case 7 -> System.out.println("Går tillbaka till huvudmenyn.");
         }
     }
