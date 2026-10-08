@@ -5,6 +5,7 @@
   "maxHp" : 50,
   "currentHp" : 50,
   "attacks" : [ {
+    "attackType" : "damage",
     "name" : "Flame Wheel",
     "type" : "FIRE",
     "baseDamage" : 60,
@@ -17,6 +18,7 @@
   "maxHp" : 30,
   "currentHp" : 30,
   "attacks" : [ {
+    "attackType" : "damage",
     "name" : "Water Gun",
     "type" : "WATER",
     "baseDamage" : 40,
@@ -29,6 +31,7 @@
   "maxHp" : 55,
   "currentHp" : 55,
   "attacks" : [ {
+    "attackType" : "damage",
     "name" : "Razor Leaf",
     "type" : "GRASS",
     "baseDamage" : 55,
@@ -41,6 +44,7 @@
   "maxHp" : 65,
   "currentHp" : 65,
   "attacks" : [ {
+    "attackType" : "damage",
     "name" : "Thunder Shock",
     "type" : "ELECTRIC",
     "baseDamage" : 40,
@@ -53,6 +57,7 @@
   "maxHp" : 40,
   "currentHp" : 40,
   "attacks" : [ {
+    "attackType" : "damage",
     "name" : "Scratch",
     "type" : "NORMAL",
     "baseDamage" : 40,
@@ -65,6 +70,7 @@
   "maxHp" : 50,
   "currentHp" : 50,
   "attacks" : [ {
+    "attackType" : "damage",
     "name" : "Ice Shard",
     "type" : "ICE",
     "baseDamage" : 40,
@@ -77,6 +83,7 @@
   "maxHp" : 106,
   "currentHp" : 106,
   "attacks" : [ {
+    "attackType" : "damage",
     "name" : "Psychic",
     "type" : "PSYCHIC",
     "baseDamage" : 90,
@@ -89,6 +96,7 @@
   "maxHp" : 50,
   "currentHp" : 50,
   "attacks" : [ {
+    "attackType" : "damage",
     "name" : "Skitter Smack",
     "type" : "BUG",
     "baseDamage" : 70,
@@ -101,6 +109,7 @@
   "maxHp" : 70,
   "currentHp" : 70,
   "attacks" : [ {
+    "attackType" : "damage",
     "name" : "Fairy Wind",
     "type" : "FAIRY",
     "baseDamage" : 40,

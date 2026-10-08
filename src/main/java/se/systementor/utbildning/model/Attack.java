@@ -4,8 +4,21 @@ import se.systementor.utbildning.exception.InvalidAttackException;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-public class Attack {
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        property = "attackType"
+)
+@JsonSubTypes({
+        @JsonSubTypes.Type(
+                value = DamageAttack.class,
+                name = "damage"
+        )
+})
+
+public abstract class Attack {
     // Gör fälten private så att de inte kan ändras direkt utifrån.
     private final String name;
     private final Type type;
@@ -85,4 +98,9 @@ public class Attack {
         }
 
     }
+
+    public abstract void execute(
+            Pokemon attacker,
+            Pokemon defender
+    );
 }
