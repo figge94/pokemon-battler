@@ -4,6 +4,7 @@ import se.systementor.utbildning.model.Attack;
 import se.systementor.utbildning.model.Pokemon;
 import se.systementor.utbildning.model.Type;
 import se.systementor.utbildning.ui.BattleMenu;
+import se.systementor.utbildning.model.Battle;
 
 import java.util.List;
 import java.util.Random;
@@ -20,6 +21,7 @@ public class BattleService {
         return pokemons.get(index);
     }
 
+    // Hanterar spelarens tur.
     private static void playerTurn(
             Pokemon playerPokemon,
             Pokemon wildPokemon,
@@ -34,6 +36,7 @@ public class BattleService {
         );
     }
 
+    // Hanterar en vild Pokemon tur.
     private static void wildTurn(
             Pokemon wildPokemon,
             Pokemon playerPokemon
@@ -47,6 +50,7 @@ public class BattleService {
         );
     }
 
+    // Startar och kör en hel strid tills någon Pokemon är besegrad.
     public static void startBattle(
             List<Pokemon> pokemons,
             Scanner scanner
@@ -54,32 +58,50 @@ public class BattleService {
         Pokemon playerPokemon = BattleMenu.choosePlayerPokemon(pokemons, scanner);
         Pokemon wildPokemon = chooseRandomWildPokemon(pokemons);
 
-        BattleMenu.showBattleStart(
+        Battle battle = new Battle(
                 playerPokemon,
                 wildPokemon
         );
 
-        while (!playerPokemon.isKnockedOut() && !wildPokemon.isKnockedOut()) {
+        BattleMenu.showBattleStart(
+                battle.getPlayerPokemon(),
+                battle.getWildPokemon()
+        );
 
-            playerTurn(playerPokemon, wildPokemon, scanner);
+        while (!battle.isOver()) {
 
-            if (wildPokemon.isKnockedOut()) {
-                BattleMenu.showKnockedOut(wildPokemon);
+            playerTurn(
+                    battle.getPlayerPokemon(),
+                    battle.getWildPokemon(),
+                    scanner
+            );
+
+            if (battle.getWildPokemon().isKnockedOut()) {
+                BattleMenu.showKnockedOut(
+                        battle.getWildPokemon()
+                );
                 break;
             }
 
-            wildTurn(wildPokemon, playerPokemon);
+            wildTurn(
+                    battle.getWildPokemon(),
+                    battle.getPlayerPokemon()
+            );
 
-            if (playerPokemon.isKnockedOut()) {
-                BattleMenu.showKnockedOut(playerPokemon);
+            if (battle.getPlayerPokemon().isKnockedOut()) {
+                BattleMenu.showKnockedOut(
+                        battle.getPlayerPokemon()
+                );
             }
         }
 
         BattleMenu.showBattleResult(
-                playerPokemon,
-                wildPokemon
+                battle.getPlayerPokemon(),
+                battle.getWildPokemon()
         );
     }
+
+    // Väljer en slumpmässig attack från Pokemons attacker.
 
     public static Attack chooseRandomAttack(Pokemon pokemon) {
         List<Attack> attacks = pokemon.getAttacks();
@@ -89,6 +111,7 @@ public class BattleService {
         );
     }
 
+    // Utför en attack och räknar ut träff, typeffektivitet och skada.
     public static void attack(
             Pokemon attacker,
             Pokemon defender,
@@ -122,6 +145,7 @@ public class BattleService {
         );
     }
 
+    // Räknar ut hur effektiv attacktypen är mot försvararens typ.
     public static double getTypeEffectiveness(
             Type attackType,
             Type defenderType
