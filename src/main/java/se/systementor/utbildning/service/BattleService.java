@@ -18,6 +18,13 @@ public class BattleService {
             List<Pokemon> pokemons,
             Pokemon playerPokemon
     ) {
+        // Kontrollerar att det finns minst två Pokemon innan en strid kan starta.
+        if (pokemons.size() < 2) {
+            throw new IllegalArgumentException(
+                    "Det måste finnas minst två Pokemon för att starta en strid."
+            );
+        }
+
         Pokemon wildPokemon;
 
         do {
@@ -112,7 +119,6 @@ public class BattleService {
     }
 
     // Väljer en slumpmässig attack från Pokemons attacker.
-
     public static Attack chooseRandomAttack(Pokemon pokemon) {
         List<Attack> attacks = pokemon.getAttacks();
 
