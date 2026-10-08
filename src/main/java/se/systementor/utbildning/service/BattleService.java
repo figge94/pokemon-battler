@@ -1,8 +1,6 @@
 package se.systementor.utbildning.service;
 
-import se.systementor.utbildning.model.Attack;
-import se.systementor.utbildning.model.Pokemon;
-import se.systementor.utbildning.model.Type;
+import se.systementor.utbildning.model.*;
 import se.systementor.utbildning.ui.BattleMenu;
 
 import java.util.List;
@@ -11,6 +9,7 @@ import java.util.Scanner;
 
 public class BattleService {
     private static final Random RANDOM = new Random();
+    private static final BattleStats BATTLE_STATS = new BattleStats();
 
     // Väljer en slumpmässig vild Pokemon som inte är samma som spelarens Pokemon.
     public static Pokemon chooseRandomWildPokemon(
@@ -121,6 +120,12 @@ public class BattleService {
                     battle.getWildPokemon()
             );
 
+            if (battle.playerWon()) {
+                BATTLE_STATS.addWin();
+            } else {
+                BATTLE_STATS.addLoss();
+            }
+
         } catch (IllegalArgumentException e) {
             System.out.println(
                     "Striden kunde inte startas: " + e.getMessage()
@@ -211,5 +216,9 @@ public class BattleService {
         }
 
         return 1.0;
+    }
+
+    public static BattleStats getBattleStats() {
+        return BATTLE_STATS;
     }
 }

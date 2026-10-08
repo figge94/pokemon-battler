@@ -1,6 +1,7 @@
 package se.systementor.utbildning.ui;
 
 import se.systementor.utbildning.model.Attack;
+import se.systementor.utbildning.model.BattleStats;
 import se.systementor.utbildning.model.Pokemon;
 
 import java.util.List;
@@ -166,5 +167,12 @@ public class BattleMenu {
                             + "."
             );
         }
+    }
+
+    public static void showBattleStats(BattleStats stats) {
+        System.out.println("\n=== RESULTAT ===");
+        System.out.println("Totalt antal strider: " + stats.getTotalBattles());
+        System.out.println("Vinster: " + stats.getWins());
+        System.out.println("Förluster: " + stats.getLosses());
     }
 }

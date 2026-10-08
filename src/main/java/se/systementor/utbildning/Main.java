@@ -3,6 +3,7 @@ package se.systementor.utbildning;
 import se.systementor.utbildning.model.Pokemon;
 import se.systementor.utbildning.repository.PokemonFileService;
 import se.systementor.utbildning.service.BattleService;
+import se.systementor.utbildning.ui.BattleMenu;
 import se.systementor.utbildning.ui.InputHelper;
 import se.systementor.utbildning.ui.Menu;
 import se.systementor.utbildning.ui.PokemonMenu;
@@ -28,8 +29,11 @@ public class Main {
 
         switch (playChoice) {
             case 1 -> BattleService.startBattle(pokemons, scanner);
-            case 2 -> System.out.println("Visar resultat senare.");
-            case 3 -> System.out.println("Går tillbaka till huvudmenyn.");
+            case 2 ->
+                BattleMenu.showBattleStats(
+                        BattleService.getBattleStats()
+                );
+            case 3 -> System.out.println("Gå tillbaka till huvudmenyn.");
         }
     }
     // Startar programmet och hanterar huvudmenyn.
