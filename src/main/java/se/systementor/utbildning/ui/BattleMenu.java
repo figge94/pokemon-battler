@@ -8,11 +8,18 @@ import java.util.Scanner;
 
 public class BattleMenu {
 
+    // Visar attacker spelaren kan välja mellan i en strid
     public static Attack chooseAttack(
             Pokemon pokemon,
             Scanner scanner
     ) {
         List<Attack> attacks = pokemon.getAttacks();
+
+        if (attacks.isEmpty()) {
+            throw new IllegalArgumentException(
+                    pokemon.getName() + " har inga attacker."
+            );
+        }
 
         System.out.println("\n=== VÄLJ ATTACK ===");
 

@@ -69,58 +69,75 @@ public class BattleService {
             List<Pokemon> pokemons,
             Scanner scanner
     ) {
-        Pokemon playerPokemon = BattleMenu.choosePlayerPokemon(pokemons, scanner);
-        Pokemon wildPokemon = chooseRandomWildPokemon(
-                pokemons,
-                playerPokemon
-        );
-
-        Battle battle = new Battle(
-                playerPokemon,
-                wildPokemon
-        );
-
-        BattleMenu.showBattleStart(
-                battle.getPlayerPokemon(),
-                battle.getWildPokemon()
-        );
-
-        while (!battle.isOver()) {
-
-            playerTurn(
-                    battle.getPlayerPokemon(),
-                    battle.getWildPokemon(),
+        try {
+            Pokemon playerPokemon = BattleMenu.choosePlayerPokemon(
+                    pokemons,
                     scanner
             );
 
-            if (battle.getWildPokemon().isKnockedOut()) {
-                BattleMenu.showKnockedOut(
-                        battle.getWildPokemon()
-                );
-                break;
-            }
-
-            wildTurn(
-                    battle.getWildPokemon(),
-                    battle.getPlayerPokemon()
+            Pokemon wildPokemon = chooseRandomWildPokemon(
+                    pokemons,
+                    playerPokemon
             );
 
-            if (battle.getPlayerPokemon().isKnockedOut()) {
-                BattleMenu.showKnockedOut(
+            Battle battle = new Battle(
+                    playerPokemon,
+                    wildPokemon
+            );
+
+            BattleMenu.showBattleStart(
+                    battle.getPlayerPokemon(),
+                    battle.getWildPokemon()
+            );
+
+            while (!battle.isOver()) {
+
+                playerTurn(
+                        battle.getPlayerPokemon(),
+                        battle.getWildPokemon(),
+                        scanner
+                );
+
+                if (battle.getWildPokemon().isKnockedOut()) {
+                    BattleMenu.showKnockedOut(
+                            battle.getWildPokemon()
+                    );
+                    break;
+                }
+
+                wildTurn(
+                        battle.getWildPokemon(),
                         battle.getPlayerPokemon()
                 );
-            }
-        }
 
-        BattleMenu.showBattleResult(
-                battle.getPlayerPokemon(),
-                battle.getWildPokemon()
-        );
+                if (battle.getPlayerPokemon().isKnockedOut()) {
+                    BattleMenu.showKnockedOut(
+                            battle.getPlayerPokemon()
+                    );
+                }
+            }
+
+            BattleMenu.showBattleResult(
+                    battle.getPlayerPokemon(),
+                    battle.getWildPokemon()
+            );
+
+        } catch (IllegalArgumentException e) {
+            System.out.println(
+                    "Striden kunde inte startas: " + e.getMessage()
+            );
+        }
     }
 
     // Väljer en slumpmässig attack från Pokemons attacker.
     public static Attack chooseRandomAttack(Pokemon pokemon) {
         List<Attack> attacks = pokemon.getAttacks();
+
+        if (attacks.isEmpty()) {
+            throw new IllegalArgumentException(
+                    pokemon.getName() + " har inga attacker."
+            );
+        }
 
         return attacks.get(
                 RANDOM.nextInt(attacks.size())
