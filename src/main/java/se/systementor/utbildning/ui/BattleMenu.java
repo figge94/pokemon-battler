@@ -137,4 +137,27 @@ public class BattleMenu {
                 pokemon.getName() + " svimmade!"
         );
     }
+
+    public static void showBattleResult(
+            Pokemon playerPokemon,
+            Pokemon wildPokemon
+    ) {
+        if (wildPokemon.isKnockedOut()) {
+            System.out.println(
+                    "Du vann! "
+                            + playerPokemon.getName()
+                            + " besegrade "
+                            + wildPokemon.getName()
+                            + "."
+            );
+        } else if (playerPokemon.isKnockedOut()) {
+            System.out.println(
+                    "Du förlorade... "
+                            + wildPokemon.getName()
+                            + " besegrade "
+                            + playerPokemon.getName()
+                            + "."
+            );
+        }
+    }
 }

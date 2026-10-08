@@ -74,6 +74,11 @@ public class BattleService {
                 BattleMenu.showKnockedOut(playerPokemon);
             }
         }
+
+        BattleMenu.showBattleResult(
+                playerPokemon,
+                wildPokemon
+        );
     }
 
     public static Attack chooseRandomAttack(Pokemon pokemon) {
