@@ -13,12 +13,19 @@ import java.util.Scanner;
 public class BattleService {
     private static final Random RANDOM = new Random();
 
-    // Väljer en slumpmässig Pokemon som motståndare.
-    public static Pokemon chooseRandomWildPokemon(List<Pokemon> pokemons) {
+    // Väljer en slumpmässig vild Pokemon som inte är samma som spelarens Pokemon.
+    public static Pokemon chooseRandomWildPokemon(
+            List<Pokemon> pokemons,
+            Pokemon playerPokemon
+    ) {
+        Pokemon wildPokemon;
 
-        int index = RANDOM.nextInt(pokemons.size());
+        do {
+            int index = RANDOM.nextInt(pokemons.size());
+            wildPokemon = pokemons.get(index);
+        } while (wildPokemon == playerPokemon);
 
-        return pokemons.get(index);
+        return wildPokemon;
     }
 
     // Hanterar spelarens tur.
@@ -36,7 +43,7 @@ public class BattleService {
         );
     }
 
-    // Hanterar en vild Pokemon tur.
+    // Hanterar den vilda Pokemonens tur.
     private static void wildTurn(
             Pokemon wildPokemon,
             Pokemon playerPokemon
@@ -56,7 +63,10 @@ public class BattleService {
             Scanner scanner
     ) {
         Pokemon playerPokemon = BattleMenu.choosePlayerPokemon(pokemons, scanner);
-        Pokemon wildPokemon = chooseRandomWildPokemon(pokemons);
+        Pokemon wildPokemon = chooseRandomWildPokemon(
+                pokemons,
+                playerPokemon
+        );
 
         Battle battle = new Battle(
                 playerPokemon,
