@@ -42,7 +42,7 @@ public class AttackMenu {
         Type attackType =
                 InputHelper.chooseType(scanner);
 
-        Attack newAttack = new Attack(
+        Attack newAttack = AttackService.createAttack(
                 attackName,
                 damage,
                 accuracy,

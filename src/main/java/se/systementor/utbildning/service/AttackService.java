@@ -12,6 +12,20 @@ public class AttackService {
         pokemon.addAttack(attack);
     }
 
+    public static Attack createAttack(
+            String name,
+            int damage,
+            int accuracy,
+            Type type
+            ) {
+        return new Attack(
+                name,
+                damage,
+                accuracy,
+                type
+        );
+    }
+
     // Tar bort en attack från vald Pokemon.
     public static void removeAttackFromPokemon(
             Pokemon pokemon,
