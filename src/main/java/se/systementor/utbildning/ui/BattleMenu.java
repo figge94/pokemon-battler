@@ -175,4 +175,8 @@ public class BattleMenu {
         System.out.println("Vinster: " + stats.getWins());
         System.out.println("Förluster: " + stats.getLosses());
     }
+
+    public static void showCriticalHit() {
+        System.out.println("Kritisk träff!");
+    }
 }

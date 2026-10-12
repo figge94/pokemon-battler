@@ -31,7 +31,8 @@ public class Battle {
 
     // Kontrollerar om spelaren vann striden.
     public boolean playerWon() {
-        return wildPokemon.isKnockedOut();
+        return wildPokemon.isKnockedOut()
+                && !playerPokemon.isKnockedOut();
     }
 
     // Returnerar vinnaren när striden är slut.

@@ -2,16 +2,9 @@ package se.systementor.utbildning.service;
 
 import se.systementor.utbildning.model.Attack;
 import se.systementor.utbildning.model.DamageAttack;
-import se.systementor.utbildning.model.Pokemon;
 import se.systementor.utbildning.model.Type;
 
 public class AttackService {
-    public static void addAttackToPokemon(
-            Pokemon pokemon,
-            Attack attack
-    ) {
-        pokemon.addAttack(attack);
-    }
 
     public static Attack createAttack(
             String name,
@@ -25,14 +18,6 @@ public class AttackService {
                 accuracy,
                 type
         );
-    }
-
-    // Tar bort en attack från vald Pokemon.
-    public static void removeAttackFromPokemon(
-            Pokemon pokemon,
-            Attack attack
-    ) {
-        pokemon.removeAttack(attack);
     }
 
     // Skapar en standardattack beroende på vald Pokemon-typ.

@@ -50,10 +50,7 @@ public class AttackMenu {
         );
 
         try {
-            AttackService.addAttackToPokemon(
-                    pokemon,
-                    newAttack
-            );
+            pokemon.addAttack(newAttack);
 
             System.out.println(
                     pokemon.getName()
@@ -95,10 +92,7 @@ public class AttackMenu {
         Attack attackToRemove = attacks.get(attackChoice - 1);
 
         try {
-            AttackService.removeAttackFromPokemon(
-                    pokemon,
-                    attackToRemove
-            );
+            pokemon.removeAttack(attackToRemove);
 
             System.out.println(
                     attackToRemove.getName() + " har tagits bort."

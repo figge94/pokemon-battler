@@ -44,6 +44,14 @@ public class DamageAttack extends Attack {
 
         int damage = (int) (getBaseDamage() * effectiveness);
 
+        // 1 av 16 chans att göra dubbel skada.
+        boolean criticalHit = RANDOM.nextInt(16) == 0;
+
+        if (criticalHit) {
+            damage *= 2;
+            BattleMenu.showCriticalHit();
+        }
+
         defender.takeDamage(damage);
 
         BattleMenu.showAttackResult(
