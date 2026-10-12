@@ -40,9 +40,12 @@ public class Menu {
         ConsoleUI.printMenu(
                 "STRID",
                 ConsoleColors.GREEN,
-                "1. Strid",
-                "2. Resultat",
-                "3. Gå tillbaka"
+                "1. Starta strid",
+                "2. Total statistik",
+                "3. Statistik per Pokémon",
+                "4. Mest använda Pokémon",
+                "5. Mest använda attack",
+                "6. Gå tillbaka"
         );
     }
 }

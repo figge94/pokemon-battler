@@ -3,6 +3,7 @@ package se.systementor.utbildning.service;
 import se.systementor.utbildning.model.*;
 import se.systementor.utbildning.ui.BattleMenu;
 import se.systementor.utbildning.repository.BattleStatsFileService;
+import se.systementor.utbildning.ui.Messages;
 
 import java.util.List;
 import java.util.Random;
@@ -139,21 +140,23 @@ public class BattleService {
                     battle.getWildPokemon()
             );
 
-            if (battle.playerWon()) {
-                BATTLE_STATS.addWin();
-            } else {
-                BATTLE_STATS.addLoss();
-            }
+            BATTLE_STATS.registerPokemonUsage(playerPokemon.getId());
 
-            // Sparar statistiken efter varje avslutad strid.
-            BattleStatsFileService.saveStats(BATTLE_STATS);
+            if (battle.playerWon()) {
+                BATTLE_STATS.addWin(playerPokemon.getId());
+            } else {
+                BATTLE_STATS.addLoss(playerPokemon.getId());
+            }
 
             // Återställer båda Pokemon efter avslutad strid.
             playerPokemon.restoreHealth();
             wildPokemon.restoreHealth();
 
+            // Sparar statistiken efter varje avslutad strid.
+            BattleStatsFileService.saveStats(BATTLE_STATS);
+
         } catch (IllegalArgumentException e) {
-            System.out.println(
+            Messages.error(
                     "Ett fel uppstod under striden: " + e.getMessage()
             );
         }

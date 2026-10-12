@@ -33,4 +33,26 @@ public final class ConsoleUI {
 
         System.out.println("╚" + border + "╝" + ConsoleColors.RESET);
     }
+
+    public static void printBox(String title, String... lines) {
+        String border = "═".repeat(MENU_WIDTH);
+
+        System.out.println(ConsoleColors.CYAN + "╔" + border + "╗");
+
+        System.out.printf(
+                "║ %-" + (MENU_WIDTH - 2) + "s ║%n",
+                title
+        );
+
+        System.out.println("╠" + border + "╣");
+
+        for (String line : lines) {
+            System.out.printf(
+                    "║ %-" + (MENU_WIDTH - 2) + "s ║%n",
+                    line
+            );
+        }
+
+        System.out.println("╚" + border + "╝" + ConsoleColors.RESET);
+    }
 }

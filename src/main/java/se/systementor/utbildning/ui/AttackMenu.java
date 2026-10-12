@@ -16,7 +16,7 @@ public class AttackMenu {
             Scanner scanner
     ) {
         if (pokemon.getAttacks().size() >= 4) {
-            System.out.println("En Pokemon kan ha max 4 attacker.");
+            Messages.warning("En Pokemon kan ha max 4 attacker.");
             return;
         }
 
@@ -52,14 +52,14 @@ public class AttackMenu {
         try {
             pokemon.addAttack(newAttack);
 
-            System.out.println(
+            Messages.success(
                     pokemon.getName()
                             + " har fått attacken "
                             + newAttack.getName()
             );
 
         } catch (InvalidAttackException e) {
-            System.out.println("Fel: " + e.getMessage());
+            Messages.error("Fel: " + e.getMessage());
         }
 
         PokemonMenu.printDetails(pokemon);
@@ -72,7 +72,7 @@ public class AttackMenu {
         List<Attack> attacks = pokemon.getAttacks();
 
         if (attacks.size() <= 1) {
-            System.out.println("En Pokemon måste ha minst 1 attack.");
+            Messages.warning("En Pokemon måste ha minst 1 attack.");
             return;
         }
 
@@ -94,12 +94,12 @@ public class AttackMenu {
         try {
             pokemon.removeAttack(attackToRemove);
 
-            System.out.println(
+            Messages.success(
                     attackToRemove.getName() + " har tagits bort."
             );
 
         } catch (InvalidAttackException e) {
-            System.out.println(
+            Messages.error(
                     "Det gick inte att ta bort attacken. " + e.getMessage()
             );
         }

@@ -4,6 +4,7 @@ import se.systementor.utbildning.model.Attack;
 import se.systementor.utbildning.model.BattleStats;
 import se.systementor.utbildning.model.Pokemon;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -51,6 +52,23 @@ public class BattleMenu {
             List<Pokemon> pokemons,
             Scanner scanner
     ) {
+        if (pokemons == null || pokemons.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Det finns inga Pokemon att välja."
+            );
+        }
+
+        boolean hasAvailablePokemon = pokemons.stream()
+                .anyMatch(pokemon ->
+                        pokemon != null && !pokemon.isKnockedOut()
+                );
+
+        if (!hasAvailablePokemon) {
+            throw new IllegalArgumentException(
+                    "Det finns inga stridsdugliga Pokemon."
+            );
+        }
+
         while (true) {
             System.out.println("\n=== VÄLJ POKEMON ===");
 
@@ -77,7 +95,7 @@ public class BattleMenu {
             Pokemon chosenPokemon = pokemons.get(choice - 1);
 
             if (chosenPokemon.isKnockedOut()) {
-                System.out.println(
+                Messages.warning(
                         chosenPokemon.getName()
                                 + " är besegrad och kan inte strida."
                 );
@@ -106,7 +124,7 @@ public class BattleMenu {
             Pokemon attacker,
             Attack attack
     ) {
-        System.out.println(
+        Messages.warning(
                 attacker.getName()
                         + " använder "
                         + attack.getName()
@@ -133,15 +151,15 @@ public class BattleMenu {
         );
 
         if (effectiveness > 1.0) {
-            System.out.println("Det är supereffektivt!");
+            Messages.success("Det är supereffektivt!");
         } else if (effectiveness < 1.0) {
-            System.out.println("Det är inte effektivt...");
+            Messages.warning("Det är inte effektivt...");
         }
 
     }
 
     public static void showKnockedOut(Pokemon pokemon) {
-        System.out.println(
+        Messages.warning(
                 pokemon.getName() + " svimmade!"
         );
     }
@@ -151,15 +169,16 @@ public class BattleMenu {
             Pokemon wildPokemon
     ) {
         if (wildPokemon.isKnockedOut()) {
-            System.out.println(
+            Messages.success(
                     "Du vann! "
                             + playerPokemon.getName()
                             + " besegrade "
                             + wildPokemon.getName()
                             + "."
             );
+
         } else if (playerPokemon.isKnockedOut()) {
-            System.out.println(
+            Messages.error(
                     "Du förlorade... "
                             + wildPokemon.getName()
                             + " besegrade "
@@ -169,14 +188,80 @@ public class BattleMenu {
         }
     }
 
-    public static void showBattleStats(BattleStats stats) {
-        System.out.println("\n=== RESULTAT ===");
-        System.out.println("Totalt antal strider: " + stats.getTotalBattles());
-        System.out.println("Vinster: " + stats.getWins());
-        System.out.println("Förluster: " + stats.getLosses());
+    public static void showBattleStats(
+            BattleStats stats,
+            List<Pokemon> pokemons
+    ) {
+        List<String> lines = new ArrayList<>();
+
+        lines.add("");
+
+        lines.add(String.format(
+                " %-25s %d",
+                "Totalt antal strider",
+                stats.getTotalBattles()
+        ));
+
+        lines.add(" " + "─".repeat(26));
+
+        lines.add(String.format(
+                " %-25s %d",
+                "Vinster",
+                stats.getWins()
+        ));
+
+        lines.add(String.format(
+                " %-25s %d",
+                "Förluster",
+                stats.getLosses()
+        ));
+
+        lines.add("");
+        lines.add(" RESULTAT PER POKEMON");
+        lines.add("");
+
+        lines.add(String.format(
+                " %-12s %3s %3s %9s",
+                "Pokemon", "V", "F", "Vinst %"
+        ));
+
+        lines.add(" " + "─".repeat(30));
+
+        boolean hasPokemonStats = false;
+
+        for (Pokemon pokemon : pokemons) {
+            int id = pokemon.getId();
+
+            int wins = stats.getWinsByPokemon().getOrDefault(id, 0);
+            int losses = stats.getLossesByPokemon().getOrDefault(id, 0);
+
+            // Visar bara Pokemon som deltagit i minst en strid.
+            if (wins + losses > 0) {
+                hasPokemonStats = true;
+
+                lines.add(String.format(
+                        " %-12s %3d %3d %8.1f %%",
+                        pokemon.getName(),
+                        wins,
+                        losses,
+                        stats.getWinPercentage(id)
+                ));
+            }
+        }
+
+        if (!hasPokemonStats) {
+            lines.add(" Ingen Pokemon har spelat ännu.");
+        }
+
+        lines.add("");
+
+        ConsoleUI.printBox(
+                "STRIDSSTATISTIK",
+                lines.toArray(new String[0])
+        );
     }
 
     public static void showCriticalHit() {
-        System.out.println("Kritisk träff!");
+        Messages.warning("Kritisk träff!");
     }
 }

@@ -30,9 +30,10 @@ public class Main {
         switch (playChoice) {
             case 1 -> BattleService.startBattle(pokemons, scanner);
             case 2 ->
-                BattleMenu.showBattleStats(
-                        BattleService.getBattleStats()
-                );
+                    BattleMenu.showBattleStats(
+                            BattleService.getBattleStats(),
+                            pokemons
+                    );
             case 3 -> System.out.println("Gå tillbaka till huvudmenyn.");
         }
     }
