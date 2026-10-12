@@ -20,6 +20,26 @@ public class Pokemon {
 
     private final List<Attack> attacks = new ArrayList<>();
 
+    // Två Pokemon med samma ID räknas som samma Pokemon.
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (!(obj instanceof Pokemon other)) {
+            return false;
+        }
+
+        return id == other.id;
+    }
+
+    // Pokemon med samma ID ska ha samma hashkod.
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(id);
+    }
+
     @Override
     public String toString() {
         StringBuilder pokemonDetails = new StringBuilder(
@@ -170,7 +190,7 @@ public class Pokemon {
             );
         }
 
-        currentHp = Math.min(maxHp, currentHp + amount);
+        currentHp += Math.min(amount, maxHp - currentHp);
     }
 
     public void restoreHealth() {

@@ -16,10 +16,26 @@ public class BattleService {
             List<Pokemon> pokemons,
             Pokemon playerPokemon
     ) {
-        // Kontrollerar att det finns minst två Pokemon innan en strid kan starta.
+        if (pokemons == null || playerPokemon == null) {
+            throw new IllegalArgumentException(
+                    "Pokemon-listan och spelarens Pokemon får inte vara null."
+            );
+        }
+
         if (pokemons.size() < 2) {
             throw new IllegalArgumentException(
                     "Det måste finnas minst två Pokemon för att starta en strid."
+            );
+        }
+
+        boolean hasOpponent = pokemons.stream()
+                .anyMatch(pokemon ->
+                        pokemon != null && !pokemon.equals(playerPokemon)
+                );
+
+        if (!hasOpponent) {
+            throw new IllegalArgumentException(
+                    "Det finns ingen annan Pokemon att möta."
             );
         }
 
@@ -28,7 +44,7 @@ public class BattleService {
         do {
             int index = RANDOM.nextInt(pokemons.size());
             wildPokemon = pokemons.get(index);
-        } while (wildPokemon == playerPokemon);
+        } while (wildPokemon == null || wildPokemon.equals(playerPokemon));
 
         return wildPokemon;
     }
@@ -41,10 +57,9 @@ public class BattleService {
     ) {
         Attack playerAttack = BattleMenu.chooseAttack(playerPokemon, scanner);
 
-        attack(
+        playerAttack.execute(
                 playerPokemon,
-                wildPokemon,
-                playerAttack
+                wildPokemon
         );
     }
 
@@ -55,10 +70,9 @@ public class BattleService {
     ) {
         Attack wildAttack = chooseRandomAttack(wildPokemon);
 
-        attack(
+        wildAttack.execute(
                 wildPokemon,
-                playerPokemon,
-                wildAttack
+                playerPokemon
         );
     }
 
@@ -77,6 +91,10 @@ public class BattleService {
                     pokemons,
                     playerPokemon
             );
+
+            // Återställer båda Pokemons HP inför striden.
+            playerPokemon.restoreHealth();
+            wildPokemon.restoreHealth();
 
             Battle battle = new Battle(
                     playerPokemon,
@@ -128,7 +146,7 @@ public class BattleService {
 
         } catch (IllegalArgumentException e) {
             System.out.println(
-                    "Striden kunde inte startas: " + e.getMessage()
+                    "Ett fel uppstod under striden: " + e.getMessage()
             );
         }
     }
@@ -145,40 +163,6 @@ public class BattleService {
 
         return attacks.get(
                 RANDOM.nextInt(attacks.size())
-        );
-    }
-
-    // Utför en attack och räknar ut träff, typeffektivitet och skada.
-    public static void attack(
-            Pokemon attacker,
-            Pokemon defender,
-            Attack attack
-    ) {
-
-        int roll = RANDOM.nextInt(100) + 1;
-
-        if (roll > attack.getAccuracy()) {
-            BattleMenu.showMiss(attacker, attack);
-            return;
-        }
-
-        double effectiveness = getTypeEffectiveness(
-                attack.getType(),
-                defender.getType()
-        );
-
-        int damage = (int) (
-                attack.getBaseDamage() * effectiveness
-        );
-
-        defender.takeDamage(damage);
-
-        BattleMenu.showAttackResult(
-                attacker,
-                defender,
-                attack,
-                damage,
-                effectiveness
         );
     }
 
