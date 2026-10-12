@@ -139,7 +139,8 @@ public class Pokemon {
         attacks.add(attack);
     }
 
-    // Kollar att listan har rätt antal attacker innan den sparas.
+    // Läser in och validerar Pokemonens attacker från JSON.
+    @JsonProperty("attacks")
     public void changeAttacks(List<Attack> newAttacks) {
         if (newAttacks == null || newAttacks.isEmpty() || newAttacks.size() > 4) {
             throw new InvalidAttackException(

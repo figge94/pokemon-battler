@@ -2,6 +2,7 @@ package se.systementor.utbildning.service;
 
 import se.systementor.utbildning.model.*;
 import se.systementor.utbildning.ui.BattleMenu;
+import se.systementor.utbildning.repository.BattleStatsFileService;
 
 import java.util.List;
 import java.util.Random;
@@ -9,7 +10,7 @@ import java.util.Scanner;
 
 public class BattleService {
     private static final Random RANDOM = new Random();
-    private static final BattleStats BATTLE_STATS = new BattleStats();
+    private static final BattleStats BATTLE_STATS = BattleStatsFileService.loadStats();
 
     // Väljer en slumpmässig vild Pokemon som inte är samma som spelarens Pokemon.
     public static Pokemon chooseRandomWildPokemon(
@@ -143,6 +144,13 @@ public class BattleService {
             } else {
                 BATTLE_STATS.addLoss();
             }
+
+            // Sparar statistiken efter varje avslutad strid.
+            BattleStatsFileService.saveStats(BATTLE_STATS);
+
+            // Återställer båda Pokemon efter avslutad strid.
+            playerPokemon.restoreHealth();
+            wildPokemon.restoreHealth();
 
         } catch (IllegalArgumentException e) {
             System.out.println(
