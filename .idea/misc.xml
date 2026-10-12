@@ -12,6 +12,7 @@
     <option name="disabledModuleNames">
       <set>
         <option value="pokedex" />
+        <option value="pokemon-battler" />
       </set>
     </option>
   </component>

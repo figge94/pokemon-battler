@@ -36,7 +36,7 @@ public class PokemonMenu {
                 type
         );
 
-        System.out.println("\n=== FÖRHANDSVISNING ===");
+        ConsoleUI.header("FÖRHANDSVISNING");
         printDetails(pokemon);
 
         boolean confirm = InputHelper.readYesNo(
@@ -49,26 +49,26 @@ public class PokemonMenu {
 
             PokemonFileService.savePokemonsToFile(pokemons);
 
-            System.out.println("Pokemon tillagd och sparad.");
+            Messages.success("Pokemon tillagd och sparad.");
         } else {
-            System.out.println("Avbrutet.");
+            Messages.warning("Avbrutet.");
         }
     }
 
     // Visar redigeringsmenyn och skickar vidare till rätt metod.
     public static void editPokemon(List<Pokemon> pokemons, Scanner scanner) {
-        System.out.println("Ange namn på den Pokemon du vill redigera:");
+        Messages.info("Ange namn på den Pokemon du vill redigera:");
         String name = scanner.nextLine();
 
         // Hämtar vald Pokemon innan redigeringsmenyn visas.
         Pokemon pokemon = PokemonService.findPokemonByName(pokemons, name);
 
         if (pokemon == null) {
-            System.out.println(name + " hittades inte.");
+            Messages.error(name + " hittades inte.");
             return;
         }
 
-        System.out.println("\n=== FÖRHANDSVISNING ===");
+        ConsoleUI.header("FÖRHANDSVISNING");
         printDetails(pokemon);
         System.out.println();
 
@@ -84,7 +84,7 @@ public class PokemonMenu {
             case 4 -> editPokemonMaxHp(pokemons, pokemon, scanner);
             case 5 -> AttackMenu.handleAddAttack(pokemon, scanner);
             case 6 -> AttackMenu.removeAttackFromPokemon(pokemon, scanner);
-            case 7 -> System.out.println("Går tillbaka till huvudmenyn.");
+            case 7 -> Messages.info("Gå tillbaka till huvudmenyn.");
         }
     }
 
@@ -106,11 +106,11 @@ public class PokemonMenu {
                     newName
             );
 
-            System.out.println("\n=== FÖRHANDSVISNING ===");
+            ConsoleUI.header("FÖRHANDSVISNING");
             printDetails(updatedPokemon);
 
         } catch (InvalidPokemonException e) {
-            System.out.println(e.getMessage());
+            Messages.error(e.getMessage());
         }
     }
 
@@ -127,7 +127,7 @@ public class PokemonMenu {
                 newType
         );
 
-        System.out.println("Typen är uppdaterad.");
+        Messages.success("Typen är uppdaterad.");
         printDetails(updatedPokemon);
     }
 
@@ -147,7 +147,7 @@ public class PokemonMenu {
                 hp
         );
 
-        System.out.println("Nuvarande HP är uppdaterat.");
+        Messages.success("Nuvarande HP är uppdaterat.");
         printDetails(pokemon);
     }
 
@@ -169,7 +169,7 @@ public class PokemonMenu {
                 hp
         );
 
-        System.out.println("Max HP uppdaterades.");
+        Messages.success("Max HP uppdaterades.");
         printDetails(updatedPokemon);
     }
 
@@ -177,18 +177,18 @@ public class PokemonMenu {
             List<Pokemon> pokemons,
             Scanner scanner
     ) {
-        System.out.println("Ange namn på den Pokemon du vill ta bort:");
+        Messages.info("Ange namn på den Pokemon du vill ta bort:");
         String name = scanner.nextLine();
 
         Pokemon pokemon = PokemonService.findPokemonByName(pokemons, name);
 
         if (pokemon == null) {
-            System.out.println("Pokemon hittades inte.");
+            Messages.error("Pokemon hittades inte.");
             return;
         }
 
-        System.out.println("Du är på väg att ta bort:");
-        System.out.println(pokemon.getId() + ". " + pokemon.getName());
+        Messages.warning("VARNING! Du är på väg att ta bort:");
+        Messages.error(pokemon.getId() + ". " + pokemon.getName());
 
         boolean confirm = InputHelper.readYesNo(
                 scanner,
@@ -197,10 +197,11 @@ public class PokemonMenu {
 
         if (confirm) {
             PokemonService.removePokemon(pokemons, pokemon);
+            PokemonFileService.savePokemonsToFile(pokemons);
 
-            System.out.println(pokemon.getName() + " har tagits bort.");
+            Messages.success(pokemon.getName() + " har tagits bort.");
         } else {
-            System.out.println("Borttagningen avbröts.");
+            Messages.warning("Borttagningen avbröts.");
         }
     }
 
@@ -209,7 +210,7 @@ public class PokemonMenu {
             List<Pokemon> pokemons,
             Scanner scanner
     ) {
-        System.out.println("Skriv namnet på en Pokemon:");
+        Messages.info("Skriv namnet på en Pokemon:");
         String name = scanner.nextLine();
 
         Pokemon pokemon = PokemonService.findPokemonByName(
@@ -218,10 +219,11 @@ public class PokemonMenu {
         );
 
         if (pokemon == null) {
-            System.out.println("Pokemon hittades inte.");
+            Messages.error("Pokemon hittades inte.");
             return;
         }
 
+        ConsoleUI.header("SÖKRESULTAT");
         printDetails(pokemon);
     }
 
@@ -235,6 +237,6 @@ public class PokemonMenu {
 
     // Visar detaljer om vald Pokemon.
     public static void printDetails(Pokemon pokemon) {
-        System.out.println(pokemon);
+        System.out.print(pokemon);
     }
 }
