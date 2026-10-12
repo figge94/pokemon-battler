@@ -5,7 +5,6 @@ import se.systementor.utbildning.model.Attack;
 import se.systementor.utbildning.model.Pokemon;
 import se.systementor.utbildning.model.Type;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class PokemonService {
@@ -86,11 +85,7 @@ public class PokemonService {
         );
 
         Attack attack = AttackService.createDefaultAttack(type);
-
-        List<Attack> attacks = new ArrayList<>();
-        attacks.add(attack);
-
-        pokemon.changeAttacks(attacks);
+        pokemon.addAttack(attack);
 
         return pokemon;
     }
@@ -109,23 +104,13 @@ public class PokemonService {
             Pokemon pokemon,
             String newName
     ) {
-        // Kontrollerar om namnet redan används av en annan Pokemon.
         if (existsByNameExceptId(pokemons, newName, pokemon.getId())) {
             throw new InvalidPokemonException(
                     newName + " finns redan."
             );
         }
 
-        Pokemon updatedPokemon = new Pokemon(
-                pokemon.getId(),
-                newName,
-                pokemon.getType(),
-                pokemon.getMaxHp()
-        );
-
-        updatedPokemon.changeAttacks(
-                new ArrayList<>(pokemon.getAttacks())
-        );
+        Pokemon updatedPokemon = pokemon.withName(newName);
 
         int index = pokemons.indexOf(pokemon);
         pokemons.set(index, updatedPokemon);
@@ -139,17 +124,7 @@ public class PokemonService {
             Pokemon pokemon,
             Type newType
     ) {
-
-        Pokemon updatedPokemon = new Pokemon(
-                pokemon.getId(),
-                pokemon.getName(),
-                newType,
-                pokemon.getMaxHp()
-        );
-
-        updatedPokemon.changeAttacks(
-                new ArrayList<>(pokemon.getAttacks())
-        );
+        Pokemon updatedPokemon = pokemon.withType(newType);
 
         int index = pokemons.indexOf(pokemon);
         pokemons.set(index, updatedPokemon);
@@ -179,16 +154,7 @@ public class PokemonService {
             Pokemon pokemon,
             int hp
     ) {
-        Pokemon updatedPokemon = new Pokemon(
-                pokemon.getId(),
-                pokemon.getName(),
-                pokemon.getType(),
-                hp
-        );
-
-        updatedPokemon.changeAttacks(
-                new ArrayList<>(pokemon.getAttacks())
-        );
+        Pokemon updatedPokemon = pokemon.withMaxHp(hp);
 
         int index = pokemons.indexOf(pokemon);
         pokemons.set(index, updatedPokemon);

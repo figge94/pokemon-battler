@@ -120,6 +120,25 @@ public class Pokemon {
         return List.copyOf(attacks);
     }
 
+
+    public void addAttack(Attack attack) {
+        // Ser till att attacken inte är null.
+        if (attack == null) {
+            throw new InvalidAttackException(
+                    "Attack får inte vara null."
+            );
+        }
+
+        // En Pokemon får aldrig ha fler än 4 attacker.
+        if (attacks.size() >= 4) {
+            throw new InvalidAttackException(
+                    "En Pokemon kan ha max 4 attacker."
+            );
+        }
+
+        attacks.add(attack);
+    }
+
     // Kollar att listan har rätt antal attacker innan den sparas.
     public void changeAttacks(List<Attack> newAttacks) {
         if (newAttacks == null || newAttacks.isEmpty() || newAttacks.size() > 4) {
@@ -140,34 +159,26 @@ public class Pokemon {
         attacks.addAll(newAttacks);
     }
 
-    public void addAttack(Attack attack) {
-        // Ser till att attacken inte är null.
-        if (attack == null) {
-            throw new InvalidAttackException("Attack får inte vara null.");
-        }
-
-        // En Pokemon får aldrig ha fler än 4 attacker.
-        if (attacks.size() >= 4) {
-            throw new InvalidAttackException("En Pokemon kan ha max 4 attacker.");
-        }
-
-        attacks.add(attack);
-    }
-
     public void removeAttack(Attack attack) {
         // Ser till att attacken inte är null.
         if (attack == null) {
-            throw new InvalidAttackException("Attack får inte vara null.");
+            throw new InvalidAttackException(
+                    "Attack får inte vara null."
+            );
         }
 
         // Hindrar att den sista attacken tas bort så att Pokemon alltid har minst 1 attack.
         if (attacks.size() <= 1) {
-            throw new InvalidAttackException("En Pokemon måste ha minst 1 attack.");
+            throw new InvalidAttackException(
+                    "En Pokemon måste ha minst 1 attack."
+            );
         }
 
         // Kollar att attacken faktiskt finns innan den tas bort.
         if (!attacks.contains(attack)) {
-            throw new InvalidAttackException(name + " har inte den attacken.");
+            throw new InvalidAttackException(
+                    name + " har inte den attacken."
+            );
         }
 
         attacks.remove(attack);
@@ -195,6 +206,39 @@ public class Pokemon {
 
     public void restoreHealth() {
         currentHp = maxHp;
+    }
+
+    // Skapar en ny Pokemon med ett nytt namn.
+    public Pokemon withName(String newName) {
+        return copyWith(newName, type, maxHp);
+    }
+
+    // Skapar en ny Pokemon med en ny typ.
+    public Pokemon withType(Type newType) {
+        return copyWith(name, newType, maxHp);
+    }
+
+    // Skapar en ny Pokemon med nytt max HP.
+    public Pokemon withMaxHp(int newMaxHp) {
+        return copyWith(name, type, newMaxHp);
+    }
+
+    // Skapar en uppdaterad Pokemon och behåller HP och attacker.
+    private Pokemon copyWith(String name, Type type, int maxHp) {
+        Pokemon updatedPokemon = new Pokemon(
+                id,
+                name,
+                type,
+                maxHp
+        );
+
+        // Behåller HP, men begränsar det till nya maxvärdet.
+        updatedPokemon.currentHp = Math.min(currentHp, maxHp);
+
+        // Kopierar attackerna till den nya Pokemonen.
+        updatedPokemon.attacks.addAll(attacks);
+
+        return updatedPokemon;
     }
 
     // Ignorerar att isKnockedOut sparas till JSON-filen
