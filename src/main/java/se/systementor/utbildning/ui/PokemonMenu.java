@@ -29,11 +29,19 @@ public class PokemonMenu {
 
         Type type = InputHelper.chooseType(scanner);
 
+        int speed = InputHelper.readIntInRange(
+                scanner,
+                "Snabbhet: ",
+                1,
+                200
+        );
+
         Pokemon pokemon = PokemonService.createPokemon(
                 pokemons,
                 name,
                 hp,
-                type
+                type,
+                speed
         );
 
         ConsoleUI.header("FÖRHANDSVISNING");
@@ -74,7 +82,7 @@ public class PokemonMenu {
 
         Menu.showEditMenu();
 
-        int choice = InputHelper.readIntInRange(scanner, "Välj: ", 1, 7);
+        int choice = InputHelper.readIntInRange(scanner, "Välj: ", 1, 8);
 
         // Skickar användaren vidare till rätt redigeringsmetod beroende på valet.
         switch (choice) {
@@ -82,9 +90,10 @@ public class PokemonMenu {
             case 2 -> editPokemonType(pokemons, pokemon, scanner);
             case 3 -> editPokemonCurrentHp(pokemon, scanner);
             case 4 -> editPokemonMaxHp(pokemons, pokemon, scanner);
-            case 5 -> AttackMenu.handleAddAttack(pokemon, scanner);
-            case 6 -> AttackMenu.removeAttackFromPokemon(pokemon, scanner);
-            case 7 -> Messages.info("Gå tillbaka till huvudmenyn.");
+            case 5 -> editPokemonSpeed(pokemons, pokemon, scanner);
+            case 6 -> AttackMenu.handleAddAttack(pokemon, scanner);
+            case 7 -> AttackMenu.removeAttackFromPokemon(pokemon, scanner);
+            case 8 -> Messages.info("Gå tillbaka till huvudmenyn.");
         }
     }
 
@@ -170,6 +179,28 @@ public class PokemonMenu {
         );
 
         Messages.success("Max HP uppdaterades.");
+        printDetails(updatedPokemon);
+    }
+
+    public static void editPokemonSpeed(
+            List<Pokemon> pokemons,
+            Pokemon pokemon,
+            Scanner scanner
+    ) {
+        int speed = InputHelper.readIntInRange(
+                scanner,
+                "Ny snabbhet: ",
+                1,
+                200
+        );
+
+        Pokemon updatedPokemon = PokemonService.editPokemonSpeed(
+                pokemons,
+                pokemon,
+                speed
+        );
+
+        Messages.success("Snabbheten uppdaterades.");
         printDetails(updatedPokemon);
     }
 

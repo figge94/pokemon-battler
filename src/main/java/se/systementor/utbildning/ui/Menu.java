@@ -29,9 +29,10 @@ public class Menu {
                 "2. Ändra typ",
                 "3. Ändra nuvarande HP",
                 "4. Ändra max HP",
-                "5. Lägg till attack",
-                "6. Ta bort attack",
-                "7. Gå tillbaka"
+                "5. Ändra snabbheten",
+                "6. Lägg till attack",
+                "7. Ta bort attack",
+                "8. Gå tillbaka"
         );
     }
 

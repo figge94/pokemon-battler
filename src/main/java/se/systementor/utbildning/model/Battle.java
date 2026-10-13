@@ -18,7 +18,7 @@ public class Battle {
         return playerPokemon;
     }
 
-    // Hämtar en vild Pokemon
+    // Hämtar en vild Pokemon.
     public  Pokemon getWildPokemon() {
         return  wildPokemon;
     }

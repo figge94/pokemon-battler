@@ -17,6 +17,7 @@ public class Pokemon {
     private final Type type;
     private final int maxHp;
     private int currentHp;
+    private int speed;
 
     private final List<Attack> attacks = new ArrayList<>();
 
@@ -44,12 +45,13 @@ public class Pokemon {
     public String toString() {
         StringBuilder pokemonDetails = new StringBuilder(
                 String.format(
-                        "%d. Namn: %s | Typ: %s | HP: %d/%d%n",
+                        "%d. Namn: %s | Typ: %s | HP: %d/%d | Snabbhet: %d%n ",
                         getId(),
                         getName(),
                         getType().getLabel(),
                         getCurrentHp(),
-                        getMaxHp()
+                        getMaxHp(),
+                        getSpeed()
                 )
         );
 
@@ -61,7 +63,7 @@ public class Pokemon {
             pokemonDetails.append(
 
                     String.format(
-                            "%s  Attack: %s | Skada: %d | Träffsäkerhet: %d | TYPE: %s%n",
+                            "%s  Attack: %s | Skada: %d | Träffsäkerhet: %d | Typ: %s%n",
                             " ".repeat(numberOfCharactersInId),
                             attack.getName(),
                             attack.getBaseDamage(),
@@ -81,18 +83,21 @@ public class Pokemon {
             @JsonProperty("id") int id,
             @JsonProperty("name") String name,
             @JsonProperty("type") Type type,
-            @JsonProperty("maxHp") int maxHp
+            @JsonProperty("maxHp") int maxHp,
+            @JsonProperty("speed") int speed
     ) {
         validateId(id);
         validateName(name);
         validateType(type);
         validateMaxHp(maxHp);
+        validateSpeed(speed);
 
         this.id = id;
         this.name = name;
         this.type = type;
         this.maxHp = maxHp;
         this.currentHp = maxHp;
+        this.speed = speed;
     }
 
     public int getId() {
@@ -113,6 +118,10 @@ public class Pokemon {
 
     public int getCurrentHp() {
         return currentHp;
+    }
+
+    public int getSpeed() {
+        return speed;
     }
 
     // Skickar tillbaka en kopia så att original-listan inte kan ändras utifrån.
@@ -211,26 +220,31 @@ public class Pokemon {
 
     // Skapar en ny Pokemon med ett nytt namn.
     public Pokemon withName(String newName) {
-        return copyWith(newName, type, maxHp);
+        return copyWith(newName, type, maxHp, speed);
     }
 
     // Skapar en ny Pokemon med en ny typ.
     public Pokemon withType(Type newType) {
-        return copyWith(name, newType, maxHp);
+        return copyWith(name, newType, maxHp, speed);
     }
 
     // Skapar en ny Pokemon med nytt max HP.
     public Pokemon withMaxHp(int newMaxHp) {
-        return copyWith(name, type, newMaxHp);
+        return copyWith(name, type, newMaxHp, speed);
+    }
+
+    public Pokemon withSpeed(int newSpeed) {
+        return copyWith(name, type, maxHp, newSpeed);
     }
 
     // Skapar en uppdaterad Pokemon och behåller HP och attacker.
-    private Pokemon copyWith(String name, Type type, int maxHp) {
+    private Pokemon copyWith(String name, Type type, int maxHp, int speed) {
         Pokemon updatedPokemon = new Pokemon(
                 id,
                 name,
                 type,
-                maxHp
+                maxHp,
+                speed
         );
 
         // Behåller HP, men begränsar det till nya maxvärdet.
@@ -284,6 +298,13 @@ public class Pokemon {
             throw new InvalidPokemonException(
                     "Max HP måste vara mellan 1 och 999."
             );
+        }
+    }
+
+    private void validateSpeed(int speed) {
+        // Ser till att träffsäkerheten är mellan 0 och 100.
+        if (speed < 0 || speed > 200) {
+            throw new InvalidAttackException("Snabbheten måste vara mellan 0 och 200.");
         }
     }
 }

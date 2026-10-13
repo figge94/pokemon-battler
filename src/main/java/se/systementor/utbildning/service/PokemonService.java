@@ -67,7 +67,8 @@ public class PokemonService {
             List<Pokemon> pokemons,
             String name,
             int hp,
-            Type type
+            Type type,
+            int speed
     ) {
         int id = getNextId(pokemons);
 
@@ -81,7 +82,8 @@ public class PokemonService {
                 id,
                 name,
                 type,
-                hp
+                hp,
+                speed
         );
 
         Attack attack = AttackService.createDefaultAttack(type);
@@ -155,6 +157,19 @@ public class PokemonService {
             int hp
     ) {
         Pokemon updatedPokemon = pokemon.withMaxHp(hp);
+
+        int index = pokemons.indexOf(pokemon);
+        pokemons.set(index, updatedPokemon);
+
+        return updatedPokemon;
+    }
+
+    public static Pokemon editPokemonSpeed(
+            List<Pokemon> pokemons,
+            Pokemon pokemon,
+            int speed
+    ) {
+        Pokemon updatedPokemon = pokemon.withSpeed(speed);
 
         int index = pokemons.indexOf(pokemon);
         pokemons.set(index, updatedPokemon);

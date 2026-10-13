@@ -96,7 +96,6 @@ public abstract class Attack {
         if (accuracy < 0 || accuracy > 100) {
             throw new InvalidAttackException("Träffsäkerheten måste vara mellan 0 och 100.");
         }
-
     }
 
     public abstract void execute(
