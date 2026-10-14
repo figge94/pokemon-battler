@@ -304,7 +304,7 @@ public class Pokemon {
     private void validateSpeed(int speed) {
         // Ser till att träffsäkerheten är mellan 0 och 100.
         if (speed < 0 || speed > 200) {
-            throw new InvalidAttackException("Snabbheten måste vara mellan 0 och 200.");
+            throw new InvalidPokemonException("Snabbheten måste vara mellan 0 och 200.");
         }
     }
 }

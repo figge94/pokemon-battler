@@ -92,7 +92,15 @@ public class BattleService {
                     playerPokemon
             );
 
-            // Återställer båda Pokemons HP inför striden.
+            // Kontrollerar att båda Pokemon har minst en attack.
+            if (playerPokemon.getAttacks().isEmpty()
+                    || wildPokemon.getAttacks().isEmpty()) {
+                throw new IllegalArgumentException(
+                        "Båda Pokemon måste ha minst en attack för att strida."
+                );
+            }
+
+            // Återställer båda Pokemons HP inför strid.
             playerPokemon.restoreHealth();
             wildPokemon.restoreHealth();
 
