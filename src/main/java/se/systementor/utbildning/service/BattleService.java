@@ -55,10 +55,8 @@ public class BattleService {
     private static void playerTurn(
             Pokemon playerPokemon,
             Pokemon wildPokemon,
-            Scanner scanner
+            Attack playerAttack
     ) {
-        Attack playerAttack = BattleMenu.chooseAttack(playerPokemon, scanner);
-
         playerAttack.execute(
                 playerPokemon,
                 wildPokemon
@@ -109,17 +107,24 @@ public class BattleService {
             );
 
             while (!battle.isOver()) {
+
+                // För att spelaren ska kunna välja attack innan speed avgör vem som attackerar först.
+                Attack playerAttack = BattleMenu.chooseAttack(
+                        battle.getPlayerPokemon(),
+                        scanner
+                );
+
                 Pokemon fastestPokemon = battle.getFastestPokemon();
 
                 System.out.println(
-                        "Snabbast: " + fastestPokemon.getName()
+                        fastestPokemon.getName() + " är snabbast och attackerar först!"
                 );
 
                 if (fastestPokemon == battle.getPlayerPokemon()) {
                     playerTurn(
                             battle.getPlayerPokemon(),
                             battle.getWildPokemon(),
-                            scanner
+                            playerAttack
                     );
                 } else {
                     wildTurn(
@@ -138,7 +143,7 @@ public class BattleService {
                         playerTurn(
                                 battle.getPlayerPokemon(),
                                 battle.getWildPokemon(),
-                                scanner
+                                playerAttack
                         );
                     }
                 }
