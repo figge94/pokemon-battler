@@ -11,6 +11,7 @@ import se.systementor.utbildning.ui.PokemonMenu;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Scanner;
+import java.util.NoSuchElementException;
 
 public class Main {
 
@@ -29,17 +30,17 @@ public class Main {
 
         switch (playChoice) {
             case 1 -> BattleService.startBattle(pokemons, scanner);
-            case 2 ->
-                    BattleMenu.showBattleStats(
-                            BattleService.getBattleStats(),
-                            pokemons
-                    );
+            case 2 -> BattleMenu.showBattleStats(
+                    BattleService.getBattleStats(),
+                    pokemons
+            );
             case 3 -> System.out.println("Statistik per pokemon");
             case 4 -> System.out.println("Mest använda pokemon");
             case 5 -> System.out.println("Mest använda attack");
             case 6 -> System.out.println("Gå tillbaka till huvudmenyn.");
         }
     }
+
     // Startar programmet och hanterar huvudmenyn.
     public static void main(String[] args) {
         // Skapar Scanner för att läsa användarens input.
@@ -56,72 +57,78 @@ public class Main {
                 PokemonFileService.loadInitialPokemons(path, seedPath);
 
         // Huvudloopen körs tills användaren väljer att avsluta.
-        while (running) {
-            Menu.showMainMenu();
+        try {
+            while (running) {
+                Menu.showMainMenu();
 
-            int choice = InputHelper.readIntInRange(
-                    scanner,
-                    "\nVad vill du göra? ",
-                    1,
-                    10
-            );
+                int choice = InputHelper.readIntInRange(
+                        scanner,
+                        "\nVad vill du göra? ",
+                        1,
+                        10
+                );
 
-            switch (choice) {
-                case 1:
-                    // Visar alla Pokemon.
-                    PokemonMenu.showAllPokemons(pokemons);
-                    break;
+                switch (choice) {
+                    case 1:
+                        // Visar alla Pokemon.
+                        PokemonMenu.showAllPokemons(pokemons);
+                        break;
 
-                case 2:
-                    // Hanterar menyn som man vill spela
-                    handlePlayMenu(pokemons, scanner);
-                    break;
+                    case 2:
+                        // Hanterar menyn som man vill spela
+                        handlePlayMenu(pokemons, scanner);
+                        break;
 
-                case 3:
-                    // Söker efter en Pokemon.
-                    PokemonMenu.searchPokemon(pokemons, scanner);
-                    break;
+                    case 3:
+                        // Söker efter en Pokemon.
+                        PokemonMenu.searchPokemon(pokemons, scanner);
+                        break;
 
-                case 4:
-                    // Lägger till en Pokemon.
-                    PokemonMenu.addPokemon(pokemons, scanner);
-                    break;
+                    case 4:
+                        // Lägger till en Pokemon.
+                        PokemonMenu.addPokemon(pokemons, scanner);
+                        break;
 
-                case 5:
-                    // Redigerar en Pokemon.
-                    PokemonMenu.editPokemon(pokemons, scanner);
-                    break;
+                    case 5:
+                        // Redigerar en Pokemon.
+                        PokemonMenu.editPokemon(pokemons, scanner);
+                        break;
 
-                case 6:
-                    // Tar bort en pokemon.
-                    PokemonMenu.removePokemon(pokemons, scanner);
-                    break;
+                    case 6:
+                        // Tar bort en pokemon.
+                        PokemonMenu.removePokemon(pokemons, scanner);
+                        break;
 
-                case 7:
-                    // Sparar alla Pokemon till en JSON-filen.
-                    PokemonFileService.savePokemonsToFile(pokemons);
-                    break;
+                    case 7:
+                        // Sparar alla Pokemon till en JSON-filen.
+                        PokemonFileService.savePokemonsToFile(pokemons);
+                        break;
 
-                case 8:
-                    // Laddar Pokemon från fil.
-                    pokemons = PokemonFileService.loadPokemons(path, pokemons);
-                    break;
+                    case 8:
+                        // Laddar Pokemon från fil.
+                        pokemons = PokemonFileService.loadPokemons(path, pokemons);
+                        break;
 
-                case 9:
-                    // Återställer till seedad data.
-                    pokemons = PokemonFileService.resetPokemons(scanner, pokemons, seedPath);
-                    break;
+                    case 9:
+                        // Återställer till seedad data.
+                        pokemons = PokemonFileService.resetPokemons(scanner, pokemons, seedPath);
+                        break;
 
-                case 10:
-                    // Sparar automatiskt innan programmet avslutas.
-                    PokemonFileService.savePokemonsToFile(pokemons);
-                    System.out.println("Avslutar...");
-                    running = false;
-                    break;
+                    case 10:
+                        // Sparar automatiskt innan programmet avslutas.
+                        PokemonFileService.savePokemonsToFile(pokemons);
+                        System.out.println("Avslutar...");
+                        running = false;
+                        break;
 
-                default:
-                    System.out.println("Ogiltigt val. Försök igen!");
+                    default:
+                        System.out.println("Ogiltigt val. Försök igen!");
+                }
             }
+        } catch (NoSuchElementException e) {
+            System.out.println(
+                    "\nInmatningen avbröts. Programmet avslutas."
+            );
         }
 
         // Stänger scanner när programmet avslutas.
