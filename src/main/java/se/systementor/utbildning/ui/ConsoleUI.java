@@ -35,20 +35,24 @@ public final class ConsoleUI {
     }
 
     public static void printBox(String title, String... lines) {
-        String border = "═".repeat(MENU_WIDTH);
+        int width = MENU_WIDTH;
+
+        // Anpassar bredden efter den längsta raden.
+        for (String line : lines) {
+            width = Math.max(width, line.length() + 2);
+        }
+
+        width = Math.max(width, title.length() + 2);
+
+        String border = "═".repeat(width);
 
         System.out.println(ConsoleColors.CYAN + "╔" + border + "╗");
-
-        System.out.printf(
-                "║ %-" + (MENU_WIDTH - 2) + "s ║%n",
-                title
-        );
-
+        System.out.printf("║ %-" + (width - 2) + "s ║%n", title);
         System.out.println("╠" + border + "╣");
 
         for (String line : lines) {
             System.out.printf(
-                    "║ %-" + (MENU_WIDTH - 2) + "s ║%n",
+                    "║ %-" + (width - 2) + "s ║%n",
                     line
             );
         }

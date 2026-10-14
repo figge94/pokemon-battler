@@ -31,10 +31,12 @@ public class Main {
         switch (playChoice) {
             case 1 -> BattleService.startBattle(pokemons, scanner);
             case 2 -> BattleMenu.showBattleStats(
+                    BattleService.getBattleStats()
+            );
+            case 3 -> BattleMenu.showPokemonStats(
                     BattleService.getBattleStats(),
                     pokemons
             );
-            case 3 -> System.out.println("Statistik per pokemon");
             case 4 -> BattleMenu.showMostUsedPokemon(
                     BattleService.getBattleStats(),
                     pokemons

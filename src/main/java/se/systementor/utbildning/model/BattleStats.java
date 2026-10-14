@@ -128,6 +128,18 @@ public class BattleStats {
     }
 
     @JsonIgnore
+    public double getWinLossRatio(int pokemonId) {
+        int wins = winsByPokemon.getOrDefault(pokemonId, 0);
+        int losses = lossesByPokemon.getOrDefault(pokemonId, 0);
+
+        if (losses == 0) {
+            return wins == 0 ? 0.0 : Double.POSITIVE_INFINITY;
+        }
+
+        return (double) wins / losses;
+    }
+
+    @JsonIgnore
     public int getMostUsedPokemonId() {
         return pokemonUsage.entrySet()
                 .stream()

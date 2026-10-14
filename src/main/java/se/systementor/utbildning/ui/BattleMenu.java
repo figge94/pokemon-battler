@@ -189,10 +189,7 @@ public class BattleMenu {
         }
     }
 
-    public static void showBattleStats(
-            BattleStats stats,
-            List<Pokemon> pokemons
-    ) {
+    public static void showBattleStats(BattleStats stats) {
         List<String> lines = new ArrayList<>();
 
         lines.add("");
@@ -218,17 +215,28 @@ public class BattleMenu {
         ));
 
         lines.add("");
-        lines.add(" RESULTAT PER POKEMON");
-        lines.add("");
 
+        ConsoleUI.printBox(
+                "TOTAL STRIDSSTATISTIK",
+                lines.toArray(new String[0])
+        );
+    }
+
+    public static void showPokemonStats(
+            BattleStats stats,
+            List<Pokemon> pokemons
+    ) {
+        List<String> lines = new ArrayList<>();
+
+        lines.add("");
         lines.add(String.format(
-                " %-12s %3s %3s %9s",
-                "Pokemon", "V", "F", "Vinst %"
+                " %-12s %3s %3s %6s %5s",
+                "Pokemon", "V", "F", "Vinst%", "Ratio"
         ));
 
-        lines.add(" " + "─".repeat(30));
+        lines.add(" " + "─".repeat(36));
 
-        boolean hasPokemonStats = false;
+        boolean hasStats = false;
 
         for (Pokemon pokemon : pokemons) {
             int id = pokemon.getId();
@@ -236,28 +244,36 @@ public class BattleMenu {
             int wins = stats.getWinsByPokemon().getOrDefault(id, 0);
             int losses = stats.getLossesByPokemon().getOrDefault(id, 0);
 
-            // Visar bara Pokemon som deltagit i minst en strid.
-            if (wins + losses > 0) {
-                hasPokemonStats = true;
-
-                lines.add(String.format(
-                        " %-12s %3d %3d %8.1f %%",
-                        pokemon.getName(),
-                        wins,
-                        losses,
-                        stats.getWinPercentage(id)
-                ));
+            if (wins + losses == 0) {
+                continue;
             }
+
+            hasStats = true;
+
+            double ratio = stats.getWinLossRatio(id);
+
+            String ratioText = Double.isInfinite(ratio)
+                    ? "∞"
+                    : String.format("%.2f", ratio);
+
+            lines.add(String.format(
+                    " %-12s %3d %3d %5.1f%% %5s",
+                    pokemon.getName(),
+                    wins,
+                    losses,
+                    stats.getWinPercentage(id),
+                    ratioText
+            ));
         }
 
-        if (!hasPokemonStats) {
+        if (!hasStats) {
             lines.add(" Ingen Pokemon har spelat ännu.");
         }
 
         lines.add("");
 
         ConsoleUI.printBox(
-                "STRIDSSTATISTIK",
+                "STATISTIK PER POKEMON",
                 lines.toArray(new String[0])
         );
     }
