@@ -42,7 +42,12 @@ public class DamageAttack extends Attack {
                 defender.getType()
         );
 
-        int damage = (int) (getBaseDamage() * effectiveness);
+        // Slumpfaktor mellan 85 % och 100 %.
+        double randomFactor = 0.85 + RANDOM.nextDouble() * 0.15;
+
+        int damage = (int) (
+                getBaseDamage() * effectiveness * randomFactor
+        );
 
         // 1 av 16 chans att göra dubbel skada.
         boolean criticalHit = RANDOM.nextInt(16) == 0;
