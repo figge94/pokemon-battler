@@ -2,6 +2,7 @@ package se.systementor.utbildning.service;
 
 import se.systementor.utbildning.exception.InvalidPokemonException;
 import se.systementor.utbildning.model.Attack;
+import se.systementor.utbildning.model.BattleStats;
 import se.systementor.utbildning.model.Pokemon;
 import se.systementor.utbildning.model.Type;
 
@@ -20,30 +21,41 @@ public class PokemonService {
         return null;
     }
 
-    // Private eftersom metoden bara används i den här klassen.
+    // Hämtar nästa ID utan att återanvända ID från stridsstatistiken.
     private static int getNextId(List<Pokemon> pokemons) {
         int maxId = 0;
 
-        // Går igenom alla Pokemon för att hitta det högsta ID:t.
+        // Kontrollerar alla Pokémon som finns kvar.
         for (Pokemon pokemon : pokemons) {
-            if (pokemon.getId() > maxId) {
-                maxId = pokemon.getId();
-            }
+            maxId = Math.max(maxId, pokemon.getId());
         }
 
-        // Returnerar nästa lediga ID genom att lägga till 1 på det högsta.
+        BattleStats stats = BattleService.getBattleStats();
+
+        // Kontrollerar Pokémon som tidigare vunnit strider.
+        for (int id : stats.getWinsByPokemon().keySet()) {
+            maxId = Math.max(maxId, id);
+        }
+
+        // Kontrollerar Pokémon som tidigare förlorat strider.
+        for (int id : stats.getLossesByPokemon().keySet()) {
+            maxId = Math.max(maxId, id);
+        }
+
+        // Kontrollerar alla Pokémon som tidigare använts.
+        for (int id : stats.getPokemonUsage().keySet()) {
+            maxId = Math.max(maxId, id);
+        }
+
         return maxId + 1;
     }
 
     // Kontrollerar om ett Pokemon-namn redan finns i listan.
-    private static boolean existsByName(List<Pokemon> pokemons, String name) {
-        for (Pokemon pokemon : pokemons) {
-            if (pokemon.getName().equalsIgnoreCase(name)) {
-                return true;
-            }
-        }
-
-        return false;
+    private static boolean existsByName(
+            List<Pokemon> pokemons,
+            String name
+    ) {
+        return findPokemonByName(pokemons, name) != null;
     }
 
     // Kontrollerar om namnet används av någon annan Pokemon än den som redigeras.

@@ -23,15 +23,15 @@ public class AttackService {
     // Skapar en standardattack beroende på vald Pokemon-typ.
     public static Attack createDefaultAttack(Type type) {
         return switch (type) {
-            case FIRE ->     new DamageAttack("Flame Wheel", 60, 100, Type.FIRE);
-            case WATER ->    new DamageAttack("Water Gun", 40, 100, Type.WATER);
-            case GRASS ->    new DamageAttack("Razor Leaf", 55, 95, Type.GRASS);
-            case ELECTRIC -> new DamageAttack("Thunder Shock", 40, 100, Type.ELECTRIC);
-            case NORMAL ->   new DamageAttack("Scratch", 40, 100, Type.NORMAL);
-            case ICE ->      new DamageAttack("Ice Shard", 40, 100, Type.ICE);
-            case PSYCHIC ->  new DamageAttack("Psychic", 90, 100, Type.PSYCHIC);
-            case BUG ->      new DamageAttack("Skitter Smack", 70, 90, Type.BUG);
-            case FAIRY ->    new DamageAttack("Fairy Wind", 40, 100, Type.FAIRY);
+            case FIRE -> new DamageAttack("Flame Wheel", 60, 100, type);
+            case WATER -> new DamageAttack("Water Gun", 40, 100, type);
+            case GRASS -> new DamageAttack("Razor Leaf", 55, 95, type);
+            case ELECTRIC -> new DamageAttack("Thunder Shock", 40, 100, type);
+            case NORMAL -> new DamageAttack("Scratch", 40, 100, type);
+            case ICE -> new DamageAttack("Ice Shard", 40, 100, type);
+            case PSYCHIC -> new DamageAttack("Psychic", 90, 100, type);
+            case BUG -> new DamageAttack("Skitter Smack", 70, 90, type);
+            case FAIRY -> new DamageAttack("Fairy Wind", 40, 100, type);
         };
     }
 }

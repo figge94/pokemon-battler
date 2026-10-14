@@ -206,35 +206,29 @@ public class BattleService {
             Type attackType,
             Type defenderType
     ) {
-        if (attackType == Type.FIRE && defenderType == Type.GRASS) {
-            return 2.0;
-        }
+        return switch (attackType) {
+            case FIRE -> switch (defenderType) {
+                case GRASS -> 2.0;
+                case WATER -> 0.5;
+                default -> 1.0;
+            };
 
-        if (attackType == Type.WATER && defenderType == Type.FIRE) {
-            return 2.0;
-        }
+            case WATER -> switch (defenderType) {
+                case FIRE -> 2.0;
+                case GRASS -> 0.5;
+                default -> 1.0;
+            };
 
-        if (attackType == Type.GRASS && defenderType == Type.WATER) {
-            return 2.0;
-        }
+            case GRASS -> switch (defenderType) {
+                case WATER -> 2.0;
+                case FIRE -> 0.5;
+                default -> 1.0;
+            };
 
-        if (attackType == Type.ELECTRIC && defenderType == Type.WATER) {
-            return 2.0;
-        }
+            case ELECTRIC -> defenderType == Type.WATER ? 2.0 : 1.0;
 
-        if (attackType == Type.FIRE && defenderType == Type.WATER) {
-            return 0.5;
-        }
-
-        if (attackType == Type.WATER && defenderType == Type.GRASS) {
-            return 0.5;
-        }
-
-        if (attackType == Type.GRASS && defenderType == Type.FIRE) {
-            return 0.5;
-        }
-
-        return 1.0;
+            default -> 1.0;
+        };
     }
 
     public static BattleStats getBattleStats() {
