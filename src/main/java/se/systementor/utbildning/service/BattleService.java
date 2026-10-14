@@ -110,55 +110,42 @@ public class BattleService {
 
                 // För att spelaren ska kunna välja attack innan speed avgör vem som attackerar först.
                 Attack playerAttack = BattleMenu.chooseAttack(
-                        battle.getPlayerPokemon(),
+                        playerPokemon,
                         scanner
                 );
 
-                Pokemon fastestPokemon = battle.getFastestPokemon();
+                Pokemon[] turnOrder = battle.getTurnOrder();
 
                 System.out.println(
-                        fastestPokemon.getName() + " är snabbast och attackerar först!"
+                        turnOrder[0].getName() + " är snabbast och attackerar först!"
                 );
 
-                if (fastestPokemon == battle.getPlayerPokemon()) {
-                    playerTurn(
-                            battle.getPlayerPokemon(),
-                            battle.getWildPokemon(),
-                            playerAttack
-                    );
-                } else {
-                    wildTurn(
-                            battle.getWildPokemon(),
-                            battle.getPlayerPokemon()
-                    );
-                }
+                for (Pokemon attacker : turnOrder) {
 
-                if (!battle.isOver()) {
-                    if (fastestPokemon == battle.getPlayerPokemon()) {
-                        wildTurn(
-                                battle.getWildPokemon(),
-                                battle.getPlayerPokemon()
+                    if (battle.isOver()) {
+                        break;
+                    }
+
+                    if (attacker == playerPokemon) {
+                        playerTurn(
+                                playerPokemon,
+                                wildPokemon,
+                                playerAttack
                         );
                     } else {
-                        playerTurn(
-                                battle.getPlayerPokemon(),
-                                battle.getWildPokemon(),
-                                playerAttack
+                        wildTurn(
+                                wildPokemon,
+                                playerPokemon
                         );
                     }
                 }
 
-                if (battle.getWildPokemon().isKnockedOut()) {
-                    BattleMenu.showKnockedOut(
-                            battle.getWildPokemon()
-                    );
-                    break;
-                }
+                if (battle.isOver()) {
+                    Pokemon knockedOut = playerPokemon.isKnockedOut()
+                            ? playerPokemon
+                            : wildPokemon;
 
-                if (battle.getPlayerPokemon().isKnockedOut()) {
-                    BattleMenu.showKnockedOut(
-                            battle.getPlayerPokemon()
-                    );
+                    BattleMenu.showKnockedOut(knockedOut);
                 }
             }
 

@@ -38,6 +38,15 @@ public class Battle {
         return wildPokemon;
     }
 
+    public Pokemon[] getTurnOrder() {
+        Pokemon first = getFastestPokemon();
+        Pokemon second = first == playerPokemon
+                ? wildPokemon
+                : playerPokemon;
+
+        return new Pokemon[]{first, second};
+    }
+
     // Kontrollerar om striden är slut.
     public boolean isOver() {
         return playerPokemon.isKnockedOut()
@@ -48,18 +57,5 @@ public class Battle {
     public boolean playerWon() {
         return wildPokemon.isKnockedOut()
                 && !playerPokemon.isKnockedOut();
-    }
-
-    // Returnerar vinnaren när striden är slut.
-    public Pokemon getWinner() {
-        if (!isOver()) {
-            return null;
-        }
-
-        if (playerWon()) {
-            return playerPokemon;
-        }
-
-        return wildPokemon;
     }
 }
