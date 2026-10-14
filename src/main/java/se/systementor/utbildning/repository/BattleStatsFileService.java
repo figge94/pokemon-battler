@@ -17,8 +17,8 @@ public class BattleStatsFileService {
             objectMapper.writerWithDefaultPrettyPrinter()
                     .writeValue(FILE_PATH.toFile(), stats);
         } catch (IOException e) {
-            throw new IllegalStateException(
-                    "Kunde inte spara stridsstatistiken.", e
+            System.out.println(
+                    "Kunde inte spara stridsstatistiken."
             );
         }
     }
@@ -34,9 +34,11 @@ public class BattleStatsFileService {
                     BattleStats.class
             );
         } catch (IOException e) {
-            throw new IllegalStateException(
-                    "Kunde inte läsa stridsstatistiken.", e
+            System.out.println(
+                    "Kunde inte läsa statistiken. Ny statistik skapas."
             );
+
+            return new BattleStats();
         }
     }
 }

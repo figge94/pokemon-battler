@@ -6,6 +6,7 @@ import se.systementor.utbildning.model.Pokemon;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class BattleMenu {
@@ -285,7 +286,47 @@ public class BattleMenu {
         );
     }
 
+    public static void showMostUsedAttack(BattleStats stats) {
+        Map<String, Integer> attackUsage = stats.getAttackUsage();
+
+        if (attackUsage.isEmpty()) {
+            Messages.warning("Ingen attack har använts ännu.");
+            return;
+        }
+
+        List<String> lines = new ArrayList<>();
+
+        lines.add("");
+
+        attackUsage.entrySet()
+                .stream()
+                .sorted(
+                        Map.Entry.<String, Integer>comparingByValue()
+                                .reversed()
+                                .thenComparing(Map.Entry.comparingByKey())
+                )
+                .forEach(entry ->
+                        lines.add(
+                                String.format(
+                                        " %-20s | %d %s",
+                                        entry.getKey(),
+                                        entry.getValue(),
+                                        entry.getValue() == 1 ? "gång" : "gånger"
+                                )
+                        )
+                );
+
+        lines.add("");
+
+        ConsoleUI.printBox(
+                "MEST ANVÄNDA ATTACKER",
+                lines.toArray(new String[0])
+        );
+    }
+
     public static void showCriticalHit() {
         Messages.warning("Kritisk träff!");
     }
+
+
 }

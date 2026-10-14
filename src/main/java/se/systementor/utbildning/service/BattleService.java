@@ -61,6 +61,8 @@ public class BattleService {
                 playerPokemon,
                 wildPokemon
         );
+
+        BATTLE_STATS.registerAttackUsage(playerAttack.getName());
     }
 
     // Hanterar den vilda Pokemonens tur.

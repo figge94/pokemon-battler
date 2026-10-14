@@ -39,7 +39,9 @@ public class Main {
                     BattleService.getBattleStats(),
                     pokemons
             );
-            case 5 -> System.out.println("Mest använda attack");
+            case 5 -> BattleMenu.showMostUsedAttack(
+                    BattleService.getBattleStats()
+            );
             case 6 -> System.out.println("Gå tillbaka till huvudmenyn.");
         }
     }

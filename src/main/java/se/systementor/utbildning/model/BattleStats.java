@@ -15,10 +15,18 @@ public class BattleStats {
     private final Map<Integer, Integer> winsByPokemon;
     private final Map<Integer, Integer> lossesByPokemon;
     private final Map<Integer, Integer> pokemonUsage;
+    private final Map<String, Integer> attackUsage;
 
     // Används när ny statistik skapas.
     public BattleStats() {
-        this(0, 0, null, null, null);
+        this(
+                0,
+                0,
+                null,
+                null,
+                null,
+                null
+        );
     }
 
     // Används när statistik läses från JSON.
@@ -26,12 +34,10 @@ public class BattleStats {
     public BattleStats(
             @JsonProperty("wins") int wins,
             @JsonProperty("losses") int losses,
-            @JsonProperty("winsByPokemon")
-            Map<Integer, Integer> winsByPokemon,
-            @JsonProperty("lossesByPokemon")
-            Map<Integer, Integer> lossesByPokemon,
-            @JsonProperty("pokemonUsage")
-            Map<Integer, Integer> pokemonUsage
+            @JsonProperty("winsByPokemon") Map<Integer, Integer> winsByPokemon,
+            @JsonProperty("lossesByPokemon") Map<Integer, Integer> lossesByPokemon,
+            @JsonProperty("pokemonUsage") Map<Integer, Integer> pokemonUsage,
+            @JsonProperty("attackUsage") Map<String, Integer> attackUsage
     ) {
         if (wins < 0 || losses < 0) {
             throw new IllegalArgumentException(
@@ -53,6 +59,10 @@ public class BattleStats {
         this.pokemonUsage = pokemonUsage == null
                 ? new HashMap<>()
                 : new HashMap<>(pokemonUsage);
+
+        this.attackUsage = attackUsage == null
+                ? new HashMap<>()
+                : new HashMap<>(attackUsage);
     }
 
     // Registrerar en vinst för en Pokemon.
@@ -126,12 +136,34 @@ public class BattleStats {
                 .orElse(-1);
     }
 
+    @JsonIgnore
+    public String getMostUsedAttack() {
+        return attackUsage.entrySet()
+                .stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(null);
+    }
+
+    public Map<String, Integer> getAttackUsage() {
+        return Map.copyOf(attackUsage);
+    }
+
     // Registrerar att en Pokemon används i en strid.
     public void registerPokemonUsage(int pokemonId) {
         pokemonUsage.merge(
                 pokemonId,
                 1,
                 Integer::sum);
+    }
+
+    // Registrerar hur många gånger en attack används.
+    public void registerAttackUsage(String attackName) {
+        attackUsage.merge(
+                attackName,
+                1,
+                Integer::sum
+        );
     }
 
     public Map<Integer, Integer> getPokemonUsage() {
