@@ -20,7 +20,22 @@ public class Battle {
 
     // Hämtar en vild Pokemon.
     public  Pokemon getWildPokemon() {
-        return  wildPokemon;
+        return wildPokemon;
+    }
+
+    // Hämtar den snabbaste pokemon
+    public Pokemon getFastestPokemon() {
+        if (playerPokemon.getSpeed() == wildPokemon.getSpeed()) {
+            return Math.random() < 0.5
+                    ? playerPokemon
+                    : wildPokemon;
+        }
+
+        if (playerPokemon.getSpeed() > wildPokemon.getSpeed()) {
+            return playerPokemon;
+        }
+
+        return wildPokemon;
     }
 
     // Kontrollerar om striden är slut.

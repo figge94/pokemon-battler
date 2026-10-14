@@ -109,12 +109,39 @@ public class BattleService {
             );
 
             while (!battle.isOver()) {
+                Pokemon fastestPokemon = battle.getFastestPokemon();
 
-                playerTurn(
-                        battle.getPlayerPokemon(),
-                        battle.getWildPokemon(),
-                        scanner
+                System.out.println(
+                        "Snabbast: " + fastestPokemon.getName()
                 );
+
+                if (fastestPokemon == battle.getPlayerPokemon()) {
+                    playerTurn(
+                            battle.getPlayerPokemon(),
+                            battle.getWildPokemon(),
+                            scanner
+                    );
+                } else {
+                    wildTurn(
+                            battle.getWildPokemon(),
+                            battle.getPlayerPokemon()
+                    );
+                }
+
+                if (!battle.isOver()) {
+                    if (fastestPokemon == battle.getPlayerPokemon()) {
+                        wildTurn(
+                                battle.getWildPokemon(),
+                                battle.getPlayerPokemon()
+                        );
+                    } else {
+                        playerTurn(
+                                battle.getPlayerPokemon(),
+                                battle.getWildPokemon(),
+                                scanner
+                        );
+                    }
+                }
 
                 if (battle.getWildPokemon().isKnockedOut()) {
                     BattleMenu.showKnockedOut(
@@ -122,11 +149,6 @@ public class BattleService {
                     );
                     break;
                 }
-
-                wildTurn(
-                        battle.getWildPokemon(),
-                        battle.getPlayerPokemon()
-                );
 
                 if (battle.getPlayerPokemon().isKnockedOut()) {
                     BattleMenu.showKnockedOut(
