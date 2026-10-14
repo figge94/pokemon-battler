@@ -117,6 +117,15 @@ public class BattleStats {
         return pokemonWins * 100.0 / totalBattles;
     }
 
+    @JsonIgnore
+    public int getMostUsedPokemonId() {
+        return pokemonUsage.entrySet()
+                .stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(-1);
+    }
+
     // Registrerar att en Pokemon används i en strid.
     public void registerPokemonUsage(int pokemonId) {
         pokemonUsage.merge(

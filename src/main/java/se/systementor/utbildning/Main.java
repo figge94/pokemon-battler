@@ -35,7 +35,10 @@ public class Main {
                     pokemons
             );
             case 3 -> System.out.println("Statistik per pokemon");
-            case 4 -> System.out.println("Mest använda pokemon");
+            case 4 -> BattleMenu.showMostUsedPokemon(
+                    BattleService.getBattleStats(),
+                    pokemons
+            );
             case 5 -> System.out.println("Mest använda attack");
             case 6 -> System.out.println("Gå tillbaka till huvudmenyn.");
         }

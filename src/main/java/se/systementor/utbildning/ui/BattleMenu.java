@@ -261,6 +261,30 @@ public class BattleMenu {
         );
     }
 
+    public static void showMostUsedPokemon(
+            BattleStats stats,
+            List<Pokemon> pokemons
+    ) {
+        int mostUsedId = stats.getMostUsedPokemonId();
+
+        Pokemon mostUsed = pokemons.stream()
+                .filter(pokemon -> pokemon.getId() == mostUsedId)
+                .findFirst()
+                .orElse(null);
+
+        if (mostUsed == null) {
+            Messages.warning("Ingen Pokémon har använts ännu.");
+            return;
+        }
+
+        int usage = stats.getPokemonUsage().getOrDefault(mostUsedId, 0);
+
+        System.out.println(
+                "Mest använda Pokémon: " + mostUsed.getName()
+                        + " | Antal strider: " + usage
+        );
+    }
+
     public static void showCriticalHit() {
         Messages.warning("Kritisk träff!");
     }
