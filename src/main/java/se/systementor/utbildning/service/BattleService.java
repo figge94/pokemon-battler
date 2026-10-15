@@ -5,7 +5,7 @@ import se.systementor.utbildning.ui.BattleMenu;
 import se.systementor.utbildning.repository.BattleStatsFileService;
 import se.systementor.utbildning.ui.Messages;
 
-import se.systementor.utbildning.strategy.RandomStrategy;
+import se.systementor.utbildning.strategy.AggressiveStrategy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,8 +17,9 @@ public class BattleService {
     private static final BattleStats BATTLE_STATS = BattleStatsFileService.loadStats();
 
     // CPU:n får sin strategi via konstruktorn.
+    // CPU:n använder en aggressiv strategi.
     private static final CpuPlayer CPU_PLAYER =
-            new CpuPlayer(new RandomStrategy());
+            new CpuPlayer(new AggressiveStrategy());
 
     // Väljer en slumpmässig vild Pokemon som inte är samma som spelarens Pokemon.
     public static Pokemon chooseRandomWildPokemon(

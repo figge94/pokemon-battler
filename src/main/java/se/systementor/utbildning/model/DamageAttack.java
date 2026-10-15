@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Random;
+
 import se.systementor.utbildning.service.BattleService;
 import se.systementor.utbildning.ui.BattleMenu;
 
