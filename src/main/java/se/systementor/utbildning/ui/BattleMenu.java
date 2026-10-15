@@ -3,6 +3,8 @@ package se.systementor.utbildning.ui;
 import se.systementor.utbildning.model.Attack;
 import se.systementor.utbildning.model.BattleStats;
 import se.systementor.utbildning.model.Pokemon;
+import se.systementor.utbildning.model.BattleAction;
+import se.systementor.utbildning.model.FleeAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,40 +14,33 @@ import java.util.Scanner;
 public class BattleMenu {
 
     // Visar attacker spelaren kan välja mellan i en strid
-    public static Attack chooseAttack(
+    public static BattleAction chooseAction(
             Pokemon pokemon,
             Scanner scanner
     ) {
-        List<Attack> attacks = pokemon.getAttacks();
+        // Samlar attacker och andra handlingar i samma lista.
+        List<BattleAction> actions =
+                new ArrayList<>(pokemon.getAttacks());
 
-        if (attacks.isEmpty()) {
-            throw new IllegalArgumentException(
-                    pokemon.getName() + " har inga attacker."
-            );
-        }
+        actions.add(new FleeAction());
 
-        System.out.println("\n=== VÄLJ ATTACK ===");
+        System.out.println("\n=== VÄLJ HANDLING ===");
 
-        for (int i = 0; i < attacks.size(); i++) {
-            Attack attack = attacks.get(i);
-
+        // Menyn använder interfacet istället för konkreta klasser.
+        for (int i = 0; i < actions.size(); i++) {
             System.out.println(
-                    (i + 1)
-                            + ". "
-                            + attack.getName()
-                            + " | Skada: "
-                            + attack.getBaseDamage()
+                    (i + 1) + ". " + actions.get(i).label()
             );
         }
 
         int choice = InputHelper.readIntInRange(
                 scanner,
-                "Välj attack: ",
+                "Välj handling: ",
                 1,
-                attacks.size()
+                actions.size()
         );
 
-        return attacks.get(choice - 1);
+        return actions.get(choice - 1);
     }
 
     // Låter spelaren välja vilken Pokemon som ska användas i striden.

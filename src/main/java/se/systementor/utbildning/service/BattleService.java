@@ -62,14 +62,16 @@ public class BattleService {
     private static void playerTurn(
             Pokemon playerPokemon,
             Pokemon wildPokemon,
-            Attack playerAttack
+            BattleAction playerAction
     ) {
-        playerAttack.execute(
+        // Utför handlingen via BattleAction-interfacet.
+        playerAction.execute(
                 playerPokemon,
                 wildPokemon
         );
 
-        BATTLE_STATS.registerAttackUsage(playerAttack.getName());
+        // Registrerar användningen av handlingen.
+        BATTLE_STATS.registerAttackUsage(playerAction.label());
     }
 
 
@@ -133,8 +135,8 @@ public class BattleService {
 
             while (!battle.isOver()) {
 
-                // För att spelaren ska kunna välja attack innan speed avgör vem som attackerar först.
-                Attack playerAttack = BattleMenu.chooseAttack(
+                // Spelaren kan välja både attacker och andra handlingar.
+                BattleAction playerAction = BattleMenu.chooseAction(
                         playerPokemon,
                         scanner
                 );
@@ -151,12 +153,22 @@ public class BattleService {
                         break;
                     }
 
+
                     if (attacker == playerPokemon) {
+
+                        // Avslutar striden om spelaren väljer Fly.
+                        if (playerAction instanceof FleeAction) {
+                            playerAction.execute(playerPokemon, wildPokemon);
+                            battle.flee();
+                            break;
+                        }
+
                         playerTurn(
                                 playerPokemon,
                                 wildPokemon,
-                                playerAttack
+                                playerAction
                         );
+
                     } else {
                         wildTurn(
                                 wildPokemon,
@@ -165,7 +177,7 @@ public class BattleService {
                     }
                 }
 
-                if (battle.isOver()) {
+                if (battle.isOver() && !battle.hasFled()) {
                     Pokemon knockedOut = playerPokemon.isKnockedOut()
                             ? playerPokemon
                             : wildPokemon;
@@ -174,17 +186,25 @@ public class BattleService {
                 }
             }
 
-            BattleMenu.showBattleResult(
-                    battle.getPlayerPokemon(),
-                    battle.getWildPokemon()
-            );
+            // Flykt avslutar striden utan vinnare.
+            if (battle.hasFled()) {
+                System.out.println("Du flydde från striden!");
+            } else {
+                BattleMenu.showBattleResult(
+                        battle.getPlayerPokemon(),
+                        battle.getWildPokemon()
+                );
+            }
 
             BATTLE_STATS.registerPokemonUsage(playerPokemon.getId());
 
-            if (battle.playerWon()) {
-                BATTLE_STATS.addWin(playerPokemon.getId());
-            } else {
-                BATTLE_STATS.addLoss(playerPokemon.getId());
+            // Registrerar vinster och förluster men inte flykter.
+            if (!battle.hasFled()) {
+                if (battle.playerWon()) {
+                    BATTLE_STATS.addWin(playerPokemon.getId());
+                } else {
+                    BATTLE_STATS.addLoss(playerPokemon.getId());
+                }
             }
 
             // Återställer båda Pokemon efter avslutad strid.

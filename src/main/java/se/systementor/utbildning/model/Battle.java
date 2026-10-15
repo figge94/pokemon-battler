@@ -49,7 +49,8 @@ public class Battle {
 
     // Kontrollerar om striden är slut.
     public boolean isOver() {
-        return playerPokemon.isKnockedOut()
+        return fled
+                || playerPokemon.isKnockedOut()
                 || wildPokemon.isKnockedOut();
     }
 
@@ -57,5 +58,17 @@ public class Battle {
     public boolean playerWon() {
         return wildPokemon.isKnockedOut()
                 && !playerPokemon.isKnockedOut();
+    }
+
+    // Håller reda på om spelaren har flytt.
+    private boolean fled = false;
+
+    // Registrerar att spelaren flyr.
+    public void flee() {
+        fled = true;
+    }
+
+    public boolean hasFled() {
+        return fled;
     }
 }
