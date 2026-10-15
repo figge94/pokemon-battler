@@ -141,6 +141,13 @@ public class BattleService {
                         scanner
                 );
 
+                // Flykt sker innan turordningen bestäms.
+                if (playerAction.endsBattle()) {
+                    playerAction.execute(playerPokemon, wildPokemon);
+                    battle.flee();
+                    break;
+                }
+
                 Pokemon[] turnOrder = battle.getTurnOrder();
 
                 System.out.println(
@@ -153,15 +160,7 @@ public class BattleService {
                         break;
                     }
 
-
                     if (attacker == playerPokemon) {
-
-                        // Avslutar striden om spelaren väljer Fly.
-                        if (playerAction instanceof FleeAction) {
-                            playerAction.execute(playerPokemon, wildPokemon);
-                            battle.flee();
-                            break;
-                        }
 
                         playerTurn(
                                 playerPokemon,

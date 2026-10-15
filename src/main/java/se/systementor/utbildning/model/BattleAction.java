@@ -11,4 +11,9 @@ public interface BattleAction {
     default boolean consumesTurn() {
         return true;
     }
+
+    // Anger om handlingen avslutar striden.
+    default boolean endsBattle() {
+        return false;
+    }
 }

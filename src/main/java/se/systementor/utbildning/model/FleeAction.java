@@ -16,4 +16,10 @@ public class FleeAction implements BattleAction {
                 attacker.getName() + " försöker fly!"
         );
     }
+
+    // Flykt ska avsluta striden.
+    @Override
+    public boolean endsBattle() {
+        return true;
+    }
 }
