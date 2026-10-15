@@ -7,9 +7,15 @@ import java.util.List;
 import java.util.Scanner;
 
 public class PlayMenuHandler {
+    private final BattleService battleService;
+
+    // Får stridshanteraren via konstruktorn.
+    public PlayMenuHandler(BattleService battleService) {
+        this.battleService = battleService;
+    }
 
     // Hanterar spelmenyn tills användaren går tillbaka.
-    public static void show(List<Pokemon> pokemons, Scanner scanner) {
+    public void show(List<Pokemon> pokemons, Scanner scanner) {
         boolean inPlayMenu = true;
 
         while (inPlayMenu) {
@@ -20,18 +26,19 @@ public class PlayMenuHandler {
             );
 
             switch (choice) {
-                case 1 -> BattleService.startBattle(pokemons, scanner);
+                // Startar striden via det injicerade BattleService-objektet.
+                case 1 -> battleService.startBattle(pokemons, scanner);
                 case 2 -> BattleMenu.showBattleStats(
-                        BattleService.getBattleStats()
+                        battleService.getBattleStats()
                 );
                 case 3 -> BattleMenu.showPokemonStats(
-                        BattleService.getBattleStats(), pokemons
+                        battleService.getBattleStats(), pokemons
                 );
                 case 4 -> BattleMenu.showMostUsedPokemon(
-                        BattleService.getBattleStats(), pokemons
+                        battleService.getBattleStats(), pokemons
                 );
                 case 5 -> BattleMenu.showMostUsedAttack(
-                        BattleService.getBattleStats()
+                        battleService.getBattleStats()
                 );
                 // Avslutar spelmenyn.
                 case 6 -> inPlayMenu = false;

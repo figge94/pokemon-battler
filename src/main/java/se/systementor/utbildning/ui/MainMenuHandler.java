@@ -2,6 +2,11 @@ package se.systementor.utbildning.ui;
 
 import se.systementor.utbildning.model.Pokemon;
 import se.systementor.utbildning.repository.PokemonFileService;
+import se.systementor.utbildning.model.BattleStats;
+import se.systementor.utbildning.model.CpuPlayer;
+import se.systementor.utbildning.service.BattleService;
+import se.systementor.utbildning.repository.BattleStatsFileService;
+import se.systementor.utbildning.strategy.AggressiveStrategy;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -11,12 +16,22 @@ public class MainMenuHandler {
     // Filsökvägar som används av huvudmenyn.
     private final Path path;
     private final Path seedPath;
+    // Spelmenyn använder samma BattleService under hela programmet.
+    private final PlayMenuHandler playMenuHandler;
+    private final BattleService battleService;
     private boolean running = true;
 
     // Tar emot sökvägar när menyobjektet skapas.
     public MainMenuHandler(Path path, Path seedPath) {
         this.path = path;
         this.seedPath = seedPath;
+
+        // Skapar beroendena och kopplar ihop spelmenyn.
+        BattleStats stats = BattleStatsFileService.loadStats();
+        CpuPlayer cpuPlayer = new CpuPlayer(new AggressiveStrategy());
+
+        this.battleService = new BattleService(stats, cpuPlayer);
+        this.playMenuHandler = new PlayMenuHandler(this.battleService);
     }
 
     public boolean isRunning() {
@@ -40,11 +55,16 @@ public class MainMenuHandler {
         switch (choice) {
             case 1 -> PokemonMenu.showAllPokemons(pokemons);
 
-            case 2 -> PlayMenuHandler.show(pokemons, scanner);
+            case 2 -> playMenuHandler.show(pokemons, scanner);
 
             case 3 -> PokemonMenu.searchPokemon(pokemons, scanner);
 
-            case 4 -> PokemonMenu.addPokemon(pokemons, scanner);
+            // Skickar vidare statistiken så att Pokémon-ID:n inte återanvänds.
+            case 4 -> PokemonMenu.addPokemon(
+                    pokemons,
+                    scanner,
+                    battleService.getBattleStats()
+            );
 
             case 5 -> PokemonMenu.editPokemon(pokemons, scanner);
 

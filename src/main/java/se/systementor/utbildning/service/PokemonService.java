@@ -22,15 +22,16 @@ public class PokemonService {
     }
 
     // Hämtar nästa ID utan att återanvända ID från stridsstatistiken.
-    private static int getNextId(List<Pokemon> pokemons) {
+    private static int getNextId(
+            List<Pokemon> pokemons,
+            BattleStats stats
+    ) {
         int maxId = 0;
 
         // Kontrollerar alla Pokémon som finns kvar.
         for (Pokemon pokemon : pokemons) {
             maxId = Math.max(maxId, pokemon.getId());
         }
-
-        BattleStats stats = BattleService.getBattleStats();
 
         // Kontrollerar Pokémon som tidigare vunnit strider.
         for (int id : stats.getWinsByPokemon().keySet()) {
@@ -80,9 +81,11 @@ public class PokemonService {
             String name,
             int hp,
             Type type,
-            int speed
+            int speed,
+            BattleStats stats
     ) {
-        int id = getNextId(pokemons);
+        // Använder statistiken för att undvika återanvända Pokémon-ID:n.
+        int id = getNextId(pokemons, stats);
 
         if (existsByName(pokemons, name)) {
             throw new InvalidPokemonException(

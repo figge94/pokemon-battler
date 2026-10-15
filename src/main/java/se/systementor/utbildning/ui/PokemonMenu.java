@@ -1,9 +1,13 @@
 package se.systementor.utbildning.ui;
 
 import se.systementor.utbildning.exception.InvalidPokemonException;
+
 import se.systementor.utbildning.model.Pokemon;
 import se.systementor.utbildning.model.Type;
+import se.systementor.utbildning.model.BattleStats;
+
 import se.systementor.utbildning.repository.PokemonFileService;
+
 import se.systementor.utbildning.service.PokemonService;
 
 import java.util.List;
@@ -13,7 +17,8 @@ public class PokemonMenu {
 
     public static void addPokemon(
             List<Pokemon> pokemons,
-            Scanner scanner
+            Scanner scanner,
+            BattleStats stats
     ) {
         String name = InputHelper.readValidName(
                 scanner,
@@ -41,7 +46,8 @@ public class PokemonMenu {
                 name,
                 hp,
                 type,
-                speed
+                speed,
+                stats
         );
 
         ConsoleUI.header("FÖRHANDSVISNING");

@@ -6,21 +6,22 @@ import se.systementor.utbildning.repository.BattleStatsFileService;
 import se.systementor.utbildning.ui.Messages;
 import se.systementor.utbildning.ui.BattlePresentation;
 
-import se.systementor.utbildning.strategy.AggressiveStrategy;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
 public class BattleService {
-    private static final Random RANDOM = new Random();
-    private static final BattleStats BATTLE_STATS = BattleStatsFileService.loadStats();
+    // Varje BattleService-objekt har sina egna beroenden.
+    private final BattleStats battleStats;
+    private final CpuPlayer cpuPlayer;
 
-    // CPU:n får sin strategi via konstruktorn.
-    // CPU:n använder en aggressiv strategi.
-    private static final CpuPlayer CPU_PLAYER =
-            new CpuPlayer(new AggressiveStrategy());
+    public BattleService(BattleStats battleStats, CpuPlayer cpuPlayer) {
+        this.battleStats = battleStats;
+        this.cpuPlayer = cpuPlayer;
+    }
+
+    private static final Random RANDOM = new Random();
 
     // Väljer en slumpmässig vild Pokemon som inte är samma som spelarens Pokemon.
     public static Pokemon chooseRandomWildPokemon(
@@ -73,8 +74,7 @@ public class BattleService {
     }
 
     // Hanterar spelarens tur.
-
-    private static void playerTurn(
+    private void playerTurn(
             Pokemon playerPokemon,
             Pokemon wildPokemon,
             BattleAction playerAction
@@ -82,12 +82,11 @@ public class BattleService {
         // Utför spelarens handling via den gemensamma metoden.
         executeAction(playerAction, playerPokemon, wildPokemon);
 
-        // Registrerar vilken attack spelaren använde.
-        BATTLE_STATS.registerAttackUsage(playerAction.label());
+        // Registrerar attacken i objektets statistik.
+        battleStats.registerAttackUsage(playerAction.label());
     }
 
-
-    private static void wildTurn(
+    private void wildTurn(
             Pokemon wildPokemon,
             Pokemon playerPokemon
     ) {
@@ -95,15 +94,15 @@ public class BattleService {
         List<BattleAction> actions =
                 new ArrayList<>(wildPokemon.getAttacks());
 
-        // CPU:n väljer handling med sin strategi.
-        BattleAction selectedAction = CPU_PLAYER.chooseAction(actions);
+        // Använder CPU-spelaren som skickades in via konstruktorn.
+        BattleAction selectedAction = cpuPlayer.chooseAction(actions);
 
         // Utför CPU:ns handling via den gemensamma metoden.
         executeAction(selectedAction, wildPokemon, playerPokemon);
     }
 
     // Startar och kör en hel strid tills någon Pokemon är besegrad.
-    public static void startBattle(
+    public void startBattle(
             List<Pokemon> pokemons,
             Scanner scanner
     ) {
@@ -231,8 +230,9 @@ public class BattleService {
         }
     }
 
-    public static BattleStats getBattleStats() {
-        return BATTLE_STATS;
+    // Hämtar statistik från det aktuella BattleService-objektet.
+    public BattleStats getBattleStats() {
+        return battleStats;
     }
 
     // Visar resultatet av en utförd handling.
@@ -253,23 +253,23 @@ public class BattleService {
         }
     }
 
-    private static void registerBattleResult(
+    private void registerBattleResult(
             Battle battle,
             Pokemon playerPokemon
     ) {
         // Registrerar använd Pokémon och stridens resultat.
-        BATTLE_STATS.registerPokemonUsage(playerPokemon.getId());
+        battleStats.registerPokemonUsage(playerPokemon.getId());
 
         if (battle.hasFled()) {
-            BATTLE_STATS.addFlee();
+            battleStats.addFlee();
         } else if (battle.playerWon()) {
-            BATTLE_STATS.addWin(playerPokemon.getId());
+            battleStats.addWin(playerPokemon.getId());
         } else {
-            BATTLE_STATS.addLoss(playerPokemon.getId());
+            battleStats.addLoss(playerPokemon.getId());
         }
     }
 
-    private static void saveBattleStatistics(
+    private void saveBattleStatistics(
             Battle battle,
             Pokemon playerPokemon
     ) {
@@ -277,6 +277,7 @@ public class BattleService {
         registerBattleResult(battle, playerPokemon);
 
         // Sparar statistiken till fil.
-        BattleStatsFileService.saveStats(BATTLE_STATS);
+        // Sparar samma statistikobjekt som spelmenyn använder.
+        BattleStatsFileService.saveStats(battleStats);
     }
 }
