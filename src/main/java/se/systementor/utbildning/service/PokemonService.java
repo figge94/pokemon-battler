@@ -157,7 +157,7 @@ public class PokemonService {
             pokemonFileService.savePokemonsToFile(pokemons);
         } catch (PokemonSaveException e) {
             // Återställ attackerna och deras ursprungliga ordning.
-            pokemon.changeAttacks(originalAttacks);
+            pokemon.replaceAttacks(originalAttacks);
             throw e;
         }
     }

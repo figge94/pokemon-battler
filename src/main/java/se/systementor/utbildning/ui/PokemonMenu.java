@@ -312,6 +312,6 @@ public class PokemonMenu {
 
     // Visar detaljer om vald Pokemon.
     public static void printDetails(Pokemon pokemon) {
-        System.out.print(pokemon);
+        System.out.print(PokemonFormatter.format(pokemon));
     }
 }

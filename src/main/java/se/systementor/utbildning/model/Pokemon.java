@@ -41,40 +41,6 @@ public class Pokemon {
         return Integer.hashCode(id);
     }
 
-    @Override
-    public String toString() {
-        StringBuilder pokemonDetails = new StringBuilder(
-                String.format(
-                        "%d. Namn: %s | Typ: %s | HP: %d/%d | Snabbhet: %d%n ",
-                        getId(),
-                        getName(),
-                        getType().getLabel(),
-                        getCurrentHp(),
-                        getMaxHp(),
-                        getSpeed()
-                )
-        );
-
-        // Räknar ut hur många tecken ID:t har för att kunna göra snygg indragning.
-        int numberOfCharactersInId =
-                String.valueOf(getId()).length();
-
-        for (Attack attack : getAttacks()) {
-            pokemonDetails.append(
-
-                    String.format(
-                            "%s  Attack: %s | Skada: %d | Träffsäkerhet: %d | Typ: %s%n",
-                            " ".repeat(numberOfCharactersInId),
-                            attack.getName(),
-                            attack.getBaseDamage(),
-                            attack.getAccuracy(),
-                            attack.getType().getLabel()
-                    )
-            );
-        }
-        return pokemonDetails.toString();
-    }
-
     // Jackson använder den här konstruktorn när Pokemon läses in från JSON.
     // @JsonCreator visar vilken konstruktor som ska användas.
     // @JsonProperty kopplar värden från JSON till rätt parameter.
@@ -148,9 +114,10 @@ public class Pokemon {
         attacks.add(attack);
     }
 
-    // Läser in och validerar Pokemonens attacker från JSON.
+    // Ersätter attacklistan efter validering, exempelvis vid
+    // JSON-inläsning eller återställning efter ett sparfel.
     @JsonProperty("attacks")
-    public void changeAttacks(List<Attack> newAttacks) {
+    public void replaceAttacks(List<Attack> newAttacks) {
         if (newAttacks == null || newAttacks.isEmpty() || newAttacks.size() > 4) {
             throw new InvalidAttackException(
                     "En Pokemon måste ha mellan 1 och 4 attacker."
@@ -262,7 +229,7 @@ public class Pokemon {
         return currentHp == 0;
     }
 
-    private void validateId(int id) {
+    private static void validateId(int id) {
         if (id <= 0) {
             throw new InvalidPokemonException(
                     "ID måste vara större än 0."
@@ -270,7 +237,7 @@ public class Pokemon {
         }
     }
 
-    private void validateName(String name) {
+    private static void validateName(String name) {
         if (name == null || name.isBlank()) {
             throw new InvalidPokemonException(
                     "Namnet får inte vara tomt."
@@ -284,7 +251,7 @@ public class Pokemon {
         }
     }
 
-    private void validateType(Type type) {
+    private static void validateType(Type type) {
         if (type == null) {
             throw new InvalidPokemonException(
                     "Typ får inte vara null."
@@ -292,7 +259,7 @@ public class Pokemon {
         }
     }
 
-    private void validateMaxHp(int maxHp) {
+    private static void validateMaxHp(int maxHp) {
         if (maxHp < 1 || maxHp > 999) {
             throw new InvalidPokemonException(
                     "Max HP måste vara mellan 1 och 999."
@@ -300,8 +267,8 @@ public class Pokemon {
         }
     }
 
-    private void validateSpeed(int speed) {
-        // Ser till att träffsäkerheten är mellan 0 och 100.
+    private static void validateSpeed(int speed) {
+        // Kontrollerar att snabbheten ligger inom tillåtna gränser.
         if (speed < 0 || speed > 200) {
             throw new InvalidPokemonException("Snabbheten måste vara mellan 0 och 200.");
         }
