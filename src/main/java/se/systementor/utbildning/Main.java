@@ -1,153 +1,41 @@
+
 package se.systementor.utbildning;
 
 import se.systementor.utbildning.model.Pokemon;
 import se.systementor.utbildning.repository.PokemonFileService;
-import se.systementor.utbildning.service.BattleService;
-import se.systementor.utbildning.ui.BattleMenu;
-import se.systementor.utbildning.ui.InputHelper;
-import se.systementor.utbildning.ui.Menu;
-import se.systementor.utbildning.ui.PokemonMenu;
+import se.systementor.utbildning.ui.MainMenuHandler;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Scanner;
 import java.util.NoSuchElementException;
+import java.util.Scanner;
 
 public class Main {
 
-
-    private static void handlePlayMenu(
-            List<Pokemon> pokemons,
-            Scanner scanner
-    ) {
-        // Håller spelmenyn öppen tills spelaren väljer att gå tillbaka.
-        boolean inPlayMenu = true;
-
-        while (inPlayMenu) {
-            Menu.showPlayMenu();
-
-            int playChoice = InputHelper.readIntInRange(
-                    scanner,
-                    "Välj: ",
-                    1,
-                    6
-            );
-
-            switch (playChoice) {
-                case 1 -> BattleService.startBattle(pokemons, scanner);
-                case 2 -> BattleMenu.showBattleStats(
-                        BattleService.getBattleStats()
-                );
-                case 3 -> BattleMenu.showPokemonStats(
-                        BattleService.getBattleStats(),
-                        pokemons
-                );
-                case 4 -> BattleMenu.showMostUsedPokemon(
-                        BattleService.getBattleStats(),
-                        pokemons
-                );
-                case 5 -> BattleMenu.showMostUsedAttack(
-                        BattleService.getBattleStats()
-                );
-                case 6 -> {
-                    // Avslutar bara spelmenyn, inte hela programmet.
-                    inPlayMenu = false;
-                }
-            }
-        }
-    }
-
-    // Startar programmet och hanterar huvudmenyn.
     public static void main(String[] args) {
-        // Skapar Scanner för att läsa användarens input.
-        Scanner scanner = new Scanner(System.in);
-        // Styr om huvudmenyn ska fortsätta köras.
-        boolean running = true;
 
-        // Sökvägar till den vanliga JSON-filen och seed-filen.
         Path path = Path.of("pokemon.json");
         Path seedPath = Path.of("pokemon-seed.json");
 
-        // Läser in Pokemon från fil när programmet startar.
+        // Laddar Pokémon vid programstart.
         List<Pokemon> pokemons =
                 PokemonFileService.loadInitialPokemons(path, seedPath);
 
-        // Huvudloopen körs tills användaren väljer att avsluta.
-        try {
-            while (running) {
-                Menu.showMainMenu();
+        // Stänger Scanner automatiskt när programmet avslutas.
+        try (Scanner scanner = new Scanner(System.in)) {
 
-                int choice = InputHelper.readIntInRange(
-                        scanner,
-                        "\nVad vill du göra? ",
-                        1,
-                        10
-                );
+            // Skapar ett objekt som ansvarar för huvudmenyn.
+            MainMenuHandler mainMenu = new MainMenuHandler();
 
-                switch (choice) {
-                    case 1:
-                        // Visar alla Pokemon.
-                        PokemonMenu.showAllPokemons(pokemons);
-                        break;
-
-                    case 2:
-                        // Hanterar menyn som man vill spela
-                        handlePlayMenu(pokemons, scanner);
-                        break;
-
-                    case 3:
-                        // Söker efter en Pokemon.
-                        PokemonMenu.searchPokemon(pokemons, scanner);
-                        break;
-
-                    case 4:
-                        // Lägger till en Pokemon.
-                        PokemonMenu.addPokemon(pokemons, scanner);
-                        break;
-
-                    case 5:
-                        // Redigerar en Pokemon.
-                        PokemonMenu.editPokemon(pokemons, scanner);
-                        break;
-
-                    case 6:
-                        // Tar bort en pokemon.
-                        PokemonMenu.removePokemon(pokemons, scanner);
-                        break;
-
-                    case 7:
-                        // Sparar alla Pokemon till en JSON-filen.
-                        PokemonFileService.savePokemonsToFile(pokemons);
-                        break;
-
-                    case 8:
-                        // Laddar Pokemon från fil.
-                        pokemons = PokemonFileService.loadPokemons(path, pokemons);
-                        break;
-
-                    case 9:
-                        // Återställer till seedad data.
-                        pokemons = PokemonFileService.resetPokemons(scanner, pokemons, seedPath);
-                        break;
-
-                    case 10:
-                        // Sparar automatiskt innan programmet avslutas.
-                        PokemonFileService.savePokemonsToFile(pokemons);
-                        System.out.println("Avslutar...");
-                        running = false;
-                        break;
-
-                    default:
-                        System.out.println("Ogiltigt val. Försök igen!");
-                }
+            // Använder objektets metoder för att styra menyn.
+            while (mainMenu.isRunning()) {
+                pokemons = mainMenu.show(pokemons, scanner);
             }
+
         } catch (NoSuchElementException e) {
             System.out.println(
                     "\nInmatningen avbröts. Programmet avslutas."
             );
         }
-
-        // Stänger scanner när programmet avslutas.
-        scanner.close();
     }
 }

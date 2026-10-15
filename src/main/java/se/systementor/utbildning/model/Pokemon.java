@@ -292,7 +292,6 @@ public class Pokemon {
         }
     }
 
-
     private void validateMaxHp(int maxHp) {
         if (maxHp < 1 || maxHp > 999) {
             throw new InvalidPokemonException(

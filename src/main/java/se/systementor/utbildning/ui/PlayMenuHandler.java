@@ -1,0 +1,41 @@
+package se.systementor.utbildning.ui;
+
+import se.systementor.utbildning.model.Pokemon;
+import se.systementor.utbildning.service.BattleService;
+
+import java.util.List;
+import java.util.Scanner;
+
+public class PlayMenuHandler {
+
+    // Hanterar spelmenyn tills användaren går tillbaka.
+    public static void show(List<Pokemon> pokemons, Scanner scanner) {
+        boolean inPlayMenu = true;
+
+        while (inPlayMenu) {
+            Menu.showPlayMenu();
+
+            int choice = InputHelper.readIntInRange(
+                    scanner, "Välj: ", 1, 6
+            );
+
+            switch (choice) {
+                case 1 -> BattleService.startBattle(pokemons, scanner);
+                case 2 -> BattleMenu.showBattleStats(
+                        BattleService.getBattleStats()
+                );
+                case 3 -> BattleMenu.showPokemonStats(
+                        BattleService.getBattleStats(), pokemons
+                );
+                case 4 -> BattleMenu.showMostUsedPokemon(
+                        BattleService.getBattleStats(), pokemons
+                );
+                case 5 -> BattleMenu.showMostUsedAttack(
+                        BattleService.getBattleStats()
+                );
+                // Avslutar spelmenyn.
+                case 6 -> inPlayMenu = false;
+            }
+        }
+    }
+}
