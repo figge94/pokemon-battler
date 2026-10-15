@@ -5,7 +5,6 @@ import se.systementor.utbildning.ui.BattleMenu;
 import se.systementor.utbildning.repository.BattleStatsFileService;
 import se.systementor.utbildning.ui.Messages;
 
-import se.systementor.utbildning.strategy.CpuStrategy;
 import se.systementor.utbildning.strategy.RandomStrategy;
 
 import java.util.ArrayList;
@@ -17,11 +16,9 @@ public class BattleService {
     private static final Random RANDOM = new Random();
     private static final BattleStats BATTLE_STATS = BattleStatsFileService.loadStats();
 
-    // Använder CpuStrategy som datatyp så att vi enkelt
-    // kan byta strategi utan att ändra stridslogiken.
-    // RandomStrategy bestämmer hur CPU:n väljer handling.
-    private static final CpuStrategy CPU_STRATEGY =
-            new RandomStrategy();
+    // CPU:n får sin strategi via konstruktorn.
+    private static final CpuPlayer CPU_PLAYER =
+            new CpuPlayer(new RandomStrategy());
 
     // Väljer en slumpmässig vild Pokemon som inte är samma som spelarens Pokemon.
     public static Pokemon chooseRandomWildPokemon(
@@ -80,17 +77,15 @@ public class BattleService {
             Pokemon wildPokemon,
             Pokemon playerPokemon
     ) {
-        // Hämtar Pokemonens attacker och gör om dem till
-        // BattleAction så att CPU:n kan välja via interfacet.
+        // Hämtar attackerna som BattleAction.
         List<BattleAction> actions =
                 new ArrayList<>(wildPokemon.getAttacks());
 
-        // Låter strategin bestämma vilken handling CPU:n ska använda.
-        // BattleService behöver inte veta hur valet görs.
+        // CPU:n väljer handling via sin strategi.
         BattleAction selectedAction =
-                CPU_STRATEGY.chooseAction(actions);
+                CPU_PLAYER.chooseAction(actions);
 
-        // Utför den valda handlingen via BattleAction-kontraktet.
+        // Utför handlingen polymorft.
         selectedAction.execute(
                 wildPokemon,
                 playerPokemon
@@ -204,21 +199,6 @@ public class BattleService {
                     "Ett fel uppstod under striden: " + e.getMessage()
             );
         }
-    }
-
-    // Väljer en slumpmässig attack från Pokemons attacker.
-    public static Attack chooseRandomAttack(Pokemon pokemon) {
-        List<Attack> attacks = pokemon.getAttacks();
-
-        if (attacks.isEmpty()) {
-            throw new IllegalArgumentException(
-                    pokemon.getName() + " har inga attacker."
-            );
-        }
-
-        return attacks.get(
-                RANDOM.nextInt(attacks.size())
-        );
     }
 
     // Räknar ut hur effektiv attacktypen är mot försvararens typ.
