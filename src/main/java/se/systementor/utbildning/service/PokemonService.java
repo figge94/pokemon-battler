@@ -10,88 +10,83 @@ import java.util.List;
 
 public class PokemonService {
 
-    // Letar efter en Pokemon med samma namn, oavsett stora eller små bokstäver.
-    public static Pokemon findPokemonByName(List<Pokemon> pokemons, String name) {
-        for (Pokemon pokemon : pokemons) {
-            if (pokemon.getName().equalsIgnoreCase(name)) {
-                return pokemon;
-            }
-        }
+    // Statistik som behövs när nya Pokémon-ID:n skapas.
+    private final BattleStats battleStats;
 
-        return null;
+    // Får sitt beroende utifrån i stället för att hämta det själv.
+    public PokemonService(BattleStats battleStats) {
+        this.battleStats = battleStats;
+    }
+
+    // Söker efter en Pokémon utan att skilja på stora och små bokstäver.
+    public Pokemon findPokemonByName(
+            List<Pokemon> pokemons,
+            String name
+    ) {
+        return pokemons.stream()
+                .filter(pokemon -> pokemon.getName().equalsIgnoreCase(name))
+                .findFirst()
+                .orElse(null);
     }
 
     // Hämtar nästa ID utan att återanvända ID från stridsstatistiken.
-    private static int getNextId(
-            List<Pokemon> pokemons,
-            BattleStats stats
-    ) {
-        int maxId = 0;
+    private int getNextId(List<Pokemon> pokemons) {
 
-        // Kontrollerar alla Pokémon som finns kvar.
-        for (Pokemon pokemon : pokemons) {
-            maxId = Math.max(maxId, pokemon.getId());
-        }
+        int maxId = pokemons.stream()
+                .mapToInt(Pokemon::getId)
+                .max()
+                .orElse(0);
 
-        // Kontrollerar Pokémon som tidigare vunnit strider.
-        for (int id : stats.getWinsByPokemon().keySet()) {
-            maxId = Math.max(maxId, id);
-        }
-
-        // Kontrollerar Pokémon som tidigare förlorat strider.
-        for (int id : stats.getLossesByPokemon().keySet()) {
-            maxId = Math.max(maxId, id);
-        }
-
-        // Kontrollerar alla Pokémon som tidigare använts.
-        for (int id : stats.getPokemonUsage().keySet()) {
-            maxId = Math.max(maxId, id);
-        }
+        // Hittar högsta ID från tidigare stridsstatistik.
+        maxId = findMaxId(maxId, battleStats.getWinsByPokemon().keySet());
+        maxId = findMaxId(maxId, battleStats.getLossesByPokemon().keySet());
+        maxId = findMaxId(maxId, battleStats.getPokemonUsage().keySet());
 
         return maxId + 1;
     }
 
-    // Kontrollerar om ett Pokemon-namn redan finns i listan.
-    private static boolean existsByName(
-            List<Pokemon> pokemons,
-            String name
+    private static int findMaxId(
+            int currentMax,
+            Iterable<Integer> ids
     ) {
-        return findPokemonByName(pokemons, name) != null;
+        // Hittar det högsta ID:t utan att minska tidigare maxvärde.
+        int maxId = currentMax;
+
+        for (int id : ids) {
+            maxId = Math.max(maxId, id);
+        }
+
+        return maxId;
     }
 
     // Kontrollerar om namnet används av någon annan Pokemon än den som redigeras.
-    private static boolean existsByNameExceptId(
+    private static boolean isNameTakenByAnotherPokemon(
             List<Pokemon> pokemons,
             String name,
             int id
     ) {
-        for (Pokemon pokemon : pokemons) {
-            // Ignorerar den Pokemon som redigeras och kollar om någon annan har samma namn.
-            if (pokemon.getId() != id &&
-                    pokemon.getName().equalsIgnoreCase(name)) {
-                return true;
-            }
-        }
-
-        return false;
+        return pokemons.stream()
+                .anyMatch(pokemon ->
+                        pokemon.getId() != id
+                                && pokemon.getName().equalsIgnoreCase(name)
+                );
     }
 
-    public static Pokemon createPokemon(
+    public Pokemon createPokemon(
             List<Pokemon> pokemons,
             String name,
             int hp,
             Type type,
-            int speed,
-            BattleStats stats
+            int speed
     ) {
-        // Använder statistiken för att undvika återanvända Pokémon-ID:n.
-        int id = getNextId(pokemons, stats);
-
-        if (existsByName(pokemons, name)) {
+        if (findPokemonByName(pokemons, name) != null) {
             throw new InvalidPokemonException(
                     name + " finns redan."
             );
         }
+
+        // ID genereras med statistikobjektet som tillhör tjänsten.
+        int id = getNextId(pokemons);
 
         Pokemon pokemon = new Pokemon(
                 id,
@@ -108,20 +103,37 @@ public class PokemonService {
     }
 
     // Lägger till en ny Pokemon med validerad input.
-    public static void addPokemon(
+    public void addPokemon(
             List<Pokemon> pokemons,
             Pokemon pokemon
     ) {
         pokemons.add(pokemon);
     }
 
+    private static void replacePokemon(
+            List<Pokemon> pokemons,
+            Pokemon originalPokemon,
+            Pokemon updatedPokemon
+    ) {
+        int index = pokemons.indexOf(originalPokemon);
+
+        // Förhindrar att en Pokémon som saknas ersätts.
+        if (index == -1) {
+            throw new InvalidPokemonException(
+                    "Pokemon hittades inte i listan."
+            );
+        }
+
+        pokemons.set(index, updatedPokemon);
+    }
+
     // Ändrar namnet på en Pokemon.
-    public static Pokemon editPokemonName(
+    public Pokemon editPokemonName(
             List<Pokemon> pokemons,
             Pokemon pokemon,
             String newName
     ) {
-        if (existsByNameExceptId(pokemons, newName, pokemon.getId())) {
+        if (isNameTakenByAnotherPokemon(pokemons, newName, pokemon.getId())) {
             throw new InvalidPokemonException(
                     newName + " finns redan."
             );
@@ -129,28 +141,26 @@ public class PokemonService {
 
         Pokemon updatedPokemon = pokemon.withName(newName);
 
-        int index = pokemons.indexOf(pokemon);
-        pokemons.set(index, updatedPokemon);
+        replacePokemon(pokemons, pokemon, updatedPokemon);
 
         return updatedPokemon;
     }
 
     // Ändrar typ på en Pokemon.
-    public static Pokemon editPokemonType(
+    public Pokemon editPokemonType(
             List<Pokemon> pokemons,
             Pokemon pokemon,
             Type newType
     ) {
         Pokemon updatedPokemon = pokemon.withType(newType);
 
-        int index = pokemons.indexOf(pokemon);
-        pokemons.set(index, updatedPokemon);
+        replacePokemon(pokemons, pokemon, updatedPokemon);
 
         return updatedPokemon;
     }
 
     // Ändrar currentHp på en Pokemon.
-    public static void editPokemonCurrentHp(
+    public void editPokemonCurrentHp(
             Pokemon pokemon,
             int hp
     ) {
@@ -162,38 +172,35 @@ public class PokemonService {
         } else if (difference < 0) {
             pokemon.takeDamage(-difference);
         }
-
     }
 
     // Ändrar maxHp på en Pokemon.
-    public static Pokemon editPokemonMaxHp(
+    public Pokemon editPokemonMaxHp(
             List<Pokemon> pokemons,
             Pokemon pokemon,
             int hp
     ) {
         Pokemon updatedPokemon = pokemon.withMaxHp(hp);
 
-        int index = pokemons.indexOf(pokemon);
-        pokemons.set(index, updatedPokemon);
+        replacePokemon(pokemons, pokemon, updatedPokemon);
 
         return updatedPokemon;
     }
 
-    public static Pokemon editPokemonSpeed(
+    public Pokemon editPokemonSpeed(
             List<Pokemon> pokemons,
             Pokemon pokemon,
             int speed
     ) {
         Pokemon updatedPokemon = pokemon.withSpeed(speed);
 
-        int index = pokemons.indexOf(pokemon);
-        pokemons.set(index, updatedPokemon);
+        replacePokemon(pokemons, pokemon, updatedPokemon);
 
         return updatedPokemon;
     }
 
-    // Tar bort en Pokemon efter bekräftelse.
-    public static void removePokemon(
+    // Tar bort en Pokémon från listan.
+    public void removePokemon(
             List<Pokemon> pokemons,
             Pokemon pokemon) {
         pokemons.remove(pokemon);

@@ -6,6 +6,7 @@ import se.systementor.utbildning.model.BattleStats;
 import se.systementor.utbildning.model.CpuPlayer;
 import se.systementor.utbildning.service.BattleService;
 import se.systementor.utbildning.repository.BattleStatsFileService;
+import se.systementor.utbildning.service.PokemonService;
 import se.systementor.utbildning.strategy.AggressiveStrategy;
 
 import java.nio.file.Path;
@@ -16,6 +17,7 @@ public class MainMenuHandler {
     // Filsökvägar som används av huvudmenyn.
     private final Path path;
     private final Path seedPath;
+    private final PokemonMenu pokemonMenu;
     // Spelmenyn använder samma BattleService under hela programmet.
     private final PlayMenuHandler playMenuHandler;
     private final BattleService battleService;
@@ -31,6 +33,8 @@ public class MainMenuHandler {
         CpuPlayer cpuPlayer = new CpuPlayer(new AggressiveStrategy());
 
         this.battleService = new BattleService(stats, cpuPlayer);
+        PokemonService pokemonService = new PokemonService(stats);
+        this.pokemonMenu = new PokemonMenu(pokemonService);
         this.playMenuHandler = new PlayMenuHandler(this.battleService);
     }
 
@@ -57,18 +61,15 @@ public class MainMenuHandler {
 
             case 2 -> playMenuHandler.show(pokemons, scanner);
 
-            case 3 -> PokemonMenu.searchPokemon(pokemons, scanner);
+            case 3 -> pokemonMenu.searchPokemon(pokemons, scanner);
 
             // Skickar vidare statistiken så att Pokémon-ID:n inte återanvänds.
-            case 4 -> PokemonMenu.addPokemon(
-                    pokemons,
-                    scanner,
-                    battleService.getBattleStats()
-            );
+            case 4 -> pokemonMenu.addPokemon(pokemons, scanner);
 
-            case 5 -> PokemonMenu.editPokemon(pokemons, scanner);
+            // Använder Pokemon-menyn som skapades via konstruktorn.
+            case 5 -> pokemonMenu.editPokemon(pokemons, scanner);
 
-            case 6 -> PokemonMenu.removePokemon(pokemons, scanner);
+            case 6 -> pokemonMenu.removePokemon(pokemons, scanner);
 
             case 7 -> PokemonFileService.savePokemonsToFile(pokemons);
 

@@ -4,7 +4,6 @@ import se.systementor.utbildning.exception.InvalidPokemonException;
 
 import se.systementor.utbildning.model.Pokemon;
 import se.systementor.utbildning.model.Type;
-import se.systementor.utbildning.model.BattleStats;
 
 import se.systementor.utbildning.repository.PokemonFileService;
 
@@ -14,11 +13,16 @@ import java.util.List;
 import java.util.Scanner;
 
 public class PokemonMenu {
+    // Pokémon-menyn får sin service via konstruktorn.
+    private final PokemonService pokemonService;
 
-    public static void addPokemon(
+    public PokemonMenu(PokemonService pokemonService) {
+        this.pokemonService = pokemonService;
+    }
+
+    public void addPokemon(
             List<Pokemon> pokemons,
-            Scanner scanner,
-            BattleStats stats
+            Scanner scanner
     ) {
         String name = InputHelper.readValidName(
                 scanner,
@@ -41,13 +45,12 @@ public class PokemonMenu {
                 200
         );
 
-        Pokemon pokemon = PokemonService.createPokemon(
+        Pokemon pokemon = pokemonService.createPokemon(
                 pokemons,
                 name,
                 hp,
                 type,
-                speed,
-                stats
+                speed
         );
 
         ConsoleUI.header("FÖRHANDSVISNING");
@@ -59,7 +62,7 @@ public class PokemonMenu {
         );
 
         if (confirm) {
-            PokemonService.addPokemon(pokemons, pokemon);
+            pokemonService.addPokemon(pokemons, pokemon);
 
             PokemonFileService.savePokemonsToFile(pokemons);
 
@@ -70,12 +73,12 @@ public class PokemonMenu {
     }
 
     // Visar redigeringsmenyn och skickar vidare till rätt metod.
-    public static void editPokemon(List<Pokemon> pokemons, Scanner scanner) {
+    public void editPokemon(List<Pokemon> pokemons, Scanner scanner) {
         Messages.info("Ange namn på den Pokemon du vill redigera:");
         String name = scanner.nextLine();
 
         // Hämtar vald Pokemon innan redigeringsmenyn visas.
-        Pokemon pokemon = PokemonService.findPokemonByName(pokemons, name);
+        Pokemon pokemon = pokemonService.findPokemonByName(pokemons, name);
 
         if (pokemon == null) {
             Messages.error(name + " hittades inte.");
@@ -104,7 +107,7 @@ public class PokemonMenu {
     }
 
     // Ändrar namnet på en Pokemon.
-    public static void editPokemonName(
+    public void editPokemonName(
             List<Pokemon> pokemons,
             Pokemon pokemon,
             Scanner scanner
@@ -115,7 +118,7 @@ public class PokemonMenu {
         );
 
         try {
-            Pokemon updatedPokemon = PokemonService.editPokemonName(
+            Pokemon updatedPokemon = pokemonService.editPokemonName(
                     pokemons,
                     pokemon,
                     newName
@@ -129,14 +132,14 @@ public class PokemonMenu {
         }
     }
 
-    public static void editPokemonType(
+    public void editPokemonType(
             List<Pokemon> pokemons,
             Pokemon pokemon,
             Scanner scanner
     ) {
         Type newType = InputHelper.chooseType(scanner);
 
-        Pokemon updatedPokemon = PokemonService.editPokemonType(
+        Pokemon updatedPokemon = pokemonService.editPokemonType(
                 pokemons,
                 pokemon,
                 newType
@@ -146,7 +149,7 @@ public class PokemonMenu {
         printDetails(updatedPokemon);
     }
 
-    public static void editPokemonCurrentHp(
+    public void editPokemonCurrentHp(
             Pokemon pokemon,
             Scanner scanner
     ) {
@@ -157,7 +160,7 @@ public class PokemonMenu {
                 pokemon.getMaxHp()
         );
 
-        PokemonService.editPokemonCurrentHp(
+        pokemonService.editPokemonCurrentHp(
                 pokemon,
                 hp
         );
@@ -166,7 +169,7 @@ public class PokemonMenu {
         printDetails(pokemon);
     }
 
-    public static void editPokemonMaxHp(
+    public void editPokemonMaxHp(
             List<Pokemon> pokemons,
             Pokemon pokemon,
             Scanner scanner
@@ -178,7 +181,7 @@ public class PokemonMenu {
                 999
         );
 
-        Pokemon updatedPokemon = PokemonService.editPokemonMaxHp(
+        Pokemon updatedPokemon = pokemonService.editPokemonMaxHp(
                 pokemons,
                 pokemon,
                 hp
@@ -188,7 +191,7 @@ public class PokemonMenu {
         printDetails(updatedPokemon);
     }
 
-    public static void editPokemonSpeed(
+    public void editPokemonSpeed(
             List<Pokemon> pokemons,
             Pokemon pokemon,
             Scanner scanner
@@ -200,7 +203,7 @@ public class PokemonMenu {
                 200
         );
 
-        Pokemon updatedPokemon = PokemonService.editPokemonSpeed(
+        Pokemon updatedPokemon = pokemonService.editPokemonSpeed(
                 pokemons,
                 pokemon,
                 speed
@@ -210,14 +213,14 @@ public class PokemonMenu {
         printDetails(updatedPokemon);
     }
 
-    public static void removePokemon(
+    public void removePokemon(
             List<Pokemon> pokemons,
             Scanner scanner
     ) {
         Messages.info("Ange namn på den Pokemon du vill ta bort:");
         String name = scanner.nextLine();
 
-        Pokemon pokemon = PokemonService.findPokemonByName(pokemons, name);
+        Pokemon pokemon = pokemonService.findPokemonByName(pokemons, name);
 
         if (pokemon == null) {
             Messages.error("Pokemon hittades inte.");
@@ -233,7 +236,7 @@ public class PokemonMenu {
         );
 
         if (confirm) {
-            PokemonService.removePokemon(pokemons, pokemon);
+            pokemonService.removePokemon(pokemons, pokemon);
             PokemonFileService.savePokemonsToFile(pokemons);
 
             Messages.success(pokemon.getName() + " har tagits bort.");
@@ -243,14 +246,14 @@ public class PokemonMenu {
     }
 
     // Söker efter en Pokemon med hjälp av namn.
-    public static void searchPokemon(
+    public void searchPokemon(
             List<Pokemon> pokemons,
             Scanner scanner
     ) {
         Messages.info("Skriv namnet på en Pokemon:");
         String name = scanner.nextLine();
 
-        Pokemon pokemon = PokemonService.findPokemonByName(
+        Pokemon pokemon = pokemonService.findPokemonByName(
                 pokemons,
                 name
         );
