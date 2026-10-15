@@ -161,26 +161,24 @@ public class BattleService {
                         break;
                     }
 
+
                     if (attacker == playerPokemon) {
+                        System.out.println("\n════════ SPELARENS TUR ════════");
+                        System.out.println(playerPokemon.getName() + " gör sig redo...");
+                        pauseBattle();
 
-                        playerTurn(
-                                playerPokemon,
-                                wildPokemon,
-                                playerAction
-                        );
-
+                        playerTurn(playerPokemon, wildPokemon, playerAction);
                     } else {
-                        wildTurn(
-                                wildPokemon,
-                                playerPokemon
-                        );
+                        System.out.println("\n════════ CPU:ns TUR ════════");
+                        System.out.println(wildPokemon.getName() + " gör sig redo...");
+                        pauseBattle();
+
+                        wildTurn(wildPokemon, playerPokemon);
                     }
 
-                    // Visar båda Pokemonens HP efter varje handling.
-                    BattleMenu.showBattleHp(
-                            playerPokemon,
-                            wildPokemon
-                    );
+                    BattleMenu.showBattleHp(playerPokemon, wildPokemon);
+                    pauseBattle();
+
                 }
 
                 if (battle.isOver() && !battle.hasFled()) {
@@ -262,4 +260,15 @@ public class BattleService {
     public static BattleStats getBattleStats() {
         return BATTLE_STATS;
     }
+
+
+    private static void pauseBattle() {
+        try {
+            // Ger spelaren tid att läsa vad som händer.
+            Thread.sleep(2500);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
 }

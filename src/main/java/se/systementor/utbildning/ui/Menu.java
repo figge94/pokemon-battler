@@ -23,7 +23,7 @@ public class Menu {
     // Visar menyn för att redigera en Pokemon.
     public static void showEditMenu() {
         ConsoleUI.printMenu(
-                "REDIGERA POKÉMON",
+                "REDIGERA POKEMON",
                 ConsoleColors.YELLOW,
                 "1. Ändra namn",
                 "2. Ändra typ",
@@ -32,7 +32,7 @@ public class Menu {
                 "5. Ändra snabbheten",
                 "6. Lägg till attack",
                 "7. Ta bort attack",
-                "8. Gå tillbaka"
+                "8. Gå tillbaka till huvudmenyn"
         );
     }
 
@@ -43,10 +43,10 @@ public class Menu {
                 ConsoleColors.GREEN,
                 "1. Starta strid",
                 "2. Total statistik",
-                "3. Statistik per Pokémon",
-                "4. Mest använda Pokémon",
+                "3. Statistik per Pokemon",
+                "4. Mest använda Pokemon",
                 "5. Mest använda attack",
-                "6. Gå tillbaka"
+                "6. Gå tillbaka till huvudmenyn"
         );
     }
 }

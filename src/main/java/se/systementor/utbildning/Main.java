@@ -15,36 +15,45 @@ import java.util.NoSuchElementException;
 
 public class Main {
 
+
     private static void handlePlayMenu(
             List<Pokemon> pokemons,
             Scanner scanner
     ) {
-        Menu.showPlayMenu();
+        // Håller spelmenyn öppen tills spelaren väljer att gå tillbaka.
+        boolean inPlayMenu = true;
 
-        int playChoice = InputHelper.readIntInRange(
-                scanner,
-                "Välj: ",
-                1,
-                6
-        );
+        while (inPlayMenu) {
+            Menu.showPlayMenu();
 
-        switch (playChoice) {
-            case 1 -> BattleService.startBattle(pokemons, scanner);
-            case 2 -> BattleMenu.showBattleStats(
-                    BattleService.getBattleStats()
+            int playChoice = InputHelper.readIntInRange(
+                    scanner,
+                    "Välj: ",
+                    1,
+                    6
             );
-            case 3 -> BattleMenu.showPokemonStats(
-                    BattleService.getBattleStats(),
-                    pokemons
-            );
-            case 4 -> BattleMenu.showMostUsedPokemon(
-                    BattleService.getBattleStats(),
-                    pokemons
-            );
-            case 5 -> BattleMenu.showMostUsedAttack(
-                    BattleService.getBattleStats()
-            );
-            case 6 -> System.out.println("Gå tillbaka till huvudmenyn.");
+
+            switch (playChoice) {
+                case 1 -> BattleService.startBattle(pokemons, scanner);
+                case 2 -> BattleMenu.showBattleStats(
+                        BattleService.getBattleStats()
+                );
+                case 3 -> BattleMenu.showPokemonStats(
+                        BattleService.getBattleStats(),
+                        pokemons
+                );
+                case 4 -> BattleMenu.showMostUsedPokemon(
+                        BattleService.getBattleStats(),
+                        pokemons
+                );
+                case 5 -> BattleMenu.showMostUsedAttack(
+                        BattleService.getBattleStats()
+                );
+                case 6 -> {
+                    // Avslutar bara spelmenyn, inte hela programmet.
+                    inPlayMenu = false;
+                }
+            }
         }
     }
 
