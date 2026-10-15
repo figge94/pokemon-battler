@@ -126,6 +126,41 @@ public class PokemonService {
         }
     }
 
+    public void addAttackToPokemon(
+            List<Pokemon> pokemons,
+            Pokemon pokemon,
+            Attack attack
+    ) {
+        pokemon.addAttack(attack);
+
+        try {
+            pokemonFileService.savePokemonsToFile(pokemons);
+        } catch (PokemonSaveException e) {
+            // Ångra attacken om sparandet misslyckas.
+            pokemon.removeAttack(attack);
+            throw e;
+        }
+    }
+
+    public void removeAttackFromPokemon(
+            List<Pokemon> pokemons,
+            Pokemon pokemon,
+            Attack attack
+    ) {
+        // Spara den ursprungliga attacklistan.
+        List<Attack> originalAttacks = pokemon.getAttacks();
+
+        // Pokemon kontrollerar att attacken får tas bort.
+        pokemon.removeAttack(attack);
+
+        try {
+            pokemonFileService.savePokemonsToFile(pokemons);
+        } catch (PokemonSaveException e) {
+            // Återställ attackerna och deras ursprungliga ordning.
+            pokemon.changeAttacks(originalAttacks);
+            throw e;
+        }
+    }
 
     private static void replacePokemon(
             List<Pokemon> pokemons,
@@ -134,7 +169,6 @@ public class PokemonService {
     ) {
         int index = pokemons.indexOf(originalPokemon);
 
-        // Förhindrar att en Pokémon som saknas ersätts.
         if (index == -1) {
             throw new InvalidPokemonException(
                     "Pokemon hittades inte i listan."
@@ -144,13 +178,28 @@ public class PokemonService {
         pokemons.set(index, updatedPokemon);
     }
 
+    private void saveOrRollback(
+            List<Pokemon> pokemons,
+            Pokemon originalPokemon,
+            Pokemon updatedPokemon
+    ) {
+        try {
+            pokemonFileService.savePokemonsToFile(pokemons);
+        } catch (PokemonSaveException e) {
+            // Återställ originalet om sparandet misslyckas.
+            replacePokemon(pokemons, updatedPokemon, originalPokemon);
+            throw e;
+        }
+    }
+
     // Ändrar namnet på en Pokemon.
     public Pokemon editPokemonName(
             List<Pokemon> pokemons,
             Pokemon pokemon,
             String newName
     ) {
-        if (isNameTakenByAnotherPokemon(pokemons, newName, pokemon.getId())) {
+        if (isNameTakenByAnotherPokemon(
+                pokemons, newName, pokemon.getId())) {
             throw new InvalidPokemonException(
                     newName + " finns redan."
             );
@@ -159,6 +208,8 @@ public class PokemonService {
         Pokemon updatedPokemon = pokemon.withName(newName);
 
         replacePokemon(pokemons, pokemon, updatedPokemon);
+
+        saveOrRollback(pokemons, pokemon, updatedPokemon);
 
         return updatedPokemon;
     }
@@ -173,21 +224,39 @@ public class PokemonService {
 
         replacePokemon(pokemons, pokemon, updatedPokemon);
 
+        saveOrRollback(pokemons, pokemon, updatedPokemon);
+
         return updatedPokemon;
     }
 
     // Ändrar currentHp på en Pokemon.
     public void editPokemonCurrentHp(
+            List<Pokemon> pokemons,
             Pokemon pokemon,
             int hp
     ) {
-
-        int difference = hp - pokemon.getCurrentHp();
+        int originalHp = pokemon.getCurrentHp();
+        int difference = hp - originalHp;
 
         if (difference > 0) {
             pokemon.heal(difference);
         } else if (difference < 0) {
             pokemon.takeDamage(-difference);
+        }
+
+        try {
+            pokemonFileService.savePokemonsToFile(pokemons);
+        } catch (PokemonSaveException e) {
+            // Återställ HP om sparandet misslyckas.
+            int rollbackDifference = originalHp - pokemon.getCurrentHp();
+
+            if (rollbackDifference > 0) {
+                pokemon.heal(rollbackDifference);
+            } else if (rollbackDifference < 0) {
+                pokemon.takeDamage(-rollbackDifference);
+            }
+
+            throw e;
         }
     }
 
@@ -201,6 +270,8 @@ public class PokemonService {
 
         replacePokemon(pokemons, pokemon, updatedPokemon);
 
+        saveOrRollback(pokemons, pokemon, updatedPokemon);
+
         return updatedPokemon;
     }
 
@@ -213,11 +284,12 @@ public class PokemonService {
 
         replacePokemon(pokemons, pokemon, updatedPokemon);
 
+        saveOrRollback(pokemons, pokemon, updatedPokemon);
+
         return updatedPokemon;
     }
 
     // Tar bort en Pokémon från listan.
-
     public void removePokemon(
             List<Pokemon> pokemons,
             Pokemon pokemon
@@ -241,5 +313,4 @@ public class PokemonService {
             throw e;
         }
     }
-
 }

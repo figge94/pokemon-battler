@@ -1,25 +1,27 @@
 package se.systementor.utbildning.ui;
 
 import se.systementor.utbildning.exception.InvalidAttackException;
+import se.systementor.utbildning.exception.PokemonSaveException;
 import se.systementor.utbildning.model.Attack;
 import se.systementor.utbildning.model.Pokemon;
 import se.systementor.utbildning.model.Type;
 import se.systementor.utbildning.service.AttackService;
+import se.systementor.utbildning.service.PokemonService;
 
 import java.util.List;
 import java.util.Scanner;
 
 public class AttackMenu {
+    private final PokemonService pokemonService;
 
-    public static void handleAddAttack(
+    public AttackMenu(PokemonService pokemonService) {
+        this.pokemonService = pokemonService;
+    }
+    public void handleAddAttack(
+            List<Pokemon> pokemons,
             Pokemon pokemon,
             Scanner scanner
     ) {
-        if (pokemon.getAttacks().size() >= 4) {
-            Messages.warning("En Pokemon kan ha max 4 attacker.");
-            return;
-        }
-
         String attackName =
                 InputHelper.readValidName(scanner, "Attacknamn: ");
 
@@ -50,7 +52,11 @@ public class AttackMenu {
         );
 
         try {
-            pokemon.addAttack(newAttack);
+            pokemonService.addAttackToPokemon(
+                    pokemons,
+                    pokemon,
+                    newAttack
+            );
 
             Messages.success(
                     pokemon.getName()
@@ -58,14 +64,15 @@ public class AttackMenu {
                             + newAttack.getName()
             );
 
-        } catch (InvalidAttackException e) {
+        } catch (InvalidAttackException | PokemonSaveException e) {
             Messages.error("Fel: " + e.getMessage());
         }
 
         PokemonMenu.printDetails(pokemon);
     }
 
-    public static void removeAttackFromPokemon(
+    public void removeAttackFromPokemon(
+            List<Pokemon> pokemons,
             Pokemon pokemon,
             Scanner scanner
     ) {
@@ -92,13 +99,17 @@ public class AttackMenu {
         Attack attackToRemove = attacks.get(attackChoice - 1);
 
         try {
-            pokemon.removeAttack(attackToRemove);
+            pokemonService.removeAttackFromPokemon(
+                    pokemons,
+                    pokemon,
+                    attackToRemove
+            );
 
             Messages.success(
                     attackToRemove.getName() + " har tagits bort."
             );
 
-        } catch (InvalidAttackException e) {
+        } catch (InvalidAttackException | PokemonSaveException e) {
             Messages.error(
                     "Det gick inte att ta bort attacken. " + e.getMessage()
             );

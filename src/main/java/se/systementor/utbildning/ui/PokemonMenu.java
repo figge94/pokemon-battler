@@ -14,9 +14,11 @@ import java.util.Scanner;
 public class PokemonMenu {
     // Pokémon-menyn får sin service via konstruktorn.
     private final PokemonService pokemonService;
+    private final AttackMenu attackMenu;
 
     public PokemonMenu(PokemonService pokemonService) {
         this.pokemonService = pokemonService;
+        this.attackMenu = new AttackMenu(pokemonService);
     }
 
     public void addPokemon(
@@ -98,11 +100,13 @@ public class PokemonMenu {
         switch (choice) {
             case 1 -> editPokemonName(pokemons, pokemon, scanner);
             case 2 -> editPokemonType(pokemons, pokemon, scanner);
-            case 3 -> editPokemonCurrentHp(pokemon, scanner);
+            case 3 -> editPokemonCurrentHp(pokemons, pokemon, scanner);
             case 4 -> editPokemonMaxHp(pokemons, pokemon, scanner);
             case 5 -> editPokemonSpeed(pokemons, pokemon, scanner);
-            case 6 -> AttackMenu.handleAddAttack(pokemon, scanner);
-            case 7 -> AttackMenu.removeAttackFromPokemon(pokemon, scanner);
+            case 6 -> attackMenu.handleAddAttack(pokemons, pokemon, scanner);
+            case 7 -> attackMenu.removeAttackFromPokemon(
+                    pokemons, pokemon, scanner
+            );
             case 8 -> Messages.info("Gå tillbaka till huvudmenyn.");
         }
     }
@@ -128,7 +132,7 @@ public class PokemonMenu {
             ConsoleUI.header("FÖRHANDSVISNING");
             printDetails(updatedPokemon);
 
-        } catch (InvalidPokemonException e) {
+        } catch (InvalidPokemonException | PokemonSaveException e) {
             Messages.error(e.getMessage());
         }
     }
@@ -140,17 +144,24 @@ public class PokemonMenu {
     ) {
         Type newType = InputHelper.chooseType(scanner);
 
-        Pokemon updatedPokemon = pokemonService.editPokemonType(
-                pokemons,
-                pokemon,
-                newType
-        );
+        try {
+            Pokemon updatedPokemon = pokemonService.editPokemonType(
+                    pokemons,
+                    pokemon,
+                    newType
+            );
 
-        Messages.success("Typen är uppdaterad.");
-        printDetails(updatedPokemon);
+            Messages.success("Typen är uppdaterad.");
+            printDetails(updatedPokemon);
+
+        } catch (PokemonSaveException e) {
+            Messages.error(e.getMessage());
+        }
     }
 
+
     public void editPokemonCurrentHp(
+            List<Pokemon> pokemons,
             Pokemon pokemon,
             Scanner scanner
     ) {
@@ -161,14 +172,22 @@ public class PokemonMenu {
                 pokemon.getMaxHp()
         );
 
-        pokemonService.editPokemonCurrentHp(
-                pokemon,
-                hp
-        );
+        try {
+            pokemonService.editPokemonCurrentHp(
+                    pokemons,
+                    pokemon,
+                    hp
+            );
 
-        Messages.success("Nuvarande HP är uppdaterat.");
-        printDetails(pokemon);
+            Messages.success("Nuvarande HP är uppdaterat.");
+            printDetails(pokemon);
+
+        } catch (PokemonSaveException e) {
+            Messages.error(e.getMessage());
+        }
     }
+
+
 
     public void editPokemonMaxHp(
             List<Pokemon> pokemons,
@@ -182,15 +201,21 @@ public class PokemonMenu {
                 999
         );
 
-        Pokemon updatedPokemon = pokemonService.editPokemonMaxHp(
-                pokemons,
-                pokemon,
-                hp
-        );
+        try {
+            Pokemon updatedPokemon = pokemonService.editPokemonMaxHp(
+                    pokemons,
+                    pokemon,
+                    hp
+            );
 
-        Messages.success("Max HP uppdaterades.");
-        printDetails(updatedPokemon);
+            Messages.success("Max HP uppdaterades.");
+            printDetails(updatedPokemon);
+
+        } catch (PokemonSaveException e) {
+            Messages.error(e.getMessage());
+        }
     }
+
 
     public void editPokemonSpeed(
             List<Pokemon> pokemons,
@@ -204,15 +229,21 @@ public class PokemonMenu {
                 200
         );
 
-        Pokemon updatedPokemon = pokemonService.editPokemonSpeed(
-                pokemons,
-                pokemon,
-                speed
-        );
+        try {
+            Pokemon updatedPokemon = pokemonService.editPokemonSpeed(
+                    pokemons,
+                    pokemon,
+                    speed
+            );
 
-        Messages.success("Snabbheten uppdaterades.");
-        printDetails(updatedPokemon);
+            Messages.success("Snabbheten uppdaterades.");
+            printDetails(updatedPokemon);
+
+        } catch (PokemonSaveException e) {
+            Messages.error(e.getMessage());
+        }
     }
+
 
     public void removePokemon(
             List<Pokemon> pokemons,

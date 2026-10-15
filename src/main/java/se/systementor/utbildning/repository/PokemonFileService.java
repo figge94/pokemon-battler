@@ -5,6 +5,7 @@ import se.systementor.utbildning.exception.PokemonLoadException;
 import se.systementor.utbildning.exception.PokemonSaveException;
 import se.systementor.utbildning.model.Pokemon;
 
+import java.nio.file.StandardCopyOption;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,25 +29,14 @@ public class PokemonFileService {
         return Files.exists(path);
     }
 
-    // Sparar listan med Pokemon till standardfilen pokemon.json.
-    public void savePokemonsToFile(List<Pokemon> pokemons) {
-        // Repository ansvarar för filskrivningen.
-        writePokemonsToFile(pokemons, path);
-    }
-
     // Skriver Pokemon-listan till den angivna JSON-filen.
-    private void writePokemonsToFile(
-            List<Pokemon> pokemons,
-            Path path
-    ) {
-
+    public void savePokemonsToFile(List<Pokemon> pokemons) {
         // Skapar tempfilen i samma mapp som den riktiga filen.
         Path tempPath = path.resolveSibling(
                 path.getFileName().toString() + ".tmp"
         );
 
         try {
-            // Gör om Pokemon-listan till JSON och skriver den till fil.
             objectMapper.writerWithDefaultPrettyPrinter()
                     .writeValue(tempPath.toFile(), pokemons);
 
@@ -54,7 +44,7 @@ public class PokemonFileService {
             Files.move(
                     tempPath,
                     path,
-                    java.nio.file.StandardCopyOption.REPLACE_EXISTING
+                    StandardCopyOption.REPLACE_EXISTING
             );
 
         } catch (IOException e) {
@@ -73,13 +63,18 @@ public class PokemonFileService {
             return loadPokemonsFromFile(path);
         }
 
+        if (!Files.exists(seedPath)) {
+            throw new PokemonLoadException(
+                    "Seed-filen saknas: " + seedPath
+            );
+        }
+
         // Använder startdata när ingen sparad fil finns.
         return loadPokemonsFromFile(seedPath);
     }
 
-
     // Läser Pokemon-data från den angivna JSON-filen.
-    public List<Pokemon> loadPokemonsFromFile(Path path) {
+    private List<Pokemon> loadPokemonsFromFile(Path path) {
 
         // Om filen inte finns returneras en tom lista.
         if (!Files.exists(path)) {
@@ -93,11 +88,9 @@ public class PokemonFileService {
                     Pokemon[].class
             );
 
-            // Gör om arrayen till en ArrayList.
             return new ArrayList<>(List.of(pokemonArray));
 
         } catch (IOException e) {
-            // Fångar IOException och kastar en egen exception med ett tydligare felmeddelande.
             throw new PokemonLoadException(
                     "Kunde inte ladda Pokemon-data från " + path,
                     e
@@ -107,12 +100,18 @@ public class PokemonFileService {
 
     // Laddar Pokemon-data från fil om filen finns.
     public List<Pokemon> loadPokemons() {
-        // Läser Pokémon från objektets filsökväg.
+        // Läser Pokemon från objektets filsökväg.
         return loadPokemonsFromFile(path);
     }
 
     // Återställer Pokemon-data från seed-filen efter bekräftelse.
     public List<Pokemon> resetPokemons(Path seedPath) {
+        if (!Files.exists(seedPath)) {
+            throw new PokemonLoadException(
+                    "Seed-filen saknas: " + seedPath
+            );
+        }
+
         // Läser originaldata från seed-filen.
         List<Pokemon> pokemons = loadPokemonsFromFile(seedPath);
 
