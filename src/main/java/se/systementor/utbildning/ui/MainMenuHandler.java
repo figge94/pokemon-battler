@@ -8,9 +8,16 @@ import java.util.List;
 import java.util.Scanner;
 
 public class MainMenuHandler {
-
-    // Varje menyobjekt håller reda på sitt eget tillstånd.
+    // Filsökvägar som används av huvudmenyn.
+    private final Path path;
+    private final Path seedPath;
     private boolean running = true;
+
+    // Tar emot sökvägar när menyobjektet skapas.
+    public MainMenuHandler(Path path, Path seedPath) {
+        this.path = path;
+        this.seedPath = seedPath;
+    }
 
     public boolean isRunning() {
         return running;
@@ -21,9 +28,6 @@ public class MainMenuHandler {
             List<Pokemon> pokemons,
             Scanner scanner
     ) {
-        Path path = Path.of("pokemon.json");
-        Path seedPath = Path.of("pokemon-seed.json");
-
         Menu.showMainMenu();
 
         int choice = InputHelper.readIntInRange(

@@ -11,11 +11,12 @@ import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class Main {
-
     public static void main(String[] args) {
-
         Path path = Path.of("pokemon.json");
         Path seedPath = Path.of("pokemon-seed.json");
+
+        // Skapar menyobjektet och skickar in sökvägarna.
+        MainMenuHandler mainMenu = new MainMenuHandler(path, seedPath);
 
         // Laddar Pokémon vid programstart.
         List<Pokemon> pokemons =
@@ -24,10 +25,7 @@ public class Main {
         // Stänger Scanner automatiskt när programmet avslutas.
         try (Scanner scanner = new Scanner(System.in)) {
 
-            // Skapar ett objekt som ansvarar för huvudmenyn.
-            MainMenuHandler mainMenu = new MainMenuHandler();
-
-            // Använder objektets metoder för att styra menyn.
+            // Använder menyobjektet för att styra huvudmenyn.
             while (mainMenu.isRunning()) {
                 pokemons = mainMenu.show(pokemons, scanner);
             }
