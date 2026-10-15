@@ -1,9 +1,17 @@
 
 package se.systementor.utbildning;
 
-import se.systementor.utbildning.model.Pokemon;
 import se.systementor.utbildning.repository.PokemonFileService;
+import se.systementor.utbildning.repository.BattleStatsFileService;
 import se.systementor.utbildning.exception.PokemonLoadException;
+import se.systementor.utbildning.model.BattleStats;
+import se.systementor.utbildning.model.CpuPlayer;
+import se.systementor.utbildning.model.Pokemon;
+import se.systementor.utbildning.service.BattleService;
+import se.systementor.utbildning.service.PokemonService;
+import se.systementor.utbildning.strategy.AggressiveStrategy;
+import se.systementor.utbildning.ui.PokemonMenu;
+import se.systementor.utbildning.ui.PlayMenuHandler;
 import se.systementor.utbildning.ui.Messages;
 import se.systementor.utbildning.ui.MainMenuHandler;
 
@@ -20,11 +28,27 @@ public class Main {
         // Skapar en gemensam filhanterare.
         PokemonFileService pokemonFileService = new PokemonFileService(path);
 
-        // Skickar samma filhanterare till huvudmenyn
+        BattleStats stats = BattleStatsFileService.loadStats();
+
+        CpuPlayer cpuPlayer = new CpuPlayer(new AggressiveStrategy());
+
+        BattleService battleService = new BattleService(stats, cpuPlayer);
+
+        PlayMenuHandler playMenuHandler = new PlayMenuHandler(battleService);
+
+        PokemonService pokemonService = new PokemonService(
+                stats,
+                pokemonFileService
+        );
+
+        PokemonMenu pokemonMenu = new PokemonMenu(pokemonService);
+
         MainMenuHandler mainMenu = new MainMenuHandler(
                 path,
                 seedPath,
-                pokemonFileService
+                pokemonFileService,
+                pokemonMenu,
+                playMenuHandler
         );
 
         // Laddar Pokemon vid programstart.

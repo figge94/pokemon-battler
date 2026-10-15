@@ -5,7 +5,6 @@ import se.systementor.utbildning.model.DamageAttack;
 import se.systementor.utbildning.model.Type;
 
 public class AttackService {
-
     public static Attack createAttack(
             String name,
             int damage,

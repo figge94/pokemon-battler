@@ -2,14 +2,10 @@ package se.systementor.utbildning.ui;
 
 import se.systementor.utbildning.exception.PokemonLoadException;
 import se.systementor.utbildning.exception.PokemonSaveException;
+
 import se.systementor.utbildning.model.Pokemon;
+
 import se.systementor.utbildning.repository.PokemonFileService;
-import se.systementor.utbildning.model.BattleStats;
-import se.systementor.utbildning.model.CpuPlayer;
-import se.systementor.utbildning.service.BattleService;
-import se.systementor.utbildning.repository.BattleStatsFileService;
-import se.systementor.utbildning.service.PokemonService;
-import se.systementor.utbildning.strategy.AggressiveStrategy;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -22,7 +18,6 @@ public class MainMenuHandler {
     private final PokemonMenu pokemonMenu;
     // Spelmenyn använder samma BattleService under hela programmet.
     private final PlayMenuHandler playMenuHandler;
-    private final BattleService battleService;
     private final PokemonFileService pokemonFileService;
     private boolean running = true;
 
@@ -30,26 +25,15 @@ public class MainMenuHandler {
     public MainMenuHandler(
             Path path,
             Path seedPath,
-            PokemonFileService pokemonFileService
+            PokemonFileService pokemonFileService,
+            PokemonMenu pokemonMenu,
+            PlayMenuHandler playMenuHandler
     ) {
         this.path = path;
         this.seedPath = seedPath;
-
-        // Skapar beroendena och kopplar ihop spelmenyn.
-        BattleStats stats = BattleStatsFileService.loadStats();
-        CpuPlayer cpuPlayer = new CpuPlayer(new AggressiveStrategy());
-
-        this.battleService = new BattleService(stats, cpuPlayer);
-        // Återanvänder filhanteraren som skapats i Main.
         this.pokemonFileService = pokemonFileService;
-
-        PokemonService pokemonService = new PokemonService(
-                stats,
-                this.pokemonFileService
-        );
-
-        this.pokemonMenu = new PokemonMenu(pokemonService);
-        this.playMenuHandler = new PlayMenuHandler(this.battleService);
+        this.pokemonMenu = pokemonMenu;
+        this.playMenuHandler = playMenuHandler;
     }
 
     public boolean isRunning() {
@@ -85,7 +69,14 @@ public class MainMenuHandler {
 
             case 6 -> pokemonMenu.removePokemon(pokemons, scanner);
 
-            case 7 -> pokemonFileService.savePokemonsToFile(pokemons);
+            case 7 -> {
+                try {
+                    pokemonFileService.savePokemonsToFile(pokemons);
+                    Messages.success("Pokémon-data har sparats.");
+                } catch (PokemonSaveException e) {
+                    Messages.error(e.getMessage());
+                }
+            }
 
             case 8 -> {
                 if (!pokemonFileService.saveFileExists()) {
