@@ -58,9 +58,18 @@ public class PokemonFileService {
 
     // Laddar sparad data om pokemon.json finns, annars laddas seed-filen.
     public List<Pokemon> loadInitialPokemons(Path seedPath) {
-        // Använder sparad data om den finns.
+
         if (Files.exists(path)) {
-            return loadPokemonsFromFile(path);
+            try {
+                return loadPokemonsFromFile(path);
+            } catch (PokemonLoadException e) {
+                System.out.println(
+                        "Den sparade Pokemon-filen kunde inte läsas."
+                );
+                System.out.println(
+                        "Startdata laddas i stället."
+                );
+            }
         }
 
         if (!Files.exists(seedPath)) {
@@ -69,7 +78,6 @@ public class PokemonFileService {
             );
         }
 
-        // Använder startdata när ingen sparad fil finns.
         return loadPokemonsFromFile(seedPath);
     }
 

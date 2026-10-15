@@ -61,16 +61,12 @@ public class BattleService {
         return wildPokemon;
     }
 
-    private static void executeAction(
+    private static ActionResult executeAction(
             BattleAction action,
             Pokemon attacker,
             Pokemon defender
     ) {
-        // Utför handlingen polymorft.
-        ActionResult result = action.execute(attacker, defender);
-
-        // Visar resultatet via den befintliga metoden.
-        showActionResult(action, result, attacker, defender);
+        return action.execute(attacker, defender);
     }
 
     // Hanterar spelarens tur.
@@ -79,10 +75,22 @@ public class BattleService {
             Pokemon wildPokemon,
             BattleAction playerAction
     ) {
-        // Utför spelarens handling via den gemensamma metoden.
-        executeAction(playerAction, playerPokemon, wildPokemon);
+        // Utför spelarens handling.
+        ActionResult result = executeAction(
+                playerAction,
+                playerPokemon,
+                wildPokemon
+        );
 
-        // Registrerar attacken i objektets statistik.
+        // Visar resultatet för spelaren.
+        BattlePresentation.showActionResult(
+                playerAction,
+                result,
+                playerPokemon,
+                wildPokemon
+        );
+
+        // Registrerar användningen i stridsstatistiken.
         battleStats.registerAttackUsage(playerAction.label());
     }
 
@@ -94,26 +102,34 @@ public class BattleService {
         List<BattleAction> actions =
                 new ArrayList<>(wildPokemon.getAttacks());
 
-        // Använder CPU-spelaren som skickades in via konstruktorn.
+        // CPU:n väljer en handling.
         BattleAction selectedAction = cpuPlayer.chooseAction(actions);
 
-        // Utför CPU:ns handling via den gemensamma metoden.
-        executeAction(selectedAction, wildPokemon, playerPokemon);
+        // Utför handlingen och hämtar resultatet.
+        ActionResult result = executeAction(
+                selectedAction,
+                wildPokemon,
+                playerPokemon
+        );
+
+        // Visar resultatet av CPU:ns handling.
+        BattlePresentation.showActionResult(
+                selectedAction,
+                result,
+                wildPokemon,
+                playerPokemon
+        );
     }
 
     // Startar och kör en hel strid tills någon Pokemon är besegrad.
     public void startBattle(
             List<Pokemon> pokemons,
+            Pokemon playerPokemon,
             Scanner scanner
     ) {
-        Pokemon playerPokemon = null;
         Pokemon wildPokemon = null;
 
         try {
-            playerPokemon = BattleMenu.choosePlayerPokemon(
-                    pokemons, scanner
-            );
-
             wildPokemon = chooseRandomWildPokemon(
                     pokemons, playerPokemon
             );
@@ -233,24 +249,6 @@ public class BattleService {
     // Hämtar statistik från det aktuella BattleService-objektet.
     public BattleStats getBattleStats() {
         return battleStats;
-    }
-
-    // Visar resultatet av en utförd handling.
-    private static void showActionResult(
-            BattleAction action,
-            ActionResult result,
-            Pokemon attacker,
-            Pokemon defender
-    ) {
-        if (result instanceof AttackResult attackResult
-                && action instanceof Attack attack) {
-            BattleMenu.showAttackResult(
-                    attacker,
-                    defender,
-                    attack,
-                    attackResult
-            );
-        }
     }
 
     private void registerBattleResult(

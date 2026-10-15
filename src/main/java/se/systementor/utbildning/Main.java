@@ -9,7 +9,7 @@ import se.systementor.utbildning.model.CpuPlayer;
 import se.systementor.utbildning.model.Pokemon;
 import se.systementor.utbildning.service.BattleService;
 import se.systementor.utbildning.service.PokemonService;
-import se.systementor.utbildning.strategy.AggressiveStrategy;
+import se.systementor.utbildning.strategy.RandomStrategy;
 import se.systementor.utbildning.ui.PokemonMenu;
 import se.systementor.utbildning.ui.PlayMenuHandler;
 import se.systementor.utbildning.ui.Messages;
@@ -30,7 +30,7 @@ public class Main {
 
         BattleStats stats = BattleStatsFileService.loadStats();
 
-        CpuPlayer cpuPlayer = new CpuPlayer(new AggressiveStrategy());
+        CpuPlayer cpuPlayer = new CpuPlayer(new RandomStrategy());
 
         BattleService battleService = new BattleService(stats, cpuPlayer);
 

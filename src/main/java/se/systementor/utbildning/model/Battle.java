@@ -3,12 +3,25 @@ package se.systementor.utbildning.model;
 public class Battle {
     private final Pokemon playerPokemon;
     private final Pokemon wildPokemon;
+    private boolean fled = false;
 
     // Skapar en ny strid mellan spelarens Pokemon och en vild Pokemon.
     public Battle(
             Pokemon playerPokemon,
             Pokemon wildPokemon
     ) {
+        if (playerPokemon == null || wildPokemon == null) {
+            throw new IllegalArgumentException(
+                    "En strid måste ha två Pokemon."
+            );
+        }
+
+        if (playerPokemon.equals(wildPokemon)) {
+            throw new IllegalArgumentException(
+                    "En Pokemon kan inte strida mot sig själv."
+            );
+        }
+
         this.playerPokemon = playerPokemon;
         this.wildPokemon = wildPokemon;
     }
@@ -60,11 +73,14 @@ public class Battle {
                 && !playerPokemon.isKnockedOut();
     }
 
-    // Håller reda på om spelaren har flytt.
-    private boolean fled = false;
-
     // Registrerar att spelaren flyr.
     public void flee() {
+        if (isOver()) {
+            throw new IllegalStateException(
+                    "Det går inte att fly från en avslutad strid."
+            );
+        }
+
         fled = true;
     }
 

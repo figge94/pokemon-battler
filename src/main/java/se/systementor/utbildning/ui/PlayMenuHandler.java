@@ -27,7 +27,18 @@ public class PlayMenuHandler {
 
             switch (choice) {
                 // Startar striden via det injicerade BattleService-objektet.
-                case 1 -> battleService.startBattle(pokemons, scanner);
+                case 1 -> {
+                    try {
+                        Pokemon playerPokemon = BattleMenu.choosePlayerPokemon(
+                                pokemons, scanner
+                        );
+
+                        battleService.startBattle(pokemons, playerPokemon, scanner);
+
+                    } catch (IllegalArgumentException e) {
+                        Messages.error(e.getMessage());
+                    }
+                }
                 case 2 -> BattleMenu.showBattleStats(
                         battleService.getBattleStats()
                 );
