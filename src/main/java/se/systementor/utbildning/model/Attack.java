@@ -99,7 +99,7 @@ public abstract class Attack implements BattleAction {
     }
 
     @Override
-    public abstract void execute(
+    public abstract AttackResult execute(
             Pokemon attacker,
             Pokemon defender
     );

@@ -11,10 +11,9 @@ public class FleeAction implements BattleAction {
 
     // Försöker fly utan att göra skada.
     @Override
-    public void execute(Pokemon attacker, Pokemon defender) {
-        System.out.println(
-                attacker.getName() + " försöker fly!"
-        );
+    public FleeResult execute(Pokemon attacker, Pokemon defender) {
+        // Returnerar ett flyktresultat utan att skriva till konsolen.
+        return new FleeResult();
     }
 
     // Flykt ska avsluta striden.

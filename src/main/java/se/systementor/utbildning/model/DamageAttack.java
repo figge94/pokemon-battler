@@ -5,9 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Random;
 
-import se.systementor.utbildning.service.BattleService;
-import se.systementor.utbildning.ui.BattleMenu;
-
 public class DamageAttack extends Attack {
     private static final Random RANDOM = new Random();
 
@@ -26,46 +23,41 @@ public class DamageAttack extends Attack {
         );
     }
 
-    @Override
-    public void execute(
-            Pokemon attacker,
-            Pokemon defender
-    ) {
+    public AttackResult performAttack(Pokemon attacker, Pokemon defender) {
         int roll = RANDOM.nextInt(100) + 1;
 
+        // Kontrollerar om attacken träffar.
         if (roll > getAccuracy()) {
-            BattleMenu.showMiss(attacker, this);
-            return;
+            return new AttackResult(false, 0, false, 1.0);
         }
 
-        double effectiveness = BattleService.getTypeEffectiveness(
+        double effectiveness = TypeEffectiveness.calculate(
                 getType(),
                 defender.getType()
         );
 
-        // Slumpfaktor mellan 85 % och 100 %.
         double randomFactor = 0.85 + RANDOM.nextDouble() * 0.15;
 
         int damage = (int) (
                 getBaseDamage() * effectiveness * randomFactor
         );
 
-        // 1 av 16 chans att göra dubbel skada.
+        // Avgör om attacken blir kritisk.
         boolean criticalHit = RANDOM.nextInt(16) == 0;
 
         if (criticalHit) {
             damage *= 2;
-            BattleMenu.showCriticalHit();
         }
 
         defender.takeDamage(damage);
 
-        BattleMenu.showAttackResult(
-                attacker,
-                defender,
-                this,
-                damage,
-                effectiveness
-        );
+        return new AttackResult(true, damage, criticalHit, effectiveness);
+    }
+
+    @Override
+    public AttackResult execute(Pokemon attacker, Pokemon defender) {
+
+        // Utför attacken och returnerar resultatet.
+        return performAttack(attacker, defender);
     }
 }

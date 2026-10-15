@@ -1,10 +1,6 @@
 package se.systementor.utbildning.ui;
 
-import se.systementor.utbildning.model.Attack;
-import se.systementor.utbildning.model.BattleStats;
-import se.systementor.utbildning.model.Pokemon;
-import se.systementor.utbildning.model.BattleAction;
-import se.systementor.utbildning.model.FleeAction;
+import se.systementor.utbildning.model.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,7 +98,6 @@ public class BattleMenu {
         }
     }
 
-
     public static void showBattleStart(
             Pokemon playerPokemon,
             Pokemon wildPokemon
@@ -125,6 +120,31 @@ public class BattleMenu {
                         + " använder "
                         + attack.getName()
                         + " men missar!"
+        );
+    }
+
+    public static void showAttackResult(
+            Pokemon attacker,
+            Pokemon defender,
+            Attack attack,
+            AttackResult result
+    ){
+        // Visar om attacken missade.
+        if (!result.hit()) {
+            showMiss(attacker, attack);
+            return;
+        }
+
+        if (result.criticalHit()) {
+            showCriticalHit();
+        }
+
+        showAttackResult(
+                attacker,
+                defender,
+                attack,
+                result.damage(),
+                result.effectiveness()
         );
     }
 
