@@ -60,29 +60,32 @@ public class BattleService {
         return wildPokemon;
     }
 
+    private static void executeAction(
+            BattleAction action,
+            Pokemon attacker,
+            Pokemon defender
+    ) {
+        // Utför handlingen polymorft.
+        ActionResult result = action.execute(attacker, defender);
+
+        // Visar resultatet via den befintliga metoden.
+        showActionResult(action, result, attacker, defender);
+    }
+
     // Hanterar spelarens tur.
+
     private static void playerTurn(
             Pokemon playerPokemon,
             Pokemon wildPokemon,
             BattleAction playerAction
     ) {
-        // Utför handlingen polymorft.
-        ActionResult result = playerAction.execute(
-                playerPokemon,
-                wildPokemon
-        );
+        // Utför spelarens handling via den gemensamma metoden.
+        executeAction(playerAction, playerPokemon, wildPokemon);
 
-        // Visar resultatet genom vår gemensamma metod.
-        showActionResult(
-                playerAction,
-                result,
-                playerPokemon,
-                wildPokemon
-        );
-
-        // Registrerar användningen av attacken.
+        // Registrerar vilken attack spelaren använde.
         BATTLE_STATS.registerAttackUsage(playerAction.label());
     }
+
 
     private static void wildTurn(
             Pokemon wildPokemon,
@@ -95,19 +98,8 @@ public class BattleService {
         // CPU:n väljer handling med sin strategi.
         BattleAction selectedAction = CPU_PLAYER.chooseAction(actions);
 
-        // Utför handlingen polymorft.
-        ActionResult result = selectedAction.execute(
-                wildPokemon,
-                playerPokemon
-        );
-
-        // Visar CPU:ns resultat genom den gemensamma metoden.
-        showActionResult(
-                selectedAction,
-                result,
-                wildPokemon,
-                playerPokemon
-        );
+        // Utför CPU:ns handling via den gemensamma metoden.
+        executeAction(selectedAction, wildPokemon, playerPokemon);
     }
 
     // Startar och kör en hel strid tills någon Pokemon är besegrad.
@@ -162,10 +154,14 @@ public class BattleService {
                     );
 
                     if (result instanceof FleeResult) {
+                        // Avslutar striden när flykten lyckas.
                         battle.flee();
+                        break;
                     }
 
-                    break;
+                    throw new IllegalStateException(
+                            "Handlingen avslutar striden utan ett giltigt resultat."
+                    );
                 }
 
                 Pokemon[] turnOrder = battle.getTurnOrder();
@@ -216,20 +212,8 @@ public class BattleService {
                 );
             }
 
-            BATTLE_STATS.registerPokemonUsage(playerPokemon.getId());
-
-            // Registrerar vinster och förluster men inte flykter.
-            if (battle.hasFled()) {
-                // Registrerar flykten separat.
-                BATTLE_STATS.addFlee();
-            } else if (battle.playerWon()) {
-                BATTLE_STATS.addWin(playerPokemon.getId());
-            } else {
-                BATTLE_STATS.addLoss(playerPokemon.getId());
-            }
-
-            // Sparar statistiken efter varje avslutad strid.
-            BattleStatsFileService.saveStats(BATTLE_STATS);
+            // Registrerar och sparar stridens statistik.
+            saveBattleStatistics(battle, playerPokemon);
 
         } catch (IllegalArgumentException e) {
             Messages.error(
@@ -267,5 +251,32 @@ public class BattleService {
                     attackResult
             );
         }
+    }
+
+    private static void registerBattleResult(
+            Battle battle,
+            Pokemon playerPokemon
+    ) {
+        // Registrerar använd Pokémon och stridens resultat.
+        BATTLE_STATS.registerPokemonUsage(playerPokemon.getId());
+
+        if (battle.hasFled()) {
+            BATTLE_STATS.addFlee();
+        } else if (battle.playerWon()) {
+            BATTLE_STATS.addWin(playerPokemon.getId());
+        } else {
+            BATTLE_STATS.addLoss(playerPokemon.getId());
+        }
+    }
+
+    private static void saveBattleStatistics(
+            Battle battle,
+            Pokemon playerPokemon
+    ) {
+        // Registrerar resultatet genom den gemensamma metoden.
+        registerBattleResult(battle, playerPokemon);
+
+        // Sparar statistiken till fil.
+        BattleStatsFileService.saveStats(BATTLE_STATS);
     }
 }

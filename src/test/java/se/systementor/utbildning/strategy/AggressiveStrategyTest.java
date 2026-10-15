@@ -32,4 +32,21 @@ class AggressiveStrategyTest {
 
         assertSame(attack, chosen);
     }
+
+    @Test
+    void shouldChooseFirstActionWhenNoDamageAttackExists() {
+        // Skapar handlingar utan skadeattacker.
+        BattleAction first = new FleeAction();
+        BattleAction second = new FleeAction();
+
+        List<BattleAction> actions = List.of(first, second);
+
+        CpuStrategy strategy = new AggressiveStrategy();
+
+        // Kontrollerar att första handlingen väljs.
+        BattleAction chosen = strategy.chooseAction(actions);
+
+        assertSame(first, chosen);
+    }
+
 }

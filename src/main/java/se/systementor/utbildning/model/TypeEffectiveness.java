@@ -11,6 +11,14 @@ public final class TypeEffectiveness {
             Type attackType,
             Type defenderType
     ) {
+
+        // Kräver giltiga Pokémon-typer för beräkningen.
+        if (attackType == null || defenderType == null) {
+            throw new IllegalArgumentException(
+                    "Attacktyp och försvarartyp får inte vara null."
+            );
+        }
+
         return switch (attackType) {
             case FIRE -> switch (defenderType) {
                 case GRASS -> 2.0;

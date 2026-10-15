@@ -147,4 +147,31 @@ class PokemonTest {
 
         assertNotEquals(pokemon1, pokemon2);
     }
+
+    @Test
+    void shouldNotReduceHpBelowZero() {
+        Pokemon pokemon = new Pokemon(
+                1, "Pikachu", Type.ELECTRIC, 100, 90
+        );
+
+        // Skadan får inte sänka HP under noll.
+        pokemon.takeDamage(150);
+
+        assertEquals(0, pokemon.getCurrentHp());
+        assertTrue(pokemon.isKnockedOut());
+    }
+
+    @Test
+    void shouldRestoreHpToMaximum() {
+        Pokemon pokemon = new Pokemon(
+                1, "Pikachu", Type.ELECTRIC, 100, 90
+        );
+
+        pokemon.takeDamage(60);
+
+        // Kontrollerar att HP återställs helt.
+        pokemon.restoreHealth();
+
+        assertEquals(100, pokemon.getCurrentHp());
+    }
 }
