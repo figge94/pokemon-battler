@@ -1,10 +1,12 @@
 package se.systementor.utbildning.service;
 
 import se.systementor.utbildning.exception.InvalidPokemonException;
+import se.systementor.utbildning.exception.PokemonSaveException;
 import se.systementor.utbildning.model.Attack;
 import se.systementor.utbildning.model.BattleStats;
 import se.systementor.utbildning.model.Pokemon;
 import se.systementor.utbildning.model.Type;
+import se.systementor.utbildning.repository.PokemonFileService;
 
 import java.util.List;
 
@@ -12,10 +14,15 @@ public class PokemonService {
 
     // Statistik som behövs när nya Pokémon-ID:n skapas.
     private final BattleStats battleStats;
+    private final PokemonFileService pokemonFileService;
 
-    // Får sitt beroende utifrån i stället för att hämta det själv.
-    public PokemonService(BattleStats battleStats) {
+    // Beroenden skickas in utifrån.
+    public PokemonService(
+            BattleStats battleStats,
+            PokemonFileService pokemonFileService
+    ) {
         this.battleStats = battleStats;
+        this.pokemonFileService = pokemonFileService;
     }
 
     // Söker efter en Pokémon utan att skilja på stora och små bokstäver.
@@ -108,7 +115,17 @@ public class PokemonService {
             Pokemon pokemon
     ) {
         pokemons.add(pokemon);
+
+        try {
+            // Sparar den uppdaterade listan.
+            pokemonFileService.savePokemonsToFile(pokemons);
+        } catch (PokemonSaveException e) {
+            // Ångrar tillägget om sparandet misslyckas.
+            pokemons.remove(pokemon);
+            throw e;
+        }
     }
+
 
     private static void replacePokemon(
             List<Pokemon> pokemons,
@@ -200,9 +217,29 @@ public class PokemonService {
     }
 
     // Tar bort en Pokémon från listan.
+
     public void removePokemon(
             List<Pokemon> pokemons,
-            Pokemon pokemon) {
-        pokemons.remove(pokemon);
+            Pokemon pokemon
+    ) {
+        int index = pokemons.indexOf(pokemon);
+
+        if (index == -1) {
+            throw new InvalidPokemonException(
+                    "Pokemon hittades inte i listan."
+            );
+        }
+
+        pokemons.remove(index);
+
+        try {
+            // Sparar listan efter borttagningen.
+            pokemonFileService.savePokemonsToFile(pokemons);
+        } catch (PokemonSaveException e) {
+            // Återställer Pokémon på samma plats om sparandet misslyckas.
+            pokemons.add(index, pokemon);
+            throw e;
+        }
     }
+
 }

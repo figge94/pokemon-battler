@@ -1,11 +1,10 @@
 package se.systementor.utbildning.ui;
 
 import se.systementor.utbildning.exception.InvalidPokemonException;
+import se.systementor.utbildning.exception.PokemonSaveException;
 
 import se.systementor.utbildning.model.Pokemon;
 import se.systementor.utbildning.model.Type;
-
-import se.systementor.utbildning.repository.PokemonFileService;
 
 import se.systementor.utbildning.service.PokemonService;
 
@@ -62,11 +61,13 @@ public class PokemonMenu {
         );
 
         if (confirm) {
-            pokemonService.addPokemon(pokemons, pokemon);
-
-            PokemonFileService.savePokemonsToFile(pokemons);
-
-            Messages.success("Pokemon tillagd och sparad.");
+            try {
+                pokemonService.addPokemon(pokemons, pokemon);
+                Messages.success("Pokemon tillagd och sparad.");
+            } catch (PokemonSaveException e) {
+                // UI ansvarar för att visa felmeddelandet.
+                Messages.error(e.getMessage());
+            }
         } else {
             Messages.warning("Avbrutet.");
         }
@@ -236,10 +237,13 @@ public class PokemonMenu {
         );
 
         if (confirm) {
-            pokemonService.removePokemon(pokemons, pokemon);
-            PokemonFileService.savePokemonsToFile(pokemons);
-
-            Messages.success(pokemon.getName() + " har tagits bort.");
+            try {
+                pokemonService.removePokemon(pokemons, pokemon);
+                Messages.success(pokemon.getName() + " har tagits bort.");
+            } catch (PokemonSaveException e) {
+                // UI visar felet om sparandet misslyckas.
+                Messages.error(e.getMessage());
+            }
         } else {
             Messages.warning("Borttagningen avbröts.");
         }
@@ -268,7 +272,7 @@ public class PokemonMenu {
     }
 
     // Visar alla Pokemon och deras attacker.
-    public static void showAllPokemons(List<Pokemon> pokemons) {
+    public void showAllPokemons(List<Pokemon> pokemons) {
         for (Pokemon pokemon : pokemons) {
             printDetails(pokemon);
             System.out.println();

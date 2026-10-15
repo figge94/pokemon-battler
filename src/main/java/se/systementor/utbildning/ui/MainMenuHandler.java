@@ -1,5 +1,7 @@
 package se.systementor.utbildning.ui;
 
+import se.systementor.utbildning.exception.PokemonLoadException;
+import se.systementor.utbildning.exception.PokemonSaveException;
 import se.systementor.utbildning.model.Pokemon;
 import se.systementor.utbildning.repository.PokemonFileService;
 import se.systementor.utbildning.model.BattleStats;
@@ -21,10 +23,15 @@ public class MainMenuHandler {
     // Spelmenyn använder samma BattleService under hela programmet.
     private final PlayMenuHandler playMenuHandler;
     private final BattleService battleService;
+    private final PokemonFileService pokemonFileService;
     private boolean running = true;
 
     // Tar emot sökvägar när menyobjektet skapas.
-    public MainMenuHandler(Path path, Path seedPath) {
+    public MainMenuHandler(
+            Path path,
+            Path seedPath,
+            PokemonFileService pokemonFileService
+    ) {
         this.path = path;
         this.seedPath = seedPath;
 
@@ -33,7 +40,14 @@ public class MainMenuHandler {
         CpuPlayer cpuPlayer = new CpuPlayer(new AggressiveStrategy());
 
         this.battleService = new BattleService(stats, cpuPlayer);
-        PokemonService pokemonService = new PokemonService(stats);
+        // Återanvänder filhanteraren som skapats i Main.
+        this.pokemonFileService = pokemonFileService;
+
+        PokemonService pokemonService = new PokemonService(
+                stats,
+                this.pokemonFileService
+        );
+
         this.pokemonMenu = new PokemonMenu(pokemonService);
         this.playMenuHandler = new PlayMenuHandler(this.battleService);
     }
@@ -57,7 +71,7 @@ public class MainMenuHandler {
         );
 
         switch (choice) {
-            case 1 -> PokemonMenu.showAllPokemons(pokemons);
+            case 1 -> pokemonMenu.showAllPokemons(pokemons);
 
             case 2 -> playMenuHandler.show(pokemons, scanner);
 
@@ -71,19 +85,42 @@ public class MainMenuHandler {
 
             case 6 -> pokemonMenu.removePokemon(pokemons, scanner);
 
-            case 7 -> PokemonFileService.savePokemonsToFile(pokemons);
+            case 7 -> pokemonFileService.savePokemonsToFile(pokemons);
 
-            case 8 -> pokemons =
-                    PokemonFileService.loadPokemons(path, pokemons);
+            case 8 -> {
+                if (!pokemonFileService.saveFileExists()) {
+                    Messages.warning("Ingen sparad Pokémon-fil hittades.");
+                } else {
+                    try {
+                        // Läser Pokemon från fil via repository.
+                        pokemons = pokemonFileService.loadPokemons();
+                        Messages.success("Pokémon-data har laddats.");
+                    } catch (PokemonLoadException e) {
+                        Messages.error(e.getMessage());
+                    }
+                }
+            }
 
-            case 9 -> pokemons =
-                    PokemonFileService.resetPokemons(
-                            scanner, pokemons, seedPath
-                    );
+            case 9 -> {
+                boolean confirm = InputHelper.readYesNo(
+                        scanner,
+                        "Är du säker på att du vill återställa all data? ja/nej: "
+                );
+
+                if (confirm) {
+                    try {
+                        // Repository återställer filen, UI visar resultatet.
+                        pokemons = pokemonFileService.resetPokemons(seedPath);
+                        Messages.success("Data återställd till seedad data.");
+                    } catch (PokemonLoadException | PokemonSaveException e) {
+                        Messages.error(e.getMessage());
+                    }
+                }
+            }
 
             case 10 -> {
                 // Sparar och avslutar huvudloopen.
-                PokemonFileService.savePokemonsToFile(pokemons);
+                pokemonFileService.savePokemonsToFile(pokemons);
                 System.out.println("Avslutar...");
                 running = false;
             }
