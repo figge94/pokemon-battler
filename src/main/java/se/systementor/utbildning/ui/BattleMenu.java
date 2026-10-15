@@ -348,5 +348,41 @@ public class BattleMenu {
         Messages.warning("Kritisk träff!");
     }
 
+    // Visar båda Pokémonens HP efter en attack.
 
+    public static void showBattleHp(Pokemon playerPokemon, Pokemon wildPokemon) {
+        System.out.println();
+
+        // Visar spelarens Pokémon med HP-mätare.
+        System.out.printf(
+                "%s %s %d/%d HP%n",
+                playerPokemon.getName(),
+                createHpBar(playerPokemon.getCurrentHp(), playerPokemon.getMaxHp()),
+                playerPokemon.getCurrentHp(),
+                playerPokemon.getMaxHp()
+        );
+
+        // Visar motståndarens Pokémon med HP-mätare.
+        System.out.printf(
+                "%s %s %d/%d HP%n",
+                wildPokemon.getName(),
+                createHpBar(wildPokemon.getCurrentHp(), wildPokemon.getMaxHp()),
+                wildPokemon.getCurrentHp(),
+                wildPokemon.getMaxHp()
+        );
+    }
+
+    private static String createHpBar(int currentHp, int maxHp) {
+        int barLength = 10;
+
+        // Räknar ut hur stor del av HP-mätaren som ska vara fylld.
+        int filled = (int) Math.round(
+                (double) currentHp / maxHp * barLength
+        );
+
+        filled = Math.clamp(filled, 0, barLength);
+
+        return "[" + "█".repeat(filled)
+                + "░".repeat(barLength - filled) + "]";
+    }
 }

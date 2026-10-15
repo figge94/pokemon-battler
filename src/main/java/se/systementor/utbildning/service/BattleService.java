@@ -175,6 +175,12 @@ public class BattleService {
                                 playerPokemon
                         );
                     }
+
+                    // Visar båda Pokemonens HP efter varje handling.
+                    BattleMenu.showBattleHp(
+                            playerPokemon,
+                            wildPokemon
+                    );
                 }
 
                 if (battle.isOver() && !battle.hasFled()) {
