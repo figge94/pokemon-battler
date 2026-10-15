@@ -5,6 +5,10 @@ import se.systementor.utbildning.ui.BattleMenu;
 import se.systementor.utbildning.repository.BattleStatsFileService;
 import se.systementor.utbildning.ui.Messages;
 
+import se.systementor.utbildning.strategy.CpuStrategy;
+import se.systementor.utbildning.strategy.RandomStrategy;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
@@ -12,6 +16,12 @@ import java.util.Scanner;
 public class BattleService {
     private static final Random RANDOM = new Random();
     private static final BattleStats BATTLE_STATS = BattleStatsFileService.loadStats();
+
+    // Använder CpuStrategy som datatyp så att vi enkelt
+    // kan byta strategi utan att ändra stridslogiken.
+    // RandomStrategy bestämmer hur CPU:n väljer handling.
+    private static final CpuStrategy CPU_STRATEGY =
+            new RandomStrategy();
 
     // Väljer en slumpmässig vild Pokemon som inte är samma som spelarens Pokemon.
     public static Pokemon chooseRandomWildPokemon(
@@ -65,18 +75,28 @@ public class BattleService {
         BATTLE_STATS.registerAttackUsage(playerAttack.getName());
     }
 
-    // Hanterar den vilda Pokemonens tur.
+
     private static void wildTurn(
             Pokemon wildPokemon,
             Pokemon playerPokemon
     ) {
-        Attack wildAttack = chooseRandomAttack(wildPokemon);
+        // Hämtar Pokemonens attacker och gör om dem till
+        // BattleAction så att CPU:n kan välja via interfacet.
+        List<BattleAction> actions =
+                new ArrayList<>(wildPokemon.getAttacks());
 
-        wildAttack.execute(
+        // Låter strategin bestämma vilken handling CPU:n ska använda.
+        // BattleService behöver inte veta hur valet görs.
+        BattleAction selectedAction =
+                CPU_STRATEGY.chooseAction(actions);
+
+        // Utför den valda handlingen via BattleAction-kontraktet.
+        selectedAction.execute(
                 wildPokemon,
                 playerPokemon
         );
     }
+
 
     // Startar och kör en hel strid tills någon Pokemon är besegrad.
     public static void startBattle(

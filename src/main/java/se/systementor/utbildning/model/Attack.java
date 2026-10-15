@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         )
 })
 
-public abstract class Attack {
+public abstract class Attack implements BattleAction {
     // Gör fälten private så att de inte kan ändras direkt utifrån.
     private final String name;
     private final Type type;
@@ -98,8 +98,14 @@ public abstract class Attack {
         }
     }
 
+    @Override
     public abstract void execute(
             Pokemon attacker,
             Pokemon defender
     );
+
+    @Override
+    public String label() {
+        return getName();
+    }
 }
