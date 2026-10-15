@@ -21,6 +21,7 @@ public class PokemonMenu {
         this.attackMenu = new AttackMenu(pokemonService);
     }
 
+    // Läser in uppgifter, visar en förhandsvisning och låter användaren bekräfta en ny Pokemon.
     public void addPokemon(
             List<Pokemon> pokemons,
             Scanner scanner
@@ -75,28 +76,33 @@ public class PokemonMenu {
         }
     }
 
-    // Visar redigeringsmenyn och skickar vidare till rätt metod.
+    // Hanterar redigering av en befintlig Pokemon.
     public void editPokemon(List<Pokemon> pokemons, Scanner scanner) {
         Messages.info("Ange namn på den Pokemon du vill redigera:");
         String name = scanner.nextLine();
 
-        // Hämtar vald Pokemon innan redigeringsmenyn visas.
-        Pokemon pokemon = pokemonService.findPokemonByName(pokemons, name);
+        // Söker efter Pokemon genom PokemonService.
+        // Om ingen hittas visas ett felmeddelande och metoden avslutas.
+        Pokemon pokemon = pokemonService.findPokemonOptional(pokemons, name)
+                .orElse(null);
 
         if (pokemon == null) {
             Messages.error(name + " hittades inte.");
             return;
         }
 
+        // Visar den valda Pokemons nuvarande egenskaper.
         ConsoleUI.header("FÖRHANDSVISNING");
         printDetails(pokemon);
         System.out.println();
 
+        // Visar redigeringsmenyn och läser in användarens val.
         Menu.showEditMenu();
 
         int choice = InputHelper.readIntInRange(scanner, "Välj: ", 1, 8);
 
-        // Skickar användaren vidare till rätt redigeringsmetod beroende på valet.
+        // Skickar vidare till rätt metod beroende på vad användaren vill ändra.
+        // PokemonService ansvarar för själva ändringen och sparandet.
         switch (choice) {
             case 1 -> editPokemonName(pokemons, pokemon, scanner);
             case 2 -> editPokemonType(pokemons, pokemon, scanner);
@@ -111,7 +117,7 @@ public class PokemonMenu {
         }
     }
 
-    // Ändrar namnet på en Pokemon.
+    // Läser in ett nytt namn och låter PokemonService uppdatera och spara Pokemon.
     public void editPokemonName(
             List<Pokemon> pokemons,
             Pokemon pokemon,
@@ -137,6 +143,7 @@ public class PokemonMenu {
         }
     }
 
+    // Låter användaren välja en ny typ och visar Pokemon efter ändringen.
     public void editPokemonType(
             List<Pokemon> pokemons,
             Pokemon pokemon,
@@ -159,7 +166,7 @@ public class PokemonMenu {
         }
     }
 
-
+    // Läser in nytt HP inom tillåtet intervall och visar det uppdaterade värdet.
     public void editPokemonCurrentHp(
             List<Pokemon> pokemons,
             Pokemon pokemon,
@@ -187,8 +194,7 @@ public class PokemonMenu {
         }
     }
 
-
-
+    // Ändrar Pokemonens maximala HP och visar resultatet.
     public void editPokemonMaxHp(
             List<Pokemon> pokemons,
             Pokemon pokemon,
@@ -216,7 +222,7 @@ public class PokemonMenu {
         }
     }
 
-
+    // Ändrar Pokemonens snabbhet och visar de uppdaterade egenskaperna.
     public void editPokemonSpeed(
             List<Pokemon> pokemons,
             Pokemon pokemon,
@@ -244,7 +250,7 @@ public class PokemonMenu {
         }
     }
 
-
+    // Söker efter en Pokemon och kräver bekräftelse innan den tas bort.
     public void removePokemon(
             List<Pokemon> pokemons,
             Scanner scanner
@@ -280,27 +286,31 @@ public class PokemonMenu {
         }
     }
 
-    // Söker efter en Pokemon med hjälp av namn.
+    // Söker efter namn och hanterar både träff och uteblivet resultat med Optional.
     public void searchPokemon(
             List<Pokemon> pokemons,
             Scanner scanner
     ) {
+        // Läser in namnet på den Pokemon som ska sökas efter.
         Messages.info("Skriv namnet på en Pokemon:");
         String name = scanner.nextLine();
 
-        Pokemon pokemon = pokemonService.findPokemonByName(
-                pokemons,
-                name
-        );
-
-        if (pokemon == null) {
-            Messages.error("Pokemon hittades inte.");
-            return;
-        }
-
-        ConsoleUI.header("SÖKRESULTAT");
-        printDetails(pokemon);
+        // Optional hanterar både när en Pokemon hittas
+        // och när sökningen inte ger något resultat.
+        pokemonService.findPokemonOptional(pokemons, name)
+                .ifPresentOrElse(
+                        pokemon -> {
+                            // Visar Pokemons information när den hittas.
+                            ConsoleUI.header("SÖKRESULTAT");
+                            printDetails(pokemon);
+                        },
+                        () -> {
+                            // Visar ett felmeddelande om ingen Pokemon hittas.
+                            Messages.error("Pokemon hittades inte.");
+                        }
+                );
     }
+
 
     // Visar alla Pokemon och deras attacker.
     public void showAllPokemons(List<Pokemon> pokemons) {
@@ -310,7 +320,7 @@ public class PokemonMenu {
         }
     }
 
-    // Visar detaljer om vald Pokemon.
+    // Använder PokemonFormatter för att skriva ut Pokemons information.
     public static void printDetails(Pokemon pokemon) {
         System.out.print(PokemonFormatter.format(pokemon));
     }

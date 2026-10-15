@@ -22,29 +22,41 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
+        // Anger var sparad Pokemon-data och startdata finns.
         Path path = Path.of("pokemon.json");
         Path seedPath = Path.of("pokemon-seed.json");
 
-        // Skapar en gemensam filhanterare.
+        // Skapar filhanteraren som ansvarar för att läsa och spara Pokemon.
+        // Samma objekt används av flera delar av programmet.
         PokemonFileService pokemonFileService = new PokemonFileService(path);
 
+        // Läser in tidigare stridsstatistik eller skapar tom statistik.
         BattleStats stats = BattleStatsFileService.loadStats();
 
+        // Skapar CPU-spelaren med en slumpmässig strategi.
+        // Strategin skickas in via konstruktorn med Dependency Injection.
         CpuPlayer cpuPlayer = new CpuPlayer(new RandomStrategy());
 
+        // Skapar stridshanteraren med statistik och CPU-spelare.
+        // BattleService får sina beroenden i stället för att skapa dem själv.
         BattleService battleService = new BattleService(stats, cpuPlayer);
 
+        // Skapar menyn för strider och statistik.
         PlayMenuHandler playMenuHandler = new PlayMenuHandler(battleService);
 
+        // Skapar tjänsten som hanterar Pokemon och deras ändringar.
+        // Samma statistik och filhanterare används genom hela programmet.
         PokemonService pokemonService = new PokemonService(
                 stats,
                 pokemonFileService
         );
 
+        // Skapar menyn för att visa, lägga till och redigera Pokemon.
         PokemonMenu pokemonMenu = new PokemonMenu(pokemonService);
 
+        // Skapar huvudmenyn med dess beroenden.
+        // Seed-sökvägen används vid återställning av Pokémon-data.
         MainMenuHandler mainMenu = new MainMenuHandler(
-                path,
                 seedPath,
                 pokemonFileService,
                 pokemonMenu,
@@ -55,28 +67,31 @@ public class Main {
         List<Pokemon> pokemons;
 
         try {
-            // Försöker läsa sparade Pokémon eller startdata.
+            // Använder sparad data eller seed-data beroende på vad som finns.
             pokemons = pokemonFileService.loadInitialPokemons(seedPath);
         } catch (PokemonLoadException e) {
-            // Visar felet och avbryter en osäker uppstart.
+            // Om ingen giltig data kan laddas visas felet.
+            // Programmet avslutas kontrollerat i stället för att fortsätta.
             Messages.error(e.getMessage());
             return;
         }
 
-        // Informerar användaren när startdata används.
         if (!pokemonFileService.saveFileExists()) {
             Messages.info("Inga sparade Pokémon finns. Startdata har laddats.");
         }
 
-        // Stänger Scanner automatiskt när programmet avslutas.
+        // Skapar en Scanner som används för användarens inmatning.
+        // try-with-resources ser till att den stängs när programmet avslutas.
         try (Scanner scanner = new Scanner(System.in)) {
 
-            // Använder menyobjektet för att styra huvudmenyn.
+            // MainMenuHandler ansvarar för menyflödet.
+            // Main behöver därför inte känna till de olika menyvalen.
             while (mainMenu.isRunning()) {
                 pokemons = mainMenu.show(pokemons, scanner);
             }
 
         } catch (NoSuchElementException e) {
+            // Hanterar avbruten inmatning utan en ohanterad exception.
             System.out.println(
                     "\nInmatningen avbröts. Programmet avslutas."
             );

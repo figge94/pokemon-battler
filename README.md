@@ -47,9 +47,14 @@ Striden avslutas när en Pokemon besegras eller spelaren flyr. Efteråt återst�
 
 Skadan beräknas enligt:
 
-**Skada = heltal(grundskada × typeffektivitet × slumpfaktor)**
+**Skada = max(1, heltal(grundskada × typeffektivitet × slumpfaktor))**
+
+Math.max(1, ...) ser till att en attack som träffar alltid gör minst 1 i skada,
+även om beräkningen annars skulle avrundas nedåt till 0. 
+En attack som missar gör fortfarande 0 i skada.
 
 Vid en kritisk träff multipliceras resultatet med 2.
+
 - **Basskada:** Attackens grundskada.
 - **Typeffektivitet:** 2,0 vid typfördel, 0,5 vid typnackdel och annars 1,0 för de typkombinationer som programmet hanterar.
 - **Slumpfaktor:** Mellan 0,85 och 1,00, vilket ger variation mellan attacker.

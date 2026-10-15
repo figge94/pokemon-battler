@@ -9,6 +9,7 @@ import se.systementor.utbildning.model.Type;
 import se.systementor.utbildning.repository.PokemonFileService;
 
 import java.util.List;
+import java.util.Optional;
 
 public class PokemonService {
 
@@ -25,14 +26,26 @@ public class PokemonService {
         this.pokemonFileService = pokemonFileService;
     }
 
-    // Söker efter en Pokémon utan att skilja på stora och små bokstäver.
-    public Pokemon findPokemonByName(
+    // Söker efter en Pokemon utan att skilja på stora och små bokstäver.
+    // Optional visar att sökningen kan ge ett resultat eller vara tom.
+    public Optional<Pokemon> findPokemonOptional(
             List<Pokemon> pokemons,
             String name
     ) {
         return pokemons.stream()
-                .filter(pokemon -> pokemon.getName().equalsIgnoreCase(name))
-                .findFirst()
+                .filter(pokemon ->
+                        pokemon.getName().equalsIgnoreCase(name)
+                )
+                .findFirst();
+    }
+
+    // Söker efter en Pokemon via Optional-metoden.
+    // Returnerar null tills övriga klasser har anpassats till Optional.
+    public Pokemon findPokemonByName(
+            List<Pokemon> pokemons,
+            String name
+    ) {
+        return findPokemonOptional(pokemons, name)
                 .orElse(null);
     }
 
@@ -86,11 +99,14 @@ public class PokemonService {
             Type type,
             int speed
     ) {
-        if (findPokemonByName(pokemons, name) != null) {
-            throw new InvalidPokemonException(
-                    name + " finns redan."
-            );
-        }
+        // Kontrollerar om namnet redan används.
+        // ifPresent hanterar resultatet utan en separat null-kontroll.
+        findPokemonOptional(pokemons, name)
+                .ifPresent(existingPokemon -> {
+                    throw new InvalidPokemonException(
+                            name + " finns redan."
+                    );
+                });
 
         // ID genereras med statistikobjektet som tillhör tjänsten.
         int id = getNextId(pokemons);
