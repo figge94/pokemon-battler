@@ -198,13 +198,15 @@ public class BattleService {
             BATTLE_STATS.registerPokemonUsage(playerPokemon.getId());
 
             // Registrerar vinster och förluster men inte flykter.
-            if (!battle.hasFled()) {
-                if (battle.playerWon()) {
-                    BATTLE_STATS.addWin(playerPokemon.getId());
-                } else {
-                    BATTLE_STATS.addLoss(playerPokemon.getId());
-                }
+            if (battle.hasFled()) {
+                // Registrerar flykten separat.
+                BATTLE_STATS.addFlee();
+            } else if (battle.playerWon()) {
+                BATTLE_STATS.addWin(playerPokemon.getId());
+            } else {
+                BATTLE_STATS.addLoss(playerPokemon.getId());
             }
+
 
             // Återställer båda Pokemon efter avslutad strid.
             playerPokemon.restoreHealth();

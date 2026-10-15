@@ -11,6 +11,7 @@ public class BattleStats {
 
     private int wins;
     private int losses;
+    private int flees;
 
     private final Map<Integer, Integer> winsByPokemon;
     private final Map<Integer, Integer> lossesByPokemon;
@@ -20,6 +21,7 @@ public class BattleStats {
     // Används när ny statistik skapas.
     public BattleStats() {
         this(
+                0,
                 0,
                 0,
                 null,
@@ -34,12 +36,13 @@ public class BattleStats {
     public BattleStats(
             @JsonProperty("wins") int wins,
             @JsonProperty("losses") int losses,
+            @JsonProperty("flees") int flees,
             @JsonProperty("winsByPokemon") Map<Integer, Integer> winsByPokemon,
             @JsonProperty("lossesByPokemon") Map<Integer, Integer> lossesByPokemon,
             @JsonProperty("pokemonUsage") Map<Integer, Integer> pokemonUsage,
             @JsonProperty("attackUsage") Map<String, Integer> attackUsage
     ) {
-        if (wins < 0 || losses < 0) {
+        if (wins < 0 || losses < 0 || flees < 0) {
             throw new IllegalArgumentException(
                     "Statistik får inte vara negativ."
             );
@@ -47,6 +50,7 @@ public class BattleStats {
 
         this.wins = wins;
         this.losses = losses;
+        this.flees = flees;
 
         this.winsByPokemon = winsByPokemon == null
                 ? new HashMap<>()
@@ -94,7 +98,7 @@ public class BattleStats {
 
     @JsonIgnore
     public int getTotalBattles() {
-        return wins + losses;
+        return wins + losses + flees;
     }
 
     public Map<Integer, Integer> getWinsByPokemon() {
@@ -180,5 +184,14 @@ public class BattleStats {
 
     public Map<Integer, Integer> getPokemonUsage() {
         return Map.copyOf(pokemonUsage);
+    }
+
+    public int getFlees() {
+        return flees;
+    }
+
+    // Registrerar en flykt.
+    public void addFlee() {
+        flees++;
     }
 }

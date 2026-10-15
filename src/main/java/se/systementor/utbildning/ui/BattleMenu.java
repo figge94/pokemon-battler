@@ -195,18 +195,27 @@ public class BattleMenu {
                 stats.getTotalBattles()
         ));
 
-        lines.add(" " + "─".repeat(26));
+        lines.add(" " + "─".repeat(30));
 
+        // Visar antal vinster.
         lines.add(String.format(
                 " %-25s %d",
                 "Vinster",
                 stats.getWins()
         ));
 
+        // Visar antal förluster.
         lines.add(String.format(
                 " %-25s %d",
                 "Förluster",
                 stats.getLosses()
+        ));
+
+        // Visar antalet flykter.
+        lines.add(String.format(
+                " %-25s %d",
+                "Flykter",
+                stats.getFlees()
         ));
 
         lines.add("");
