@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 // Abstrakt basklass med gemensamma egenskaper för attacker.
 // Implementerar BattleAction för att hantera attacker med polymorfism.
+// Används bara av DamageAttack, men kan utökas i framtiden med attacker som inte gör skada.
 public abstract class Attack implements BattleAction {
     private final String name;
     private final Type type;

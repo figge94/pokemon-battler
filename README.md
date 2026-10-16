@@ -182,3 +182,5 @@ Projektet innehåller följande funktioner för VG:
 - Om sparad Pokemon-data är ogiltig laddas seed-data i stället, om den finns.
 
 - En Pokémon måste ha minst en attack för att vara giltig, vilket gör att strid med en Pokemon utan attacker normalt förhindras redan vid inläsningen.
+
+- Just nu finns bara attacker som kan göra skada.
