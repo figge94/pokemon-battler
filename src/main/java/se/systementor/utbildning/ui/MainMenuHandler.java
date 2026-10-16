@@ -45,7 +45,7 @@ public class MainMenuHandler {
     private boolean savePokemons(List<Pokemon> pokemons) {
         try {
             pokemonFileService.savePokemonsToFile(pokemons);
-            Messages.success("Pokémon-data har sparats.");
+            Messages.success("Pokemon-data har sparats.");
             return true;
 
         } catch (PokemonSaveException e) {
@@ -83,13 +83,13 @@ public class MainMenuHandler {
             // Läser in sparad Pokemon-data.
             case 8 -> {
                 if (!pokemonFileService.saveFileExists()) {
-                    Messages.warning("Ingen sparad Pokémon-fil hittades.");
+                    Messages.warning("Ingen sparad Pokemon-fil hittades.");
 
                 } else {
                     try {
                         // Ersätter listan med sparad data.
                         pokemons = pokemonFileService.loadPokemons();
-                        Messages.success("Pokémon-data har laddats.");
+                        Messages.success("Pokemon-data har laddats.");
 
                     } catch (PokemonLoadException e) {
                         // Behåller den tidigare listan vid fel.

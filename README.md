@@ -20,12 +20,12 @@ Om ingen sparad Pokemon-fil finns laddas startdata från `pokemon-seed.json`.
 
 ### Pokedex
 
-Användaren kan visa, söka, lägga till, redigera och ta bort Pokémon via huvudmenyn.
+Användaren kan visa, söka, lägga till, redigera och ta bort Pokemon via huvudmenyn.
 
-Varje Pokémon har ett unikt ID, namn, typ, HP, snabbhet och attacker. 
+Varje Pokemon har ett unikt ID, namn, typ, HP, snabbhet och attacker. 
 Det går att ändra en Pokemons egenskaper samt lägga till och ta bort attacker.
 
-Pokémon-data kan sparas och läsas från pokemon.json. 
+Pokemon-data kan sparas och läsas från pokemon.json. 
 Användaren kan även återställa samlingen till ursprungliga startdata 
 från `pokemon-seed.json`.
 
@@ -49,7 +49,7 @@ Skadan beräknas enligt:
 
 **Skada = max(1, heltal(grundskada × typeffektivitet × slumpfaktor))**
 
-Math.max(1, ...) ser till att en attack som träffar alltid gör minst 1 i skada,
+`Math.max(1, ...)` ser till att en attack som träffar alltid gör minst 1 i skada,
 även om beräkningen annars skulle avrundas nedåt till 0. 
 En attack som missar gör fortfarande 0 i skada.
 
@@ -68,8 +68,8 @@ Under **Spela** kan användaren välja mellan:
 
 - **Starta strid:** Startar en strid mot en datorstyrd spelare.
 - **Total statistik:** Visar totalt antal strider, vinster och förluster samt hur många gånger man valt att fly.
-- **Statistik per Pokémon:** Visar antal vinster, förluster, vinstprocent och win/loss-ratio för varje Pokémon som deltagit i strider.
-- **Mest använda Pokémon:** Visar vilken Pokemon spelaren har använt flest gånger och antal strider.
+- **Statistik per Pokemon:** Visar antal vinster, förluster, vinstprocent och win/loss-ratio för varje Pokemon som deltagit i strider.
+- **Mest använda Pokemon:** Visar vilken Pokemon spelaren har använt flest gånger och antal strider.
 - **Mest använda attack:** Visar en lista över spelarens attacker, sorterade efter hur många gånger de använts.
 
 Vinstprocenten beräknas enligt:
@@ -80,7 +80,7 @@ Win/loss-ratio beräknas enligt:
 
 **Vinster / Förluster**
 
-Om en Pokémon har vinster men inga förluster visas ratio som oändlig (`∞`).
+Om en Pokemon har vinster men inga förluster visas ratio som oändlig (`∞`).
 
 Efter avslutad strid sparas statistiken automatiskt i `battle-stats.json` med hjälp av Jackson.
 
@@ -121,11 +121,15 @@ På så sätt återanvänds gemensam kod samtidigt som specifikt beteende kan de
 
 ### Interfaces och polymorfism
 
-`BattleAction` är ett interface som definierar gemensamma metoder för stridshandlingar, exempelvis `execute()` och `label()`.
+Jag har valt att använda interfacen `BattleAction` och `ActionResult` för att kunna hantera olika stridshandlingar och deras resultat på ett gemensamt sätt.
 
-Både attacker och flykthandlingar kan hanteras genom samma interface. När `execute()` anropas används den implementation som tillhör det aktuella objektet.
+**`BattleAction`** definierar metoder som `execute()`, `label()` och `endsBattle()`. Jag valde detta interface eftersom både attacker och flykt ska kunna användas som stridshandlingar, trots att de fungerar olika.
 
-På så sätt behöver BattleService inte känna till hur varje handling utförs. Det är ett exempel på polymorfism som gör det lättare att utöka stridssystemet med nya handlingar.
+`Attack` och `FleeAction` använder `BattleAction`. När `execute()` anropas utförs rätt metod beroende på vilken handling det är. Det är ett exempel på polymorfism.
+
+**`ActionResult`** används för resultaten av handlingarna. Jag valde detta interface då `AttackResult` och `FleeResult` innehåller olika information men ändå ska kunna hanteras som resultat från en stridshandling.
+
+Det gör att stridssystemet kan arbeta med gemensamma typer i stället för att vara beroende av varje enskild klass. Det blir också lättare att lägga till nya typer av handlingar och resultat senare.
 
 ### Enum
 `Type` är en enum som innehåller Pokemons olika typer.
@@ -133,26 +137,26 @@ Det förhindrar att ogiltiga typnamn används i programmet.
 
 ### Strategy Pattern
 
-CPU:ns attackval använder designmönstret Strategy Pattern.
+Jag har valt att använda interfacet `CpuStrategy` för att CPU:n ska kunna välja handlingar på olika sätt utan att ändra `CpuPlayer`.
 
-`CpuStrategy` är ett interface med två implementationer.
+`CpuStrategy` definierar metoden `chooseAction()`, som varje strategi måste implementera.
+
+Det finns två implementationer:
 
 - `RandomStrategy` väljer en slumpmässig handling. 
-- `AggressiveStrategy` prioriterar handlingar som orsakar skada.
+- `AggressiveStrategy` prioriterar skadeattacker genom att välja den första `DamageAttack` som finns i listan.
 
-CpuPlayer får ett objekt som implementerar `CpuStrategy` genom konstruktorn. 
-Därför kan programmet byta mellan `RandomStrategy` och `AggressiveStrategy`
-utan att ändra CpuPlayer.
- 
-Detta visar polymorfism och Dependency Injection.
+Jag har valt Strategy Pattern för att skilja CPU:ns beslut från själva stridslogiken. På så sätt kan fler strategier läggas till utan att ändra hur `CpuPlayer` fungerar.
+
+`CpuPlayer` får strategin via konstruktorn, vilket är ett exempel på Dependency Injection. Eftersom olika strategier kan användas genom samma interface visar det även polymorfism.
 
 ## Filhantering och felhantering
 
 Programmet använder följande JSON-filer:
 
-- `pokemon-seed.json` – ursprunglig Pokémon-data.
+- `pokemon-seed.json` – ursprunglig Pokemon-data.
 
-- `pokemon.json` – sparad Pokémon-data.
+- `pokemon.json` – sparad Pokemon-data.
 
 - `battle-stats.json` – sparad stridsstatistik.
 
@@ -173,7 +177,7 @@ Projektet innehåller följande funktioner för VG:
 
 - **Kritiska träffar:** Varje träff har 1/16 chans att bli kritisk och göra dubbel skada. Kritiska träffar visas i stridsloggen.
 
-- **Persistent statistik:** Vinster, förluster, vinst/förlust-ratio per Pokémon samt mest använda Pokemon och attacker sparas mellan programstarter och visas via menyn.
+- **Persistent statistik:** Vinster, förluster och användningsstatistik för Pokemon och attacker sparas mellan programstarter. Vinstprocent och vinst/förlust-ratio beräknas från den sparade statistiken.
 
 ## Kända begränsningar
 
@@ -181,6 +185,6 @@ Projektet innehåller följande funktioner för VG:
 
 - Om sparad Pokemon-data är ogiltig laddas seed-data i stället, om den finns.
 
-- En Pokémon måste ha minst en attack för att vara giltig, vilket gör att strid med en Pokemon utan attacker normalt förhindras redan vid inläsningen.
+- En Pokemon måste ha minst en attack för att vara giltig, vilket gör att strid med en Pokemon utan attacker normalt förhindras redan vid inläsningen.
 
 - Just nu finns bara attacker som kan göra skada.

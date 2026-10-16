@@ -55,7 +55,7 @@ public class Main {
         PokemonMenu pokemonMenu = new PokemonMenu(pokemonService);
 
         // Skapar huvudmenyn med dess beroenden.
-        // Seed-sökvägen används vid återställning av Pokémon-data.
+        // Seed-sökvägen används vid återställning av Pokemon-data.
         MainMenuHandler mainMenu = new MainMenuHandler(
                 seedPath,
                 pokemonFileService,
@@ -72,7 +72,7 @@ public class Main {
             pokemons = pokemonFileService.loadInitialPokemons(seedPath);
 
             if (!saveFileExists) {
-                Messages.info("Inga sparade Pokémon finns. Startdata har laddats.");
+                Messages.info("Inga sparade Pokemon finns. Startdata har laddats.");
             }
 
         } catch (PokemonLoadException e) {

@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public class PokemonService {
 
-    // Statistik som behövs när nya Pokémon-ID:n skapas.
+    // Statistik som behövs när nya Pokemon-ID:n skapas.
     private final BattleStats battleStats;
     private final PokemonFileService pokemonFileService;
 
@@ -305,7 +305,7 @@ public class PokemonService {
         return updatedPokemon;
     }
 
-    // Tar bort en Pokémon från listan.
+    // Tar bort en Pokemon från listan.
     public void removePokemon(
             List<Pokemon> pokemons,
             Pokemon pokemon
@@ -324,7 +324,7 @@ public class PokemonService {
             // Sparar listan efter borttagningen.
             pokemonFileService.savePokemonsToFile(pokemons);
         } catch (PokemonSaveException e) {
-            // Återställer Pokémon på samma plats om sparandet misslyckas.
+            // Återställer Pokemon på samma plats om sparandet misslyckas.
             pokemons.add(index, pokemon);
             throw e;
         }

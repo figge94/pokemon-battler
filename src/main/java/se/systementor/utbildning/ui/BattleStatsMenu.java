@@ -122,27 +122,27 @@ public final class BattleStatsMenu {
         int mostUsedId = stats.getMostUsedPokemonId();
 
         if (mostUsedId == -1) {
-            Messages.warning("Ingen Pokémon har använts ännu.");
+            Messages.warning("Ingen Pokemon har använts ännu.");
             return;
         }
 
         int usage = stats.getPokemonUsage().getOrDefault(mostUsedId, 0);
 
-        // Optional hanterar även om Pokemonen har tagits bort ur Pokedex.
+        // Optional hanterar även om Pokemon har tagits bort ur Pokedex.
         pokemons.stream()
                 .filter(pokemon -> pokemon.getId() == mostUsedId)
                 .findFirst()
                 .ifPresentOrElse(
                         pokemon -> {
                             System.out.println(
-                                    "Mest använda Pokémon: " + pokemon.getName()
+                                    "Mest använda Pokemon: " + pokemon.getName()
                                             + " | Antal strider: " + usage
                             );
                         },
                         () -> {
                             // Statistiken behålls även om Pokemonen tagits bort.
                             System.out.println(
-                                    "Mest använda Pokémon: ID " + mostUsedId
+                                    "Mest använda Pokemon: ID " + mostUsedId
                                             + " (borttagen från Pokedex)"
                                             + " | Antal strider: " + usage
                             );

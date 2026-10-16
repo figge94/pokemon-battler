@@ -56,7 +56,7 @@ public class PokemonServiceTest {
                 50
         );
 
-        // Första Pokémonen ska få ID 1.
+        // Första Pokemon ska få ID 1.
         assertEquals(1, pokemon.getId());
     }
 
@@ -78,7 +78,7 @@ public class PokemonServiceTest {
                 60
         );
 
-        // Nästa Pokémon ska få ett högre ID än den befintliga.
+        // Nästa Pokemon ska få ett högre ID än den befintliga.
         assertEquals(2, newPokemon.getId());
     }
 
@@ -124,7 +124,7 @@ public class PokemonServiceTest {
                 50
         );
 
-        // Pokémonen finns inte i listan som ska redigeras.
+        // Pokemon finns inte i listan som ska redigeras.
         assertThrows(
                 InvalidPokemonException.class,
                 () -> pokemonService.editPokemonName(
@@ -154,7 +154,7 @@ public class PokemonServiceTest {
                 "Raichu"
         );
 
-        // Listan ska innehålla den uppdaterade Pokémonen.
+        // Listan ska innehålla den uppdaterade Pokemon.
         assertSame(updated, pokemons.get(0));
         assertEquals("Raichu", updated.getName());
     }
@@ -211,7 +211,7 @@ public class PokemonServiceTest {
                 Type.WATER
         );
 
-        // Den uppdaterade Pokémonen ska ligga kvar i listan.
+        // Den uppdaterade Pokemon ska ligga kvar i listan.
         assertSame(updated, pokemons.get(0));
         assertEquals(Type.WATER, updated.getType());
     }
@@ -235,7 +235,7 @@ public class PokemonServiceTest {
                 150
         );
 
-        // Listan ska innehålla Pokémonen med uppdaterat max HP.
+        // Listan ska innehålla Pokemon med uppdaterat maxHP.
         assertSame(updated, pokemons.get(0));
         assertEquals(150, updated.getMaxHp());
     }
@@ -259,7 +259,7 @@ public class PokemonServiceTest {
                 80
         );
 
-        // Den uppdaterade Pokémonen ska ligga kvar på samma plats.
+        // Den uppdaterade Pokemon ska ligga kvar på samma plats.
         assertSame(updated, pokemons.get(0));
         assertEquals(80, updated.getSpeed());
     }
