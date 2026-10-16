@@ -1,86 +1,83 @@
 package se.systementor.utbildning.model;
 
-// Representerar en strid mellan spelarens Pokemon och en vild Pokemon.
-// Klassen ansvarar för stridens tillstånd, turordning och resultat.
+// Representerar en strid och hanterar deltagare, turordning och resultat.
 public class Battle {
-    // Stridens deltagare kan inte bytas ut efter att striden skapats.
-    // fled håller reda på om spelaren har avslutat striden genom flykt.
+    // final gör att deltagarna inte kan bytas ut under striden.
     private final Pokemon playerPokemon;
     private final Pokemon wildPokemon;
+
+    // Håller reda på om spelaren har flytt.
     private boolean fled = false;
 
-    // Skapar en strid och säkerställer att båda deltagarna är giltiga.
+    // Skapar en strid med två olika Pokemon.
     public Battle(
             Pokemon playerPokemon,
             Pokemon wildPokemon
     ) {
-        // Förhindrar att en strid startas utan två Pokemon.
         if (playerPokemon == null || wildPokemon == null) {
             throw new IllegalArgumentException(
                     "En strid måste ha två Pokemon."
             );
         }
-        // Förhindrar att samma Pokemon möter sig själv.
+        // equals jämför Pokemonens ID så att den inte möter sig själv.
         if (playerPokemon.equals(wildPokemon)) {
             throw new IllegalArgumentException(
                     "En Pokemon kan inte strida mot sig själv."
             );
         }
 
-        // Sparar deltagarna när valideringen är godkänd.
         this.playerPokemon = playerPokemon;
         this.wildPokemon = wildPokemon;
     }
 
-    // Returnerar spelarens Pokemon som deltar i striden.
     public Pokemon getPlayerPokemon() {
         return playerPokemon;
     }
 
-    // Returnerar den vilda Pokemon som är motståndare.
     public Pokemon getWildPokemon() {
         return wildPokemon;
     }
 
-    // Avgör vilken Pokemon som ska attackera först utifrån snabbhet.
+    // Avgör vem som börjar utifrån snabbhet.
     public Pokemon getFastestPokemon() {
-        // Om båda är lika snabba avgör slumpen vem som börjar.
+        // Vid lika snabbhet avgör slumpen vem som börjar.
         if (playerPokemon.getSpeed() == wildPokemon.getSpeed()) {
             return Math.random() < 0.5
                     ? playerPokemon
                     : wildPokemon;
         }
 
-        // Den Pokemon som har högst snabbhet attackerar först.
         if (playerPokemon.getSpeed() > wildPokemon.getSpeed()) {
             return playerPokemon;
         }
-        // Om spelarens Pokemon inte är snabbast börjar motståndaren.
+
         return wildPokemon;
     }
 
-    // Bestämmer båda deltagarnas turordning för den aktuella omgången.
+    // Bestämmer turordningen för båda Pokemon i striden.
     public Pokemon[] getTurnOrder() {
-        // Hämtar den Pokemon som ska utföra sin handling först.
+
+        // Hämtar den snabbaste Pokemon, som får börja.
         Pokemon first = getFastestPokemon();
-        // Den andra deltagaren placeras sist i turordningen.
+
+        // Kontrollerar om spelarens Pokemon börjar.
+        // Om den gör det blir den vilda Pokemon nummer två, annars tvärtom.
         Pokemon second = first == playerPokemon
                 ? wildPokemon
                 : playerPokemon;
 
+        // Returnerar en array med Pokemon i rätt turordning.
         return new Pokemon[]{first, second};
     }
 
-    // Kontrollerar om striden är avslutad.
-    // Striden slutar vid flykt eller när någon av Pokemon har besegras.
+    // Striden avslutas vid flykt eller när någon Pokemon är utslagen.
     public boolean isOver() {
         return fled
                 || playerPokemon.isKnockedOut()
                 || wildPokemon.isKnockedOut();
     }
 
-    // Kontrollerar om spelaren vann genom att besegra motståndaren.
-    // Spelarens Pokemon måste fortfarande vara stridsduglig.
+    // Spelaren vinner om motståndaren är utslagen och den egna Pokemonen lever.
     public boolean playerWon() {
         return wildPokemon.isKnockedOut()
                 && !playerPokemon.isKnockedOut();
@@ -88,18 +85,18 @@ public class Battle {
 
     // Registrerar att spelaren flyr från striden.
     public void flee() {
-        // Förhindrar att stridens tillstånd ändras efter att den avslutats.
+
+        // Förhindrar flykt från en redan avslutad strid.
         if (isOver()) {
             throw new IllegalStateException(
                     "Det går inte att fly från en avslutad strid."
             );
         }
 
-        // Markerar striden som avslutad genom flykt.
         fled = true;
     }
 
-    // Returnerar om spelaren har flytt från striden.
+    // Kontrollerar om spelaren har flytt.
     public boolean hasFled() {
         return fled;
     }
