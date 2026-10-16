@@ -25,7 +25,7 @@ public class PokemonServiceTest {
         stats = new BattleStats();
 
         PokemonFileService fileService =
-                new PokemonFileService(Path.of("pokemon.json"));
+                new PokemonFileService(Path.of("pokemon-test.json"));
 
         pokemonService = new PokemonService(stats, fileService);
     }
