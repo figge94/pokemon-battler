@@ -7,9 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashMap;
 import java.util.Map;
 
-// Ansvarar för att samla och hantera statistik från strider.
-// Håller reda på både total statistik och statistik per Pokemon.
-// Informationen kan sparas och läsas tillbaka med Jackson.
+// Samlar statistik från strider och kan spara och läsa in den med Jackson.
 public class BattleStats {
 
     // Totalt antal vinster, förluster och flykter.
@@ -17,15 +15,13 @@ public class BattleStats {
     private int losses;
     private int flees;
 
-    // Map används för att koppla en Pokemon eller attack till statistik.
-    // Pokemon identifieras med sitt ID och attacker med sitt namn.
+    // Map kopplar Pokemons ID och attacknamn till statistik.
     private final Map<Integer, Integer> winsByPokemon;
     private final Map<Integer, Integer> lossesByPokemon;
     private final Map<Integer, Integer> pokemonUsage;
     private final Map<String, Integer> attackUsage;
 
-    // Skapar ett nytt statistikobjekt med alla värden satta till noll.
-    // Anropar den andra konstruktorn för att återanvända initieringen.
+    // Skapar tom statistik genom att anropa den andra konstruktorn.
     public BattleStats() {
         this(
                 0,
@@ -38,8 +34,8 @@ public class BattleStats {
         );
     }
 
-    // Används av Jackson när tidigare statistik läses in från JSON.
-    // JsonProperty kopplar värdena i JSON-filen till parametrarna.
+    // @JsonCreator låter Jackson skapa objektet från JSON.
+    // @JsonProperty kopplar JSON-fälten till konstruktorns parametrar.
     @JsonCreator
     public BattleStats(
             @JsonProperty("wins") int wins,
@@ -62,8 +58,8 @@ public class BattleStats {
         this.losses = losses;
         this.flees = flees;
 
-        // Skapar nya Map-objekt för att skydda den interna statistiken.
-        // Om en Map saknas i JSON används en tom HashMap i stället.
+        // Skapar egna Map-objekt för att skydda den interna statistiken.
+        // Om ett värde saknas används en tom HashMap.
         this.winsByPokemon = winsByPokemon == null
                 ? new HashMap<>()
                 : new HashMap<>(winsByPokemon);
@@ -85,8 +81,8 @@ public class BattleStats {
     public void addWin(int pokemonId) {
         wins++;
 
-        // merge ökar antalet vinster med ett.
-        // Om Pokemon inte finns i Map ännu skapas värdet 1.
+        // merge skapar värdet 1 om ID:t saknas,
+        // annars ökas det befintliga värdet med 1.
         winsByPokemon.merge(
                 pokemonId,
                 1,
@@ -98,8 +94,6 @@ public class BattleStats {
     public void addLoss(int pokemonId) {
         losses++;
 
-        // Återanvänder merge för att slippa en separat kontroll
-        // av om Pokemon redan har registrerade förluster.
         lossesByPokemon.merge(
                 pokemonId,
                 1,
@@ -117,15 +111,13 @@ public class BattleStats {
         return losses;
     }
 
-    // Beräknar det totala antalet avslutade strider.
-    // JsonIgnore gör att det beräknade värdet inte sparas separat i JSON.
+    // Beräknar totalt antal strider. @JsonIgnore förhindrar separat lagring i JSON.
     @JsonIgnore
     public int getTotalBattles() {
         return wins + losses + flees;
     }
 
-    // Returnerar en skrivskyddad kopia av vinster per Pokemon.
-    // Skyddar objektets interna Map från ändringar utifrån.
+    // Returnerar en oföränderlig kopia av vinster per Pokemon.
     public Map<Integer, Integer> getWinsByPokemon() {
         return Map.copyOf(winsByPokemon);
     }
@@ -135,8 +127,7 @@ public class BattleStats {
         return Map.copyOf(lossesByPokemon);
     }
 
-    // Beräknar vinstprocenten för en viss Pokemon.
-    // Flykter räknas inte med i beräkningen.
+    // Beräknar vinstprocenten för en Pokemon, utan att räkna med flykter.
     @JsonIgnore
     public double getWinPercentage(int pokemonId) {
 
@@ -165,7 +156,6 @@ public class BattleStats {
     }
 
     // Beräknar förhållandet mellan vinster och förluster.
-    // Till skillnad från vinstprocent divideras vinster med förluster.
     @JsonIgnore
     public double getWinLossRatio(int pokemonId) {
 
@@ -183,30 +173,17 @@ public class BattleStats {
         return (double) wins / losses;
     }
 
-    // Hittar ID:t för den Pokemon som har använts flest gånger.
+    // Hittar ID:t för den mest använda Pokemon.
     @JsonIgnore
     public int getMostUsedPokemonId() {
 
-        // Streams söker upp det största användningsvärdet i Map.
-        // Om statistiken är tom returneras -1.
+        // Stream hittar det högsta användningsvärdet och hämtar dess ID.
+        // Optional returnerar -1 om ingen Pokemon har använts.
         return pokemonUsage.entrySet()
                 .stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
                 .orElse(-1);
-    }
-
-    // Hittar namnet på den attack som har använts flest gånger.
-    @JsonIgnore
-    public String getMostUsedAttack() {
-
-        // Söker efter posten med högst antal användningar.
-        // Om ingen attack har registrerats returneras null.
-        return attackUsage.entrySet()
-                .stream()
-                .max(Map.Entry.comparingByValue())
-                .map(Map.Entry::getKey)
-                .orElse(null);
     }
 
     // Returnerar en skrivskyddad kopia av attackstatistiken.
@@ -217,7 +194,6 @@ public class BattleStats {
     // Registrerar hur många gånger en Pokemon har använts i strid.
     public void registerPokemonUsage(int pokemonId) {
 
-        // merge skapar en ny post eller ökar det befintliga värdet.
         pokemonUsage.merge(
                 pokemonId,
                 1,
