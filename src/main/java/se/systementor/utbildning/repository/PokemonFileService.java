@@ -14,51 +14,37 @@ import java.util.ArrayList;
 import java.util.List;
 
 // Ansvarar för att spara, läsa och återställa Pokemon-data via JSON.
-// Genom att samla filhanteringen här behöver övriga klasser
-// inte känna till detaljerna kring Jackson eller filsystemet.
 public class PokemonFileService {
-
-    // Sökvägen till den aktuella Pokemon-filen.
-    // ObjectMapper används för att omvandla mellan Java-objekt och JSON.
     private final Path path;
+
+    // Jacksons ObjectMapper omvandlar mellan Java-objekt och JSON.
     private final ObjectMapper objectMapper;
 
-    // Tar emot filsökvägen via konstruktorn.
-    // Detta gör att filhanteraren kan användas med olika filer
-    // utan att sökvägen behöver vara hårdkodad i klassen.
+    // Sökvägen skickas in via konstruktorn så att olika filer kan användas.
     public PokemonFileService(Path path) {
         this.path = path;
-
-        // Skapar en ObjectMapper som återanvänds vid
-        // både inläsning och sparande av Pokemon-data.
         this.objectMapper = new ObjectMapper();
     }
 
-    // Kontrollerar om den sparade Pokemon-filen finns.
-    // Används exempelvis för att avgöra om tidigare data kan laddas.
+    // Kontrollerar om den ordinarie sparfilen finns.
     public boolean saveFileExists() {
         return Files.exists(path);
     }
 
-    // Sparar den aktuella Pokemon-listan till JSON-filen.
-    // Skriver först till en temporär fil för att minska risken
-    // att den befintliga sparfilen skadas vid ett skrivfel.
+    // Sparar först till en temporär fil för att skydda den befintliga sparfilen.
     public void savePokemonsToFile(List<Pokemon> pokemons) {
 
-        // Skapar en tempfil i samma mapp som den riktiga JSON-filen.
-        // Den får filändelsen .tmp och används tills skrivningen är klar.
+        // Tempfilen placeras i samma mapp och får ändelsen .tmp.
         Path tempPath = path.resolveSibling(
                 path.getFileName().toString() + ".tmp"
         );
 
         try {
-            // Jackson omvandlar Pokemon-listan till JSON.
-            // PrettyPrinter gör filens innehåll lättare att läsa.
+            // Jackson skriver JSON med indrag för bättre läsbarhet.
             objectMapper.writerWithDefaultPrettyPrinter()
                     .writeValue(tempPath.toFile(), pokemons);
 
-            // Ersätter den gamla sparfilen först när tempfilen
-            // har skrivits färdigt.
+            // Ersätter sparfilen först när tempfilen har skrivits färdigt.
             Files.move(
                     tempPath,
                     path,
@@ -66,9 +52,6 @@ public class PokemonFileService {
             );
 
         } catch (IOException e) {
-            // Om skrivning eller filflytt misslyckas skickas
-            // ett eget undantag vidare till anropande klass.
-            // UI kan sedan visa ett begripligt felmeddelande.
             throw new PokemonSaveException(
                     "Kunde inte spara Pokemon-data.",
                     e
@@ -76,68 +59,56 @@ public class PokemonFileService {
         }
     }
 
-    // Laddar Pokemon-data när programmet startar.
-    // Försöker först använda den sparade filen och
-    // använder seed-filen om sparfilen saknas eller är ogiltig.
-    public List<Pokemon> loadInitialPokemons(Path seedPath) {
+    // Läser startdata utan att ändra den ordinarie sparfilen.
+    public List<Pokemon> loadSeedPokemons(Path seedPath) {
 
-        // Kontrollerar om det finns tidigare sparad Pokemon-data.
-        if (Files.exists(path)) {
-            try {
-                // Försöker läsa den sparade JSON-filen.
-                return loadPokemonsFromFile(path);
-
-            } catch (PokemonLoadException e) {
-                // Om sparfilen är trasig kan programmet
-                // fortsätta genom att läsa in startdata i stället.
-                System.out.println(
-                        "Den sparade Pokemon-filen kunde inte läsas."
-                );
-                System.out.println(
-                        "Startdata laddas i stället."
-                );
-            }
-        }
-
-        // Kontrollerar att seed-filen finns innan den läses.
-        // Om både sparfilen och seed-filen är oanvändbara
-        // skickas ett fel vidare till programmets uppstart.
         if (!Files.exists(seedPath)) {
             throw new PokemonLoadException(
                     "Seed-filen saknas: " + seedPath
             );
         }
 
-        // Laddar startdata när det inte går att använda sparfilen.
         return loadPokemonsFromFile(seedPath);
     }
 
-    // Läser Pokemon-data från en JSON-fil.
-    // Metoden används vid uppstart, vanlig inläsning och återställning.
+    // Laddar sparad Pokemon-data eller startdata om sparfilen saknas.
+    public List<Pokemon> loadInitialPokemons(Path seedPath) {
+
+        if (Files.exists(path)) {
+            try {
+                return loadPokemonsFromFile(path);
+
+            } catch (PokemonLoadException e) {
+                // Skickar felet vidare så att Main kan hantera det.
+                throw new PokemonLoadException(
+                        "Den sparade Pokemon-filen kunde inte läsas.",
+                        e
+                );
+            }
+        }
+
+        return loadSeedPokemons(seedPath);
+    }
+
+    // Läser JSON från valfri sökväg och returnerar en ändringsbar lista.
     private List<Pokemon> loadPokemonsFromFile(Path path) {
 
-        // Returnerar en tom lista om filen inte finns.
-        // På så sätt behöver metoden aldrig returnera null.
+        // Returnerar en tom lista i stället för null om filen saknas.
         if (!Files.exists(path)) {
             return new ArrayList<>();
         }
 
         try {
-            // Jackson läser JSON och skapar Pokemon-objekt.
-            // Pokemon-konstruktorn validerar värdena vid skapandet.
+            // Jackson skapar Pokemon-objekt från JSON-filen.
             Pokemon[] pokemonArray = objectMapper.readValue(
                     path.toFile(),
                     Pokemon[].class
             );
 
-            // Omvandlar arrayen till en ändringsbar lista.
-            // Listan används sedan för att hantera Pokemon i menyerna.
+            // List.of ger en oföränderlig lista, så vi skapar en ändringsbar kopia.
             return new ArrayList<>(List.of(pokemonArray));
 
         } catch (IOException | IllegalArgumentException e) {
-
-            // Hanterar både problem med JSON och ogiltiga värden.
-            // Skickar vidare ett eget undantag som beskriver filfelet.
             throw new PokemonLoadException(
                     "Kunde inte ladda Pokemon-data från " + path,
                     e
@@ -145,32 +116,20 @@ public class PokemonFileService {
         }
     }
 
-    // Läser in Pokemon-data från den ordinarie sparfilen.
-    // Återanvänder den privata metoden för JSON-inläsning.
+    // Läser data från den ordinarie sparfilen.
     public List<Pokemon> loadPokemons() {
         return loadPokemonsFromFile(path);
     }
 
-    // Återställer Pokemon-data från seed-filen.
-    // Anropande meny ansvarar för att användaren
-    // har bekräftat återställningen innan metoden körs.
+    // Återställer Pokemon från seed-filen och sparar resultatet.
     public List<Pokemon> resetPokemons(Path seedPath) {
 
-        // Kontrollerar att seed-filen finns innan återställningen.
-        if (!Files.exists(seedPath)) {
-            throw new PokemonLoadException(
-                    "Seed-filen saknas: " + seedPath
-            );
-        }
+        List<Pokemon> pokemons = loadSeedPokemons(seedPath);
 
-        // Läser in originaldata från seed-filen.
-        List<Pokemon> pokemons = loadPokemonsFromFile(seedPath);
-
-        // Skriver originaldata till den vanliga sparfilen.
-        // Därmed används den återställda datan även nästa gång programmet startas.
+        // Sparar återställningen så att den finns kvar efter omstart.
         savePokemonsToFile(pokemons);
 
-        // Returnerar den återställda listan till huvudmenyn.
         return pokemons;
     }
+
 }

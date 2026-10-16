@@ -63,21 +63,38 @@ public class Main {
                 playMenuHandler
         );
 
-        // Laddar Pokemon vid programstart.
+        // Laddar sparad Pokemon-data eller startdata vid programstart.
         List<Pokemon> pokemons;
 
-        try {
-            // Använder sparad data eller seed-data beroende på vad som finns.
-            pokemons = pokemonFileService.loadInitialPokemons(seedPath);
-        } catch (PokemonLoadException e) {
-            // Om ingen giltig data kan laddas visas felet.
-            // Programmet avslutas kontrollerat i stället för att fortsätta.
-            Messages.error(e.getMessage());
-            return;
-        }
+        boolean saveFileExists = pokemonFileService.saveFileExists();
 
-        if (!pokemonFileService.saveFileExists()) {
-            Messages.info("Inga sparade Pokémon finns. Startdata har laddats.");
+        try {
+            pokemons = pokemonFileService.loadInitialPokemons(seedPath);
+
+            if (!saveFileExists) {
+                Messages.info("Inga sparade Pokémon finns. Startdata har laddats.");
+            }
+
+        } catch (PokemonLoadException e) {
+
+            if (!saveFileExists) {
+                // Även seed-filen kunde inte laddas.
+                Messages.error(e.getMessage());
+                return;
+            }
+
+            // Sparfilen kunde inte läsas, så vi försöker med startdata.
+            Messages.error("Den sparade Pokemon-filen kunde inte läsas.");
+            Messages.info("Startdata laddas i stället.");
+
+            try {
+                pokemons = pokemonFileService.loadSeedPokemons(seedPath);
+
+            } catch (PokemonLoadException seedError) {
+                // Programmet kan inte starta utan giltiga Pokemon.
+                Messages.error(seedError.getMessage());
+                return;
+            }
         }
 
         // Skapar en Scanner som används för användarens inmatning.
