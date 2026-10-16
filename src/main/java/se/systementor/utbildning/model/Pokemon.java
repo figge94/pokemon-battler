@@ -15,10 +15,9 @@ public class Pokemon {
     private final String name;
     private final Type type;
     private final int maxHp;
+    private final int speed;
 
-    // Dessa värden kan förändras under spelets gång.
     private int currentHp;
-    private int speed;
 
     private final List<Attack> attacks = new ArrayList<>();
 
@@ -142,16 +141,14 @@ public class Pokemon {
         attacks.addAll(newAttacks);
     }
 
-    // Tar bort en attack, men en Pokemon måste ha minst 1 attack för att det ska fungera.
+    // Tar bort en attack, men tillåter inte att den sista tas bort.
     public void removeAttack(Attack attack) {
-
         if (attack == null) {
             throw new InvalidAttackException(
                     "Attack får inte vara null."
             );
         }
 
-        // Förhindrar att sista attacken tas bort.
         if (attacks.size() <= 1) {
             throw new InvalidAttackException(
                     "En Pokemon måste ha minst 1 attack."
@@ -219,7 +216,7 @@ public class Pokemon {
         return copyWith(name, type, maxHp, newSpeed);
     }
 
-    // Skapar en ny Pokemon med ändrade egenskaper men har fortfarande samma ID.
+    // Skapar en ny Pokemon med samma ID och uppdaterade egenskaper.
     private Pokemon copyWith(String name, Type type, int maxHp, int speed) {
         Pokemon updatedPokemon = new Pokemon(
                 id,
@@ -238,9 +235,9 @@ public class Pokemon {
         return updatedPokemon;
     }
 
-    // JsonIgnore förhindrar att värdet sparas i JSON.
+    // @JsonIgnore förhindrar att metoden sparas som ett JSON-fält.
+    // En Pokemon är utslagen när currentHp är 0.
     @JsonIgnore
-    // Om currentHp är noll så har man blivit utslagen.
     public boolean isKnockedOut() {
         return currentHp == 0;
     }

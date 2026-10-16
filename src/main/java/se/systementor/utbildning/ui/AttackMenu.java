@@ -11,22 +11,16 @@ import se.systementor.utbildning.service.PokemonService;
 import java.util.List;
 import java.util.Scanner;
 
-// Ansvarar för menyerna där användaren kan lägga till och ta bort attacker.
-// Klassen hanterar inmatning och presentation, medan PokemonService
-// ansvarar för ändringar och sparande av Pokemon-data.
+// Hanterar inmatning och menyval för att lägga till och ta bort attacker.
 public class AttackMenu {
-
-    // Lagrar den service som används för att ändra Pokemonens attacker.
-    // Fältet är privat och final för att skydda referensen.
     private final PokemonService pokemonService;
 
-    // Tar emot PokemonService via konstruktorn.
-    // Detta är Dependency Injection eftersom beroendet skapas utanför klassen.
+    // Tar emot PokemonService via Dependency Injection.
     public AttackMenu(PokemonService pokemonService) {
         this.pokemonService = pokemonService;
     }
 
-    // Låter användaren skapa och lägga till en ny attack på en Pokemon.
+    // Läser in och lägger till en ny attack på en Pokemon.
     public void handleAddAttack(
             List<Pokemon> pokemons,
             Pokemon pokemon,
@@ -60,8 +54,7 @@ public class AttackMenu {
         Type attackType =
                 InputHelper.chooseType(scanner);
 
-        // Skapar attacken genom AttackService.
-        // Menyn behöver därför inte själv skapa en DamageAttack direkt.
+        // AttackService skapar attacken så att UI inte behöver känna till DamageAttack.
         Attack newAttack = AttackService.createAttack(
                 attackName,
                 damage,
@@ -70,15 +63,12 @@ public class AttackMenu {
         );
 
         try {
-            // Skickar attacken till PokemonService.
-            // Servicen lägger till attacken och sparar Pokemon-listan.
             pokemonService.addAttackToPokemon(
                     pokemons,
                     pokemon,
                     newAttack
             );
 
-            // Visar ett meddelande när attacken har lagts till.
             Messages.success(
                     pokemon.getName()
                             + " har fått attacken "
@@ -86,35 +76,24 @@ public class AttackMenu {
             );
 
         } catch (InvalidAttackException | PokemonSaveException e) {
-
-            // Hanterar både ogiltiga attacker och problem vid sparande.
-            // UI ansvarar för att visa felet för användaren.
             Messages.error("Fel: " + e.getMessage());
         }
-
-        // Visar Pokemonens aktuella information efter försöket.
-        // Använder samma utskriftsmetod som resten av Pokemon-menyn.
-        PokemonMenu.printDetails(pokemon);
     }
 
-    // Låter användaren välja och ta bort en attack från en Pokemon.
+    // Låter användaren välja en attack att ta bort.
     public void removeAttackFromPokemon(
             List<Pokemon> pokemons,
             Pokemon pokemon,
             Scanner scanner
     ) {
-        // Hämtar en skrivskyddad kopia av Pokemonens attacker.
-        // Den riktiga attacklistan kan bara ändras genom Pokemonens metoder.
         List<Attack> attacks = pokemon.getAttacks();
 
-        // Kontrollerar att Pokemon har fler än en attack.
-        // Den sista attacken får inte tas bort enligt spelets regler.
+        // En Pokemon måste ha minst en attack kvar.
         if (attacks.size() <= 1) {
             Messages.warning("En Pokemon måste ha minst 1 attack.");
             return;
         }
 
-        // Visar vilka attacker användaren kan välja att ta bort.
         System.out.println("Välj attack att ta bort:");
 
         // Går igenom listan och skriver ut varje attack med ett nummer.
@@ -123,8 +102,7 @@ public class AttackMenu {
             System.out.println((i + 1) + ": " + attacks.get(i).getName());
         }
 
-        // Läser in användarens val och kontrollerar att numret
-        // motsvarar en attack som finns i listan.
+        // Listans index börjar på 0, medan menyvalen börjar på 1.
         int attackChoice = InputHelper.readIntInRange(
                 scanner,
                 "Välj: ",
@@ -132,8 +110,6 @@ public class AttackMenu {
                 attacks.size()
         );
 
-        // Hämtar den valda attacken.
-        // Minus ett behövs eftersom listans index börjar på 0.
         Attack attackToRemove = attacks.get(attackChoice - 1);
 
         try {
@@ -158,9 +134,5 @@ public class AttackMenu {
                     "Det gick inte att ta bort attacken. " + e.getMessage()
             );
         }
-
-        // Visar samma typ av rubrik som övriga menyer.
-        ConsoleUI.header("FÖRHANDSVISNING");
-        PokemonMenu.printDetails(pokemon);
     }
 }
