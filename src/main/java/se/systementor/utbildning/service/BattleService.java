@@ -28,7 +28,7 @@ public class BattleService {
     public BattleService(BattleStats battleStats, CpuPlayer cpuPlayer) {
         this.battleStats = battleStats;
 
-        // Skapar tjänsten som ansvarar för handlingarna under striden.
+        // Skapar tjänsten som ansvarar för handlingarna under strid.
         this.battleTurnService = new BattleTurnService(battleStats, cpuPlayer);
     }
 
