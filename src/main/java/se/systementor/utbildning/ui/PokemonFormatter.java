@@ -3,23 +3,18 @@ package se.systementor.utbildning.ui;
 import se.systementor.utbildning.model.Attack;
 import se.systementor.utbildning.model.Pokemon;
 
-// Ansvarar för att formatera information om en Pokemon till text.
-// Genom att samla formateringen här slipper andra UI-klasser
-// bygga samma text på flera olika ställen.
+// Formaterar en Pokemons egenskaper och attacker till text.
 public final class PokemonFormatter {
 
-    // Privat konstruktor eftersom klassen bara innehåller
-    // statiska metoder och inte ska skapas som objekt.
+    // Privat konstruktor eftersom klassen bara innehåller statiska metoder.
     private PokemonFormatter() {
     }
 
-    // Tar emot en Pokemon och returnerar en formaterad text
-    // med Pokemonens egenskaper och tillhörande attacker.
+    // Tar emot en Pokemon och returnerar en formaterad text med Pokemons egenskaper och tillhörande attacker.
     public static String format(Pokemon pokemon) {
 
-        // StringBuilder används för att bygga upp texten stegvis.
-        // String.format gör att Pokemonens värden kan placeras
-        // i en gemensam textrad med samma struktur.
+        // StringBuilder bygger upp texten stegvis.
+        // String.format placerar värden i en bestämd struktur.
         StringBuilder pokemonDetails = new StringBuilder(
                 String.format(
                         "%d. Namn: %s | Typ: %s | HP: %d/%d | Snabbhet: %d%n ",
@@ -32,20 +27,12 @@ public final class PokemonFormatter {
                 )
         );
 
-        // Räknar ut hur många siffror Pokemonens ID innehåller.
-        // Detta används för att anpassa attackernas indrag
-        // så att utskriften blir tydlig även för ID med flera siffror.
+        // Anpassar attackernas indrag efter antalet siffror i ID:t.
         int numberOfCharactersInId =
                 String.valueOf(pokemon.getId()).length();
 
-        // Går igenom alla attacker som tillhör Pokemonen.
-        // Attackerna hämtas genom getAttacks() för att
-        // inte komma åt den privata listan direkt.
+        // Lägger till en formaterad textrad för varje attack.
         for (Attack attack : pokemon.getAttacks()) {
-
-            // Lägger till en ny textrad för varje attack.
-            // String.repeat skapar mellanslag utifrån ID:ts längd.
-            // Attackens egenskaper hämtas genom dess getters.
             pokemonDetails.append(
                     String.format(
                             "%s  Attack: %s | Skada: %d | Träffsäkerhet: %d | Typ: %s%n",
@@ -58,8 +45,7 @@ public final class PokemonFormatter {
             );
         }
 
-        // Omvandlar den färdiga texten från StringBuilder
-        // till en String som kan skrivas ut av PokemonMenu.
+        // Omvandlar StringBuilder till en String.
         return pokemonDetails.toString();
     }
 }
