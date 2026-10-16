@@ -1,8 +1,7 @@
 package se.systementor.utbildning.model;
 
-// Representerar handlingen att fly från en strid.
 // Implementerar BattleAction så att flykt kan hanteras
-// på samma sätt som andra stridshandlingar genom polymorfism.
+// som andra stridshandlingar genom polymorfism.
 public class FleeAction implements BattleAction {
 
     // Implementerar label från BattleAction.
@@ -13,8 +12,7 @@ public class FleeAction implements BattleAction {
     }
 
     // Implementerar execute från BattleAction.
-    // Flykt orsakar ingen skada och behöver därför
-    // inte använda attacker eller försvararens egenskaper.
+    // Flykt orsakar ingen skada och använder därför inte parametrarna.
     @Override
     public FleeResult execute(Pokemon attacker, Pokemon defender) {
 
@@ -24,8 +22,7 @@ public class FleeAction implements BattleAction {
         return new FleeResult();
     }
 
-    // Skriver över standardbeteendet från BattleAction.
-    // En flykthandling ska avsluta striden.
+    // Skriver över standardbeteendet i BattleAction så att flykt avslutar striden.
     @Override
     public boolean endsBattle() {
         return true;
