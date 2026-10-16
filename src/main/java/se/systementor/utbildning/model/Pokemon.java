@@ -10,14 +10,7 @@ import se.systementor.utbildning.exception.InvalidPokemonException;
 import java.util.ArrayList;
 import java.util.List;
 
-// Representerar en Pokemon med egenskaper, hälsa och attacker.
-// Klassen ansvarar själv för att dess värden följer spelets regler.
-// Privata fält och publika metoder används för inkapsling.
 public class Pokemon {
-
-    // Grundläggande egenskaper för en Pokemon.
-    // final innebär att dessa värden inte kan tilldelas på nytt
-    // efter att objektet har skapats.
     private final int id;
     private final String name;
     private final Type type;
@@ -27,41 +20,30 @@ public class Pokemon {
     private int currentHp;
     private int speed;
 
-    // Lagrar Pokemonens attacker i en privat lista.
-    // Listan kan ändras genom klassens egna metoder.
     private final List<Attack> attacks = new ArrayList<>();
 
-    // Jämför två Pokemon utifrån deras unika ID.
-    // Två objekt med samma ID betraktas som samma Pokemon
-    // även om de är olika objekt i minnet.
+    // Pokemon med samma ID räknas som lika.
     @Override
     public boolean equals(Object obj) {
 
-        // Om båda referenserna pekar på samma objekt är de lika.
         if (this == obj) {
             return true;
         }
 
-        // Kontrollerar att objektet är en Pokemon.
-        // instanceof skapar samtidigt variabeln other.
         if (!(obj instanceof Pokemon other)) {
             return false;
         }
 
-        // Pokemon med samma ID räknas som lika.
         return id == other.id;
     }
 
-    // Skapar en hashkod utifrån Pokemonens ID.
-    // Objekt som är lika enligt equals måste ge samma hashkod.
-    // Detta är viktigt om Pokemon används i HashSet eller HashMap.
+    // Använder ID för att skapa en hashkod.
     @Override
     public int hashCode() {
         return Integer.hashCode(id);
     }
 
-    // Skapar en Pokemon med dess grundläggande egenskaper.
-    // Jackson använder konstruktorn vid inläsning från JSON.
+    // Jackson använder konstruktorn vid JSON-inläsning.
     // JsonProperty kopplar JSON-fält till rätt parametrar.
     @JsonCreator
     public Pokemon(
@@ -89,8 +71,6 @@ public class Pokemon {
         this.speed = speed;
     }
 
-    // Getters gör att andra klasser kan läsa egenskaperna
-    // utan att få direkt åtkomst till de privata fälten.
     public int getId() {
         return id;
     }
@@ -115,31 +95,26 @@ public class Pokemon {
         return speed;
     }
 
-    // Returnerar en skrivskyddad kopia av attacklistan.
-    // Detta förhindrar att andra klasser ändrar listan direkt
-    // och kringgår reglerna för hur många attacker som är tillåtna.
+    // Returnerar en oföränderlig kopia så listan inte kan ändras utifrån.
     public List<Attack> getAttacks() {
         return List.copyOf(attacks);
     }
 
-    // Lägger till en attack om den följer Pokemonens regler.
+    // Lägger till en attack, max fyra tillåtna.
     public void addAttack(Attack attack) {
 
-        // Förhindrar att en null-referens läggs till i listan.
         if (attack == null) {
             throw new InvalidAttackException(
                     "Attack får inte vara null."
             );
         }
 
-        // En Pokemon får ha högst fyra attacker.
         if (attacks.size() >= 4) {
             throw new InvalidAttackException(
                     "En Pokemon kan ha max 4 attacker."
             );
         }
 
-        // Lägger till attacken först när kontrollerna är godkända.
         attacks.add(attack);
     }
 
@@ -148,15 +123,12 @@ public class Pokemon {
     @JsonProperty("attacks")
     public void replaceAttacks(List<Attack> newAttacks) {
 
-        // Kontrollerar att listan finns och innehåller 1–4 attacker.
-        // Därmed kan ingen ogiltig attacklista sparas i objektet.
         if (newAttacks == null || newAttacks.isEmpty() || newAttacks.size() > 4) {
             throw new InvalidAttackException(
                     "En Pokemon måste ha mellan 1 och 4 attacker."
             );
         }
 
-        // Går igenom listan för att säkerställa att ingen attack är null.
         for (Attack attack : newAttacks) {
             if (attack == null) {
                 throw new InvalidAttackException(
@@ -166,41 +138,36 @@ public class Pokemon {
         }
 
         // Ersätter den gamla listan först efter godkänd validering.
-        // Detta skyddar objektet från att hamna i ett ogiltigt tillstånd.
         attacks.clear();
         attacks.addAll(newAttacks);
     }
 
-    // Tar bort en attack om Pokemon fortfarande har minst en kvar.
+    // Tar bort en attack, men en Pokemon måste ha minst 1 attack för att det ska fungera.
     public void removeAttack(Attack attack) {
 
-        // Kontrollerar att en giltig attack har skickats in.
         if (attack == null) {
             throw new InvalidAttackException(
                     "Attack får inte vara null."
             );
         }
 
-        // En Pokemon måste alltid ha minst en attack.
-        // Därför får den sista attacken inte tas bort.
+        // Förhindrar att sista attacken tas bort.
         if (attacks.size() <= 1) {
             throw new InvalidAttackException(
                     "En Pokemon måste ha minst 1 attack."
             );
         }
 
-        // Kontrollerar att attacken tillhör denna Pokemon.
         if (!attacks.contains(attack)) {
             throw new InvalidAttackException(
                     name + " har inte den attacken."
             );
         }
 
-        // Tar bort attacken efter att samtliga kontroller har godkänts.
         attacks.remove(attack);
     }
 
-    // Minskar Pokemonens hälsa när den tar skada.
+    // Minskar en Pokemons hälsa när den blivit träffad.
     public void takeDamage(int damage) {
 
         // Negativ skada är inte tillåten.
@@ -210,21 +177,20 @@ public class Pokemon {
             );
         }
 
-        // Math.max ser till att HP aldrig blir lägre än noll.
+        // HP kan aldrig bli lägre än noll.
         currentHp = Math.max(0, currentHp - damage);
     }
 
-    // Återställer en del av Pokemonens hälsa.
+    // Återställer en Pokemons hälsa.
     public void heal(int amount) {
 
-        // Förhindrar att ett negativt värde används för läkning.
         if (amount < 0) {
             throw new IllegalArgumentException(
                     "Healing får inte vara negativ."
             );
         }
 
-        // Math.min begränsar läkningen så att HP inte överstiger maxHp.
+        // HP kan aldrig överstiga maxHp.
         currentHp += Math.min(amount, maxHp - currentHp);
     }
 
@@ -233,33 +199,28 @@ public class Pokemon {
         currentHp = maxHp;
     }
 
-    // Skapar en uppdaterad Pokemon med ett nytt namn.
-    // Övriga egenskaper behålls genom copyWith.
+    // Skapar en kopia med nytt namn.
     public Pokemon withName(String newName) {
         return copyWith(newName, type, maxHp, speed);
     }
 
-    // Skapar en uppdaterad Pokemon med en annan typ.
+    // Skapar en kopia med ny typ.
     public Pokemon withType(Type newType) {
         return copyWith(name, newType, maxHp, speed);
     }
 
-    // Skapar en uppdaterad Pokemon med ett nytt maximalt HP.
+    // Skapar en kopia med nytt maxHp.
     public Pokemon withMaxHp(int newMaxHp) {
         return copyWith(name, type, newMaxHp, speed);
     }
 
-    // Skapar en uppdaterad Pokemon med en annan snabbhet.
+    // Skapar en kopia med ny snabbhet.
     public Pokemon withSpeed(int newSpeed) {
         return copyWith(name, type, maxHp, newSpeed);
     }
 
-    // Gemensam hjälpmetod som skapar en kopia med ändrade egenskaper.
-    // Används för att slippa duplicera samma kod i alla with-metoder.
+    // Skapar en ny Pokemon med ändrade egenskaper men har fortfarande samma ID.
     private Pokemon copyWith(String name, Type type, int maxHp, int speed) {
-
-        // Skapar en ny Pokemon med samma ID och önskade egenskaper.
-        // Konstruktorn utför valideringen även för det nya objektet.
         Pokemon updatedPokemon = new Pokemon(
                 id,
                 name,
@@ -268,25 +229,23 @@ public class Pokemon {
                 speed
         );
 
-        // Behåller nuvarande HP men begränsar det till det nya maxvärdet.
+        // Behåller HP utan att överskrida nya maxHp.
         updatedPokemon.currentHp = Math.min(currentHp, maxHp);
 
-        // Kopierar attackerna så att den uppdaterade Pokemonen
-        // får samma attacker utan att dela själva listan.
+        // Kopierar attackerna till den nya Pokemon.
         updatedPokemon.attacks.addAll(attacks);
 
-        // Returnerar det nya objektet till den anropande klassen.
         return updatedPokemon;
     }
 
-    // Kontrollerar om Pokemon har blivit besegrad.
-    // JsonIgnore förhindrar att detta beräknade värde sparas i JSON.
+    // JsonIgnore förhindrar att värdet sparas i JSON.
     @JsonIgnore
+    // Om currentHp är noll så har man blivit utslagen.
     public boolean isKnockedOut() {
         return currentHp == 0;
     }
 
-    // Kontrollerar att Pokemonens ID är ett positivt heltal.
+    // Kontrollerar att ett ID är ett positivt heltal.
     private static void validateId(int id) {
         if (id <= 0) {
             throw new InvalidPokemonException(
@@ -295,17 +254,14 @@ public class Pokemon {
         }
     }
 
-    // Kontrollerar att Pokemonens namn följer programmets regler.
+    // Kontrollerar att Pokemons namn följer programmets regler.
     private static void validateName(String name) {
-
-        // Namnet får inte saknas eller bara bestå av mellanslag.
         if (name == null || name.isBlank()) {
             throw new InvalidPokemonException(
                     "Namnet får inte vara tomt."
             );
         }
 
-        // Namnet får endast innehålla bokstäver och mellanslag.
         if (!name.matches("[a-zA-ZåäöÅÄÖ ]+")) {
             throw new InvalidPokemonException(
                     "Namnet får bara innehålla bokstäver och mellanslag."
@@ -313,7 +269,7 @@ public class Pokemon {
         }
     }
 
-    // Kontrollerar att Pokemonen har en giltig typ.
+    // Kontrollerar att en Pokemon har en giltig typ.
     private static void validateType(Type type) {
         if (type == null) {
             throw new InvalidPokemonException(
@@ -322,7 +278,7 @@ public class Pokemon {
         }
     }
 
-    // Kontrollerar att maximalt HP ligger inom tillåtet intervall.
+    // Kontrollerar att maxHp ligger mellan 1 och 999.
     private static void validateMaxHp(int maxHp) {
         if (maxHp < 1 || maxHp > 999) {
             throw new InvalidPokemonException(
@@ -331,7 +287,7 @@ public class Pokemon {
         }
     }
 
-    // Kontrollerar att Pokemons snabbhet ligger inom tillåtna gränser.
+    // Kontrollerar att Pokemons snabbhet ligger mellan 0 och 200.
     private static void validateSpeed(int speed) {
         if (speed < 0 || speed > 200) {
             throw new InvalidPokemonException(
