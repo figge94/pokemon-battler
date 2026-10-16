@@ -1,34 +1,38 @@
 package se.systementor.utbildning.service;
 
-import se.systementor.utbildning.model.*;
-import se.systementor.utbildning.ui.BattleMenu;
+import se.systementor.utbildning.model.Battle;
+import se.systementor.utbildning.model.BattleAction;
+import se.systementor.utbildning.model.BattleStats;
+import se.systementor.utbildning.model.CpuPlayer;
+import se.systementor.utbildning.model.FleeResult;
+import se.systementor.utbildning.model.ActionResult;
+import se.systementor.utbildning.model.Pokemon;
 import se.systementor.utbildning.repository.BattleStatsFileService;
-import se.systementor.utbildning.ui.Messages;
+import se.systementor.utbildning.ui.BattleMenu;
 import se.systementor.utbildning.ui.BattlePresentation;
+import se.systementor.utbildning.ui.Messages;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
-// Ansvarar för att samordna en hel strid mellan spelaren och CPU:n.
-// Använder andra klasser för handlingar, presentation och statistik
-// så att all funktionalitet inte behöver ligga i samma klass.
+// Samordnar striden mellan spelaren och CPU:n.
+// Använder andra klasser för handlingar, presentation och statistik.
 public class BattleService {
 
-    // Statistik och CPU-spelare skickas in via konstruktorn.
-    // Detta är Dependency Injection och gör att samma objekt
-    // kan återanvändas under programmets körning.
     private final BattleStats battleStats;
-    private final CpuPlayer cpuPlayer;
+    private final BattleTurnService battleTurnService;
 
-    // Skapar stridstjänsten med de beroenden den behöver.
+    // Dependency Injection: statistik och CPU-spelare
+    // skickas in via konstruktorn i stället för att skapas här.
     public BattleService(BattleStats battleStats, CpuPlayer cpuPlayer) {
         this.battleStats = battleStats;
-        this.cpuPlayer = cpuPlayer;
+
+        // Skapar tjänsten som ansvarar för handlingarna under striden.
+        this.battleTurnService = new BattleTurnService(battleStats, cpuPlayer);
     }
 
-    // Gemensam slumpgenerator som används när en vild Pokemon väljs.
+    // static final gör att samma slumpgenerator återanvänds.
     private static final Random RANDOM = new Random();
 
     // Väljer en slumpmässig motståndare som inte är spelarens Pokemon.
@@ -36,29 +40,25 @@ public class BattleService {
             List<Pokemon> pokemons,
             Pokemon playerPokemon
     ) {
-        // Kontrollerar att både listan och spelarens Pokemon finns.
         if (pokemons == null || playerPokemon == null) {
             throw new IllegalArgumentException(
                     "Pokemon-listan och spelarens Pokemon får inte vara null."
             );
         }
 
-        // En strid kräver minst två Pokemon i samlingen.
         if (pokemons.size() < 2) {
             throw new IllegalArgumentException(
                     "Det måste finnas minst två Pokemon för att starta en strid."
             );
         }
 
-        // Streams kontrollerar att det finns minst en annan Pokemon.
-        // anyMatch returnerar true så fort en giltig motståndare hittas.
+        // Stream och anyMatch kontrollerar om minst en annan Pokemon finns.
+        // equals jämför Pokemon utifrån ID.
         boolean hasOpponent = pokemons.stream()
                 .anyMatch(pokemon ->
                         pokemon != null && !pokemon.equals(playerPokemon)
                 );
 
-        // Förhindrar att slumpningen fortsätter om ingen
-        // giltig motståndare finns i samlingen.
         if (!hasOpponent) {
             throw new IllegalArgumentException(
                     "Det finns ingen annan Pokemon att möta."
@@ -67,105 +67,30 @@ public class BattleService {
 
         Pokemon wildPokemon;
 
-        // Slumpar en Pokemon tills den inte är null
-        // och inte har samma ID som spelarens Pokemon.
+        // Slumpar tills en Pokemon med ett annat ID hittas.
         do {
             int index = RANDOM.nextInt(pokemons.size());
             wildPokemon = pokemons.get(index);
         } while (wildPokemon == null || wildPokemon.equals(playerPokemon));
 
-        // Returnerar motståndaren som ska användas i striden.
         return wildPokemon;
     }
 
-    // Utför en stridshandling genom interfacet BattleAction.
-    // Tack vare polymorfism anropas rätt execute-metod
-    // oavsett vilken konkret handling som skickas in.
-    private static ActionResult executeAction(
-            BattleAction action,
-            Pokemon attacker,
-            Pokemon defender
-    ) {
-        return action.execute(attacker, defender);
-    }
-
-    // Hanterar spelarens tur och registrerar använda attacker.
-    private void playerTurn(
-            Pokemon playerPokemon,
-            Pokemon wildPokemon,
-            BattleAction playerAction
-    ) {
-        // Utför den handling som spelaren tidigare valt.
-        ActionResult result = executeAction(
-                playerAction,
-                playerPokemon,
-                wildPokemon
-        );
-
-        // Skickar resultatet till presentationsklassen.
-        // BattleService behöver därför inte skriva ut
-        // attackens detaljer direkt i konsolen.
-        BattlePresentation.showActionResult(
-                playerAction,
-                result,
-                playerPokemon,
-                wildPokemon
-        );
-
-        // Registrerar namnet på spelarens använda attack.
-        // Statistiken kan senare visa vilka attacker som används mest.
-        battleStats.registerAttackUsage(playerAction.label());
-    }
-
-    // Hanterar CPU:ns tur med hjälp av dess valda strategi.
-    private void wildTurn(
-            Pokemon wildPokemon,
-            Pokemon playerPokemon
-    ) {
-        // Hämtar CPU-Pokemonens attacker som BattleAction-objekt.
-        // Listan kan därför skickas till CpuPlayer via interfacet.
-        List<BattleAction> actions =
-                new ArrayList<>(wildPokemon.getAttacks());
-
-        // CpuPlayer delegerar valet till sin CpuStrategy.
-        // Exempelvis kan RandomStrategy välja en slumpmässig attack.
-        BattleAction selectedAction = cpuPlayer.chooseAction(actions);
-
-        // Utför den valda handlingen genom BattleAction.
-        ActionResult result = executeAction(
-                selectedAction,
-                wildPokemon,
-                playerPokemon
-        );
-
-        // Visar vad CPU:n gjorde och resultatet av handlingen.
-        BattlePresentation.showActionResult(
-                selectedAction,
-                result,
-                wildPokemon,
-                playerPokemon
-        );
-    }
-
-    // Startar och hanterar en hel strid tills någon besegras
-    // eller spelaren väljer att fly.
+    // Hanterar en strid tills någon besegras eller spelaren flyr.
     public void startBattle(
             List<Pokemon> pokemons,
             Pokemon playerPokemon,
             Scanner scanner
     ) {
-        // Deklareras utanför try så att motståndaren också
-        // kan få sin hälsa återställd i finally-blocket.
+        // Deklareras utanför try så att HP kan återställas i finally.
         Pokemon wildPokemon = null;
 
         try {
-            // Väljer en slumpmässig giltig motståndare.
             wildPokemon = chooseRandomWildPokemon(
                     pokemons, playerPokemon
             );
 
-            // Kontrollerar att båda Pokemon har attacker.
-            // Det förhindrar att en strid startas utan giltiga handlingar.
+            // Båda deltagarna måste ha minst en attack.
             if (playerPokemon.getAttacks().isEmpty()
                     || wildPokemon.getAttacks().isEmpty()) {
                 throw new IllegalArgumentException(
@@ -173,102 +98,91 @@ public class BattleService {
                 );
             }
 
-            // Skapar ett Battle-objekt som håller reda på
-            // deltagare, turordning och om striden är avslutad.
+            // Battle håller reda på deltagare, turordning och stridens tillstånd.
             Battle battle = new Battle(
                     playerPokemon,
                     wildPokemon
             );
 
-            // Visar vilka Pokemon som ska mötas.
             BattleMenu.showBattleStart(
                     battle.getPlayerPokemon(),
                     battle.getWildPokemon()
             );
 
-            // Striden fortsätter så länge ingen har besegrats
-            // och spelaren inte har flytt.
             while (!battle.isOver()) {
 
-                // Låter spelaren välja en handling från stridsmenyn.
-                // Valet kan vara en attack eller exempelvis flykt.
+                // Spelarens val kan vara en attack eller flykt.
                 BattleAction playerAction = BattleMenu.chooseAction(
                         playerPokemon,
                         scanner
                 );
 
-                // Kontrollerar om handlingen ska avsluta striden.
-                // endsBattle är en metod i BattleAction som olika
-                // handlingar kan implementera på olika sätt.
+                // endsBattle gör att olika handlingar själva kan ange
+                // om de avslutar striden.
                 if (playerAction.endsBattle()) {
 
-                    // Utför handlingen och hämtar dess resultat.
                     ActionResult result = playerAction.execute(
                             playerPokemon,
                             wildPokemon
                     );
 
-                    // Kontrollerar att resultatet verkligen är ett flyktresultat.
+                    // instanceof kontrollerar om resultatet är ett FleeResult.
                     if (result instanceof FleeResult) {
-
-                        // Registrerar flykten i Battle och lämnar stridsloopen.
                         battle.flee();
                         break;
                     }
 
-                    // Skyddar stridslogiken om en avslutande handling
-                    // returnerar ett resultat som inte kan hanteras.
+                    // Skyddar mot avslutande handlingar med oväntade resultat.
                     throw new IllegalStateException(
                             "Handlingen avslutar striden utan ett giltigt resultat."
                     );
                 }
 
-                // Hämtar turordningen utifrån Pokemonens snabbhet.
-                // Om snabbheten är lika får slumpen avgöra.
+                // Snabbheten avgör turordningen, slumpen avgör vid lika snabbhet.
                 Pokemon[] turnOrder = battle.getTurnOrder();
 
-                // Visar vilken Pokemon som ska utföra första handlingen.
                 BattlePresentation.showFirstAttacker(turnOrder[0]);
 
-                // Går igenom båda deltagarna i den bestämda turordningen.
                 for (Pokemon attacker : turnOrder) {
 
-                    // Avbryter om striden redan avslutats.
-                    // Detta förhindrar att den andra Pokemonen
-                    // attackerar efter att någon blivit besegrad.
+                    // Förhindrar att någon attackerar efter att striden avslutats.
                     if (battle.isOver()) {
                         break;
                     }
 
-                    // Avgör om det är spelarens eller CPU:ns tur.
-                    // Själva handlingen utförs i separata metoder.
+                    // == jämför objektreferenser för att avgöra vems tur det är.
                     if (attacker == playerPokemon) {
 
-                        // Visar att spelaren ska utföra sin handling.
                         BattlePresentation.showTurn(playerPokemon, true);
                         BattlePresentation.pause();
 
-                        playerTurn(playerPokemon, wildPokemon, playerAction);
+                        // Låter BattleTurnService utföra spelarens tur.
+                        battleTurnService.playerTurn(
+                                playerPokemon,
+                                wildPokemon,
+                                playerAction
+                        );
 
                     } else {
 
-                        // Visar att CPU:n ska utföra sin handling.
                         BattlePresentation.showTurn(wildPokemon, false);
                         BattlePresentation.pause();
 
-                        wildTurn(wildPokemon, playerPokemon);
+                        // Låter BattleTurnService utföra CPU:ns tur.
+                        battleTurnService.wildTurn(
+                                wildPokemon,
+                                playerPokemon
+                        );
                     }
 
-                    // Visar båda deltagarnas HP efter handlingen.
                     BattleMenu.showBattleHp(playerPokemon, wildPokemon);
                     BattlePresentation.pause();
                 }
 
-                // Visar vilken Pokemon som blev besegrad.
-                // Meddelandet visas bara om striden inte avslutades via flykt.
+                // Visar den besegrade Pokemonen om spelaren inte har flytt.
                 if (battle.isOver() && !battle.hasFled()) {
 
-                    // Väljer den Pokemon som har noll HP.
+                    // Ternary väljer den Pokemon som har noll HP.
                     Pokemon knockedOut = playerPokemon.isKnockedOut()
                             ? playerPokemon
                             : wildPokemon;
@@ -277,8 +191,7 @@ public class BattleService {
                 }
             }
 
-            // Visar stridens slutresultat beroende på
-            // om spelaren flydde eller om någon Pokemon besegrades.
+            // Visar olika slutresultat beroende på om spelaren flydde.
             if (battle.hasFled()) {
                 BattlePresentation.showFlee();
             } else {
@@ -288,21 +201,16 @@ public class BattleService {
                 );
             }
 
-            // Registrerar stridsresultatet och sparar statistiken till JSON.
+            // Registrerar stridens resultat och sparar statistiken.
             saveBattleStatistics(battle, playerPokemon);
 
         } catch (IllegalArgumentException e) {
-
-            // Visar ett begripligt felmeddelande om striden
-            // inte kan startas eller ett ogiltigt värde upptäcks.
             Messages.error(
                     "Ett fel uppstod under striden: " + e.getMessage()
             );
 
         } finally {
-
-            // Återställer båda Pokemonens HP även om
-            // striden avbryts på grund av ett fel.
+            // finally körs även om ett fel inträffar och återställer HP.
             if (playerPokemon != null) {
                 playerPokemon.restoreHealth();
             }
@@ -313,48 +221,37 @@ public class BattleService {
         }
     }
 
-    // Returnerar statistikobjektet som används av stridssystemet.
-    // Spelmenyn kan därmed visa aktuella resultat.
+    // Ger spelmenyn tillgång till den aktuella statistiken.
     public BattleStats getBattleStats() {
         return battleStats;
     }
 
-    // Registrerar hur striden avslutades i statistikobjektet.
+    // Registrerar vinst, förlust eller flykt.
     private void registerBattleResult(
             Battle battle,
             Pokemon playerPokemon
     ) {
-        // Registrerar att spelaren använde denna Pokemon.
         battleStats.registerPokemonUsage(playerPokemon.getId());
 
-        // Uppdaterar rätt statistik beroende på stridens utfall.
         if (battle.hasFled()) {
-
-            // Spelaren flydde och får varken vinst eller förlust.
             battleStats.addFlee();
 
         } else if (battle.playerWon()) {
-
-            // Motståndaren besegrades och spelaren får en vinst.
             battleStats.addWin(playerPokemon.getId());
 
         } else {
-
-            // Spelarens Pokemon besegrades och en förlust registreras.
             battleStats.addLoss(playerPokemon.getId());
         }
     }
 
-    // Samlar registrering och sparande av stridsstatistik på ett ställe.
+    // Registrerar stridsresultatet och sparar statistiken till JSON.
     private void saveBattleStatistics(
             Battle battle,
             Pokemon playerPokemon
     ) {
-        // Uppdaterar statistikobjektet med resultatet från striden.
         registerBattleResult(battle, playerPokemon);
 
-        // Sparar samma statistikobjekt som spelmenyn använder.
-        // Filhanteringen utförs av BattleStatsFileService.
+        // Filhanteringen sköts av BattleStatsFileService.
         BattleStatsFileService.saveStats(battleStats);
     }
 }

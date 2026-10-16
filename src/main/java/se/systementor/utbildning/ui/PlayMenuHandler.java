@@ -1,5 +1,7 @@
 package se.systementor.utbildning.ui;
 
+import se.systementor.utbildning.exception.BattleStatsSaveException;
+
 import se.systementor.utbildning.model.Pokemon;
 import se.systementor.utbildning.service.BattleService;
 
@@ -23,6 +25,10 @@ public class PlayMenuHandler {
             );
 
             battleService.startBattle(pokemons, playerPokemon, scanner);
+
+        } catch (BattleStatsSaveException e) {
+            // Visar ett felmeddelande om statistiken inte kunde sparas.
+            Messages.error(e.getMessage());
 
         } catch (IllegalArgumentException e) {
             Messages.error(e.getMessage());
