@@ -45,24 +45,24 @@ public class PlayMenuHandler {
                 case 1 -> startBattle(pokemons, scanner);
 
                 // Visar det totala antalet strider, vinster, förluster och flykter.
-                case 2 -> BattleMenu.showBattleStats(
+                case 2 -> BattleStatsMenu.showBattleStats(
                         battleService.getBattleStats()
                 );
 
                 // Visar vinster, förluster och vinstprocent per Pokemon.
-                case 3 -> BattleMenu.showPokemonStats(
+                case 3 -> BattleStatsMenu.showPokemonStats(
                         battleService.getBattleStats(),
                         pokemons
                 );
 
                 // Visar vilken Pokemon spelaren har använt flest gånger.
-                case 4 -> BattleMenu.showMostUsedPokemon(
+                case 4 -> BattleStatsMenu.showMostUsedPokemon(
                         battleService.getBattleStats(),
                         pokemons
                 );
 
                 // Visar spelarens attacker sorterade efter antal användningar.
-                case 5 -> BattleMenu.showMostUsedAttack(
+                case 5 -> BattleStatsMenu.showMostUsedAttack(
                         battleService.getBattleStats()
                 );
 
