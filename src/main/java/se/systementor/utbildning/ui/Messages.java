@@ -1,7 +1,9 @@
 package se.systementor.utbildning.ui;
 
+// Hjälpklass för att skriva ut färgade meddelanden.
 public final class Messages {
 
+    // Klassen har bara statiska metoder, så vi behöver inte skapa något objekt.
     private Messages() {
     }
 
